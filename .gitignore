@@ -1,0 +1,7 @@
+.idea
+filesigner*
+
+*.zip
+*.zipx
+*.json
+*.exe
