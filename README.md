@@ -1,85 +1,86 @@
 # filesigner
 
-Ein Programm, um eine einfache Möglichkeit zur Nutzung digitaler Signaturen zu haben.
-Wie Zertifikate, nur besser und einfacher ;-).
+A program to have an easy way to use digital signatures.
+Like certificates, only better and easier ;-).
 
-## Einleitung
+## Introduction
 
-Wir erzeugen Artefakte und legen diese in verschiedenen Systemen ab.
-Zurzeit gibt es keine Möglichkeit, zu überprüfen, ob an den abgelegten Artefakten etwas verändert wurde.
-Es gibt verschiedene Möglichkeiten, eine solche Überprüfung durchzuführen:
+We create artifacts and store them in different systems.
+Currently there is no way to check if anything has been changed in the stored artifacts.
+There are several ways to perform such a check:
 
-- Nutzung von Hash-Werten
-- Nutzung von digitalen Signaturen
+- Use of hash values
+- Use of digital signatures
 
-Hash-Werte sind zwar leicht auszurechnen und zu prüfen, aber sie bieten nur Schutz gegen irrtümliche Änderungen, nicht gegen Angriffe.
-Ein Angreifer, der die Artefakte ändern kann, kann auch die publizierten Hash-Werte ändern.
+Hash values are easy to calculate and verify, but they only provide protection against erroneous changes, not against attacks.
+An attacker who can change the artifacts can also change the published hash values.
 
-Digitale Signaturen bieten einen Schutz vor solchen Angriffen, da der Angreifer für eine Fälschung Zugriff auf den privaten Schlüssel der Signatur haben müsste.
-Sie arbeiten üblicherweise mit Zertifikaten, doch diese sind schwierig handhabbar:
+Digital signatures provide protection against such attacks because the attacker would need to have access to the signature's private key to forge it.
+They usually work with certificates, but these are difficult to handle:
 
-- Der private Schlüssel eines Zertifikats muss unbedingt stark geschützt werden.
-Wird er nicht autorisierten Personen bekannt, können diese Signaturen für manipulierte Artefakte selbst erstellen.
-- Es muss immer überprüft werden, ob das Zertifikat gültig ist und ob es inzwischen zurückgezogen wurde.
-Das ist ausgesprochen mühsam und fehleranfällig.
-- Zertifikate laufen ab und müssen regelmäßig erneuert werden.
-Das bedeutet einen erheblichen organisatorischen Aufwand.
+- It is essential that the private key of a certificate be strongly protected.
+If it becomes known to unauthorized persons, they can create signatures for manipulated artifacts themselves.
+- It is always necessary to check whether the certificate is valid and whether it has been revoked in the meantime.
+This is extremely tedious and error-prone.
+- Certificates expire and must be renewed regularly.
 
-## ACHTUNG
+This means a considerable organizational effort.
 
-Die jetzige Version trägt vorne noch eine `0` in der Versionsnummer.
-Die Schnittstelle kann sich also noch ändern.
-Jede konstruktive Rückmeldung zu diesem Programm ist willkommen.
+## ATTENTION
 
-## Beschreibung
+The current version still has a `0` in the version number.
+So the interface may still change.
+Any constructive feedback on this program is welcome.
 
-Die hier vorliegende Lösung bietet eine digitale Signatur, ohne die Schwierigkeiten, die mit Zertifikaten verbunden sind.
-Artefakte werden signiert.
-Dafür wird ein Schlüsselpaar aus einem privaten und öffentlichen Schlüssel erzeugt.
-Die Signaturen werden mit dem privaten Schlüssel ausgeführt.
-Der öffentliche Schlüssel wird ausgegeben, damit man mit ihm die Signaturen prüfen kann.
-Nach dem Signierungsprozess wird der private Schlüssel gelöscht.
-Er wird nicht gespeichert und kann daher auch nicht gestohlen und von Angreifern missbraucht werden.
-Eine Überprüfung der Signatur ist jedoch weiterhin durch den öffentlichen Schlüssel möglich.
+## Description
 
-Wie kann man sich nun dagegen schützen, dass ein Angreifer sein gefälschtes Artefakt ablegt und die Signatur mit dem passenden Programm erzeugt?
+The solution presented here provides a digital signature without the hassles associated with certificates.
+Artifacts are signed.
+To do this, a key pair is generated from a private and public key.
+The signatures are created with the private key.
+The public key is published so that it can be used to verify the signatures.
+After the signing process, the private key is deleted.
+It is not stored and therefore cannot be stolen and misused by attackers.
+However, it is still possible to verify the signature using the public key.
 
-Bei der Veröffentlichung von Artefakten werden diese und die Signaturdatei abgelegt.
-Der verwendete öffentliche Schlüssel wird den Abnehmern der Artefakte auf einem anderen Weg bekannt gemacht.
-Diese können dadurch immer prüfen, ob die Signaturdatei auch die ist, die vom Veröffentlichungsteam herausgegeben wurde.
+How can you now protect against an attacker dropping his forged artifact and generating the signature with the appropriate program?
 
-Dies wird weiter unten an einem Beispiel dargestellt.
+When artifacts are published, they and the signature file are stored.
+The public key used is made known to the recipients of the artifacts by another means.
+This allows them to always verify that the signature file is the one issued by the publishing team.
 
-## Aufrufe
+This is illustrated below with an example.
 
-### Signierung
+## Calls
 
-Der Aufruf zur Signatur sieht folgendermaßen aus:
+### Signature
+
+The signature call looks like this:
 
 ```
 filesigner sign {contextId} [type] ! {fileList}
 ```
 
-Dabei ist `contextId` ein beliebiger Text, der benutzt wird, um die Signatur von einem Thema abhängig zu machen.
-Man könnte dazu z.B. die GitLab-Pipeline-Nummer oder ein anderes Attribut verwenden, das zur Erstellung des Artefakts passt.
+Where `contextId` is an arbitrary text used to make the signature depend on a topic.
+For example, one could use the GitLab pipeline number or some other attribute that matches the creation of the artifact.
 
-Nach der Kontext-Id kann, aber muss nicht, eine Spezifikation der Signaturmethode erfolgen.
-Das ist entweder `ed25519` oder `ecdsap521`.
-Wenn der Typ nicht angegeben ist, wird `ed25519` benutzt.
+After the context id, there may or may not be a specification of the signature method.
+This is either `ed25519` or `ecdsap521`.
+If the type is not specified, `ed25519` is used.
 
-Danach folgt ein einzelnes Ausrufezeichen (`!`).
-Dies dient dazu die Angabe der `contextId` und ggf. den Signaturtyp logisch und optisch von der Dateiliste zu trennen.
+This is followed by a single exclamation mark (`!`).
+This is used to separate the `contextId` and possibly the signature type logically and visually from the file list.
 
-Danach folgt eine Liste von Dateinamen, die signiert werden sollen.
-Es können dabei Wildcards wie `*` und `?` benutzt werden.
+This is followed by a list of file names that are to be signed.
+Wildcards like `*` and `?` can be used.
 
-Wenn ein Dateiname mit einem `-` beginnt, wird eine Datei mit dem nachfolgenden Namen, bzw. mit einem Namen, der zu dem nachfolgenden Muster passt **nicht** signiert.
-Z.B. schließt eine Angabe von `-*.exe` alle Dateien mit der Endung `.exe` aus.
-Die Datei `signatures.json` wird **immer** ausgeschlossen und kann nicht signiert werden.
-Sie enthält bereits eine Signatur.
-Unter Linux müssen Wildcard-Angaben für den Ausschluss immer in Apostrophen (`'`) eingeschlossen werden.
+If a filename starts with a `-`, a file with the following name, or with a name matching the following pattern, will **not** be signed.
+E.g. a specification of `-*.exe` excludes all files with the extension `.exe`.
+The file `signatures.json` is **always** excluded and cannot be signed.
+It already contains a signature.
+On Linux, wildcard specifications for exclusion must always be enclosed in apostrophes (`'`).
 
-Der Aufruf erzeugt eine Datei mit dem Namen `signatures.json`, die folgendes Format hat:
+The call creates a file named `signatures.json` which has the following format:
 
 ```
 {
@@ -100,28 +101,28 @@ Der Aufruf erzeugt eine Datei mit dem Namen `signatures.json`, die folgendes For
 }
 ```
 
-Es handelt sich um eine `json`-Datei mit den Feldern
+This is a `json` file with the following fields
 
-| Feld             | Bedeutung                                                                                                                                                                                                                                                                                                          |
+| Field             | Meaning                                                                                                                                                                                                                                                                                                          |
 |------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Format`         | Eine Zahl mit der Kennung des Formats.                                                                                                                                                                                                                                                                             |
-| `PublicKey`      | Der verwendete öffentliche Schlüssel in einer speziellen Base32-Kodierung.                                                                                                                                                                                                                                         |
-| `Timestamp`      | Der Zeitpunkt, zu dem die Signatur durchgeführt wurde.                                                                                                                                                                                                                                                             | 
-| `Hostname`       | Der Name der Maschine, auf der die Signatur durchgeführt wurde.                                                                                                                                                                                                                                                    | 
-| `SignatureType`  | Typ der Signatur<br/>          1: [Ed25519](https://en.wikipedia.org/wiki/EdDSA) mit [SHA3-512](https://en.wikipedia.org/wiki/SHA-3)-Hash<br/>2: [EcDsa](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) mit der Kurve [P521](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf) und [SHA3-512](https://en.wikipedia.org/wiki/SHA-3)-Hash | 
-| `FileSignatures` | Die Signaturen der einzelnen Dateien als Schlüssel-Wert-Paare, wobei der Schlüssel der Dateiname ist und der Wert die Signatur in derselben speziellen Base32-Kodierung, wie beim PublicKey.                                                                                                                       |
-| `DataSignature`  | Die Signatur über die einzelnen Teile dieser Datei in der speziellen Base32-Kodierung.                                                                                                                                                                                                                             |
+| `Format`         | A number which is the format identifer |
+| `PublicKey`      | The public key in a special base32 encoding | 
+| `Timestamp`      | The timestamp of the signature | 
+| `Hostname`       | The host name of the machine the signature was created | 
+| `SignatureType`  | Signature type<br/>          1: [Ed25519](https://en.wikipedia.org/wiki/EdDSA) with [SHA3-512](https://en.wikipedia.org/wiki/SHA-3)-Hash<br/>2: [EcDsa](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) with curve [P521](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf) and [SHA3-512](https://en.wikipedia.org/wiki/SHA-3)-Hash | 
+| `FileSignatures` | Signatures of the files as key-value pairs, where the key is the file name and the value is the signature of the file in as special base32 encoding |
+| `DataSignature`  | The signature of all the fields in the file in a special base32 encoding |
 
-In die Signaturen fließen sowohl der Inhalt der Dateien, als auch der Signaturzeitpunkt und der Maschinenname ein.
+The signatures are created with the timestamp and the host name.
 
-Die Rückgabe-Codes können sein:
+The return code is:
 
-| Code | Bedeutung                     |
+| Code | Meaning                      |
 |------|-------------------------------|
-| `0`  | Verarbeitung erfolgreich.     |
-| `1`  | Fehler in der Befehlszeile.   |
-| `2`  | Warnung bei der Verarbeitung. |
-| `3`  | Fehler bei der Verarbeitung.  |
+| `0`  | Successful processing.     |
+| `1`  | Error in the command line.   |
+| `2`  | Warning while processing. |
+| `3`  | Error while processing.  |
 
 ### Verifizierung
 
