@@ -15,7 +15,7 @@ func DecodeFromString(s string) ([]byte, error) {
 // DecodeKey decodes a key
 func DecodeKey(s string) ([]byte, error) {
 	sl := len(s)
-	result := make([]byte, sl-(sl-1)/5)
+	result := make([]byte, sl)
 
 	di := 0
 	t := 0
@@ -24,13 +24,16 @@ func DecodeKey(s string) ([]byte, error) {
 		t = strings.IndexByte(s, keySeparator)
 		if t < 0 {
 			copy(result[di:], s)
+			di += sl
 			break
 		}
 
 		copy(result[di:], s[:t])
 		di += t
-		s = s[t+1:]
+		t++
+		s = s[t:]
+		sl -= t
 	}
 
-	return encKey.DecodeString(string(result))
+	return encKey.DecodeString(string(result[:di]))
 }

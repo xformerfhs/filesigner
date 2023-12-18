@@ -8,6 +8,7 @@ import (
 // ******** Private constants ********
 
 const keySeparator = '-'
+const keyGroupSize = 4
 
 // ******** Private variables ********
 

@@ -21,8 +21,6 @@ func EncodeToBytes(b []byte) []byte {
 	return result
 }
 
-const keyGroupSize = 4
-
 // EncodeKey encodes a key with groups of letters and numbers.
 func EncodeKey(k []byte) string {
 	encodedKey := encKey.EncodeToString(k)
