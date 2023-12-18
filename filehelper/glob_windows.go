@@ -3,6 +3,7 @@
 package filehelper
 
 import (
+	"errors"
 	"golang.org/x/sys/windows"
 )
 
@@ -27,7 +28,7 @@ func SensibleGlob(pattern string) ([]string, error) {
 	// See if there is a match
 	findHandle, err := windows.FindFirstFile(patternUTF16Ptr, &findData)
 	if err != nil {
-		if err == windows.ERROR_FILE_NOT_FOUND {
+		if errors.Is(err, windows.ERROR_FILE_NOT_FOUND) {
 			return result, nil
 		} else {
 			return result, err
