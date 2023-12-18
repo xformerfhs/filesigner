@@ -45,13 +45,11 @@ func SensibleGlob(pattern string) ([]string, error) {
 	for {
 		err = windows.FindNextFile(findHandle, &findData)
 
-		switch err {
-		case nil:
+		switch {
+		case err == nil:
 			result = appendFileNameIfNoDir(result, findData)
-
-		case windows.ERROR_NO_MORE_FILES:
+		case errors.Is(err, windows.ERROR_NO_MORE_FILES):
 			return result, nil
-
 		default:
 			return result, err
 		}
