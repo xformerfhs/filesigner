@@ -1,9 +1,5 @@
 package base32encoding
 
-import (
-	"strings"
-)
-
 // ******** Public functions ********
 
 // EncodeToString encodes a byte slice as a string.
@@ -30,30 +26,28 @@ const keyGroupSize = 4
 // EncodeKey encodes a key with groups of letters and numbers.
 func EncodeKey(k []byte) string {
 	encodedKey := encKey.EncodeToString(k)
-
-	var sb strings.Builder
-
-	f := 0
-	t := keyGroupSize
 	l := len(encodedKey)
-
-	sb.Grow(l + l/keyGroupSize)
-
-	for {
-		if f > 0 {
-			sb.WriteByte(keySeparator)
-		}
-
-		if t < l {
-			sb.WriteString(encodedKey[f:t])
-		} else {
-			sb.WriteString(encodedKey[f:l])
-			break
-		}
-
-		f = t
-		t += keyGroupSize
+	if l == 0 {
+		return ""
 	}
 
-	return sb.String()
+	di := 0
+
+	result := make([]byte, l+(l-1)/keyGroupSize+1)
+	for l > keyGroupSize {
+		result[di] = keySeparator
+		di++
+
+		copy(result[di:], encodedKey[:keyGroupSize])
+
+		encodedKey = encodedKey[keyGroupSize:]
+		di += keyGroupSize
+		l -= keyGroupSize
+	}
+
+	result[di] = keySeparator
+	di++
+	copy(result[di:], encodedKey[:])
+
+	return string(result[1:])
 }

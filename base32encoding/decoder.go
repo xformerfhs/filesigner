@@ -14,25 +14,23 @@ func DecodeFromString(s string) ([]byte, error) {
 
 // DecodeKey decodes a key
 func DecodeKey(s string) ([]byte, error) {
-	var sb strings.Builder
 	sl := len(s)
-	if sl > sb.Cap() {
-		sb.Grow(sl - sb.Cap())
-	}
+	result := make([]byte, sl-(sl-1)/5)
 
-	f := 0
+	di := 0
 	t := 0
 
 	for {
 		t = strings.IndexByte(s, keySeparator)
 		if t < 0 {
-			sb.WriteString(s)
+			copy(result[di:], s)
 			break
 		}
 
-		sb.WriteString(s[f:t])
+		copy(result[di:], s[:t])
+		di += t
 		s = s[t+1:]
 	}
 
-	return encKey.DecodeString(sb.String())
+	return encKey.DecodeString(string(result))
 }
