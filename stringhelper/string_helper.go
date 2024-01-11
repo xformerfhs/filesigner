@@ -2,7 +2,7 @@ package stringhelper
 
 import "unsafe"
 
-// StringBytes returns a byte slice that points to the bytes of the supplied thing.
+// StringBytes returns a byte slice that points to the bytes of the supplied string.
 // No bytes are copied.
 func StringBytes(s string) []byte {
 	// This is a streamlined version of
