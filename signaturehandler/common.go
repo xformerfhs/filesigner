@@ -84,7 +84,7 @@ func getHashValueOfSignatureData(signatureData *SignatureResult, contextId strin
 	tempSlice[0] = signatureData.SignatureType
 	hasher.Write(tempSlice)
 
-	sortedFileNames := maphelper.GetSortedKeys(signatureData.FileSignatures)
+	sortedFileNames := maphelper.SortedKeys(signatureData.FileSignatures)
 	for _, fileName := range sortedFileNames {
 		hashPosition(hasher, position)
 		hasher.Write([]byte(fileName))

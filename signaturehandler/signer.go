@@ -13,7 +13,7 @@ import (
 // SignFileHashes creates signatures for file hashes.
 func SignFileHashes(hashSigner hashsigner.HashSigner,
 	hashResultList map[string]*filehashing.HashResult) (map[string]string, error) {
-	filePathList := maphelper.GetSortedKeys(hashResultList)
+	filePathList := maphelper.SortedKeys(hashResultList)
 
 	return makeHashSignatures(hashSigner, filePathList, hashResultList)
 }

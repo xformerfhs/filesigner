@@ -17,7 +17,7 @@ func VerifyFileHashes(hasherVerifier hashsigner.HashVerifier, result *SignatureR
 	successCollection := make([]string, 0, len(fileHashList))
 	errCollection := make([]error, 0, len(fileHashList))
 
-	filePathList := maphelper.GetSortedKeys(result.FileSignatures)
+	filePathList := maphelper.SortedKeys(result.FileSignatures)
 
 	var signatureString string
 	var signatureValue []byte

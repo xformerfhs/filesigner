@@ -27,7 +27,7 @@ func printErrorList(errorList []error) {
 func existHashErrors(hashResults map[string]*filehashing.HashResult) bool {
 	result := false
 
-	keyList := maphelper.GetSortedKeys(hashResults)
+	keyList := maphelper.SortedKeys(hashResults)
 
 	var hr *filehashing.HashResult
 	for _, filePath := range keyList {

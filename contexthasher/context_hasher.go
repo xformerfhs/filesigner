@@ -1,6 +1,7 @@
 package contexthasher
 
 import (
+	"filesigner/stringhelper"
 	"hash"
 )
 
@@ -23,9 +24,8 @@ var separator = []byte{0x33, 0x17, 0xd1, 0xdb, 0xc2, 0xf1}
 func NewContextHasher(hashFunc hash.Hash, contextId string) hash.Hash {
 	result := &ContextHasher{hasher: hashFunc}
 
-	// This makes a copy of the bytes of the string
-	result.context = []byte(contextId)
-
+	// context points to the bytes of the string. It is not a copy.
+	result.context = stringhelper.StringBytes(contextId)
 	result.Reset()
 
 	return result
