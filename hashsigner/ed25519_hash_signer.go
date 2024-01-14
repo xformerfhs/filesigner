@@ -3,7 +3,6 @@ package hashsigner
 import (
 	"crypto"
 	"crypto/ed25519"
-	"crypto/rand"
 	"filesigner/slicehelper"
 )
 
@@ -78,7 +77,7 @@ func (hs *Ed25519HashSigner) checkValidity() error {
 // doSignHash signs a supplied hash value.
 func (hs *Ed25519HashSigner) doSignHash(hashValue []byte) ([]byte, error) {
 	return hs.signer.Sign(
-		rand.Reader,
+		nil,
 		hashValue,
 		hs.options,
 	)
