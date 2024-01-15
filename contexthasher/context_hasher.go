@@ -25,7 +25,7 @@ func NewContextHasher(hashFunc hash.Hash, contextId string) hash.Hash {
 	result := &ContextHasher{hasher: hashFunc}
 
 	// context points to the bytes of the string. It is not a copy.
-	result.context = stringhelper.StringBytes(contextId)
+	result.context = stringhelper.StringBytesUnsafe(contextId)
 	result.Reset()
 
 	return result
