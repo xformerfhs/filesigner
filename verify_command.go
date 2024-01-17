@@ -122,7 +122,7 @@ func getHashVerifier(signatureData *signaturehandler.SignatureResult) (hashsigne
 		hashVerifier, err = hashsigner.NewEc521HashVerifier(publicKeyBytes)
 	}
 	if err != nil {
-		return nil, "", fmt.Errorf("Could not create hash-verifier: %w", err)
+		return nil, "", fmt.Errorf("Could not create hash verifier: %w", err)
 	}
 
 	return hashVerifier, getPublicKeyId(publicKeyBytes), nil
