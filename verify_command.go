@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 )
 
+// ******** Private constants ********
+
 const invalidType byte = 255
 
 // ******** Private functions ********
@@ -35,23 +37,27 @@ func doVerification(contextId string) int {
 	var hashVerifier hashsigner.HashVerifier
 	var publicKeyId string
 	hashVerifier, publicKeyId, err = getHashVerifier(signatureData)
+	if err != nil {
+		logger.PrintError(53, err.Error())
+		return rcProcessError
+	}
 
 	var ok bool
 	ok, err = signatureData.Verify(hashVerifier, contextId)
 	if err == nil {
 		if !ok {
-			logger.PrintError(53, "Signature file has been tampered with or wrong context id")
+			logger.PrintError(54, "Signature file has been tampered with or wrong context id")
 			return rcProcessError
 		}
 	} else {
-		logger.PrintErrorf(54, "Error verifying signature file data signature: %v", err)
+		logger.PrintErrorf(55, "Error verifying signature file data signature: %v", err)
 		return rcProcessError
 	}
 
-	logger.PrintInfof(55, "Context id         : %s", contextId)
-	logger.PrintInfof(56, "Public key id      : %s", publicKeyId)
-	logger.PrintInfof(57, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(58, "Signature host name: %s", signatureData.Hostname)
+	logger.PrintInfof(56, "Context id         : %s", contextId)
+	logger.PrintInfof(57, "Public key id      : %s", publicKeyId)
+	logger.PrintInfof(58, "Signature timestamp: %s", signatureData.Timestamp)
+	logger.PrintInfof(59, "Signature host name: %s", signatureData.Hostname)
 
 	successCount, errorCount, rc := verifyFiles(contextId, signatureData, hashVerifier)
 
@@ -60,13 +66,13 @@ func doVerification(contextId string) int {
 
 	switch rc {
 	case rcOK:
-		logger.PrintInfof(59, "Verification of %d file%s successful", successCount, successEnding)
+		logger.PrintInfof(60, "Verification of %d file%s successful", successCount, successEnding)
 
 	case rcProcessWarning:
-		logger.PrintWarningf(59, "Verification of %d file%s successful and warnings present", successCount, successEnding)
+		logger.PrintWarningf(61, "Verification of %d file%s successful and warnings present", successCount, successEnding)
 
 	case rcProcessError:
-		logger.PrintErrorf(59, "Verification of %d file%s successful and %d file%s unsuccessful", successCount, successEnding, errorCount, errorEnding)
+		logger.PrintErrorf(62, "Verification of %d file%s successful and %d file%s unsuccessful", successCount, successEnding, errorCount, errorEnding)
 	}
 
 	return rc
@@ -78,7 +84,7 @@ func verifyFiles(contextId string,
 	filePaths, rc := getExistingFiles(maps.Keys(signatureData.FileSignatures))
 
 	if len(filePaths) == 0 {
-		logger.PrintWarning(60, "No files from signature file present")
+		logger.PrintWarning(63, "No files from signature file present")
 		return 0, 0, rcProcessWarning
 	}
 
@@ -168,11 +174,11 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 	for _, fp := range filePaths {
 		fi, err := os.Stat(fp)
 		if err != nil {
-			logger.PrintWarningf(67, "File '%s' from signature file does not exist", fp)
+			logger.PrintWarningf(64, "'%s' from signature file does not exist", fp)
 			rc = rcProcessWarning
 		} else {
 			if fi.IsDir() {
-				logger.PrintWarningf(68, "File '%s' from signature file is a directory", fp)
+				logger.PrintWarningf(65, "'%s' from signature file is a directory", fp)
 				rc = rcProcessWarning
 			} else {
 				result = append(result, filepath.FromSlash(fp))
