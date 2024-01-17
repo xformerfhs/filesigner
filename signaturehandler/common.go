@@ -5,6 +5,7 @@ import (
 	"filesigner/contexthasher"
 	"filesigner/hashsigner"
 	"filesigner/maphelper"
+	"filesigner/stringhelper"
 	"golang.org/x/crypto/sha3"
 	"hash"
 )
@@ -87,10 +88,10 @@ func getHashValueOfSignatureData(signatureData *SignatureResult, contextId strin
 	sortedFileNames := maphelper.SortedKeys(signatureData.FileSignatures)
 	for _, fileName := range sortedFileNames {
 		hashPosition(hasher, position)
-		hasher.Write([]byte(fileName))
+		hasher.Write(stringhelper.UnsafeStringBytes(fileName))
 
 		hashPosition(hasher, position)
-		hasher.Write([]byte(signatureData.FileSignatures[fileName]))
+		hasher.Write(stringhelper.UnsafeStringBytes(signatureData.FileSignatures[fileName]))
 	}
 
 	return hasher.Sum(nil)

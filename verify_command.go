@@ -8,10 +8,13 @@ import (
 	"filesigner/logger"
 	"filesigner/signaturehandler"
 	"filesigner/texthelper"
+	"fmt"
 	"golang.org/x/exp/maps"
 	"os"
 	"path/filepath"
 )
+
+const invalidType byte = 255
 
 // ******** Private functions ********
 
@@ -23,71 +26,68 @@ func doVerification(contextId string) int {
 		return rcProcessError
 	}
 
-	if signatureData.Format != signaturehandler.MaxFormatId {
-		logger.PrintErrorf(52, "Invalid signature format id: %d", signatureData.Format)
-		return rcProcessError
-	}
-	if signatureData.SignatureType != signaturehandler.SignatureTypeEd25519 &&
-		signatureData.SignatureType != signaturehandler.SignatureTypeEcDsaP521 {
-		logger.PrintErrorf(53, "Invalid signature type: %d", signatureData.SignatureType)
-		return rcProcessError
-	}
-
-	filePaths, rc := getExistingFiles(maps.Keys(signatureData.FileSignatures))
-
-	if len(filePaths) == 0 {
-		logger.PrintWarning(54, "No files from signature file present")
-		return rcProcessWarning
-	}
-
-	var publicKeyBytes []byte
-	publicKeyBytes, err = base32encoding.DecodeFromString(signatureData.PublicKey)
+	err = checkSignatureForm(signatureData)
 	if err != nil {
-		logger.PrintErrorf(55, "Could not convert public key to bytes: %v", err)
-		return rcProcessError
-	}
-
-	hashList := filehashing.GetFileHashes(filePaths, contextId)
-	if existHashErrors(hashList) {
+		logger.PrintErrorf(52, "Malformed signature file: %v", err)
 		return rcProcessError
 	}
 
 	var hashVerifier hashsigner.HashVerifier
-	if signatureData.SignatureType == signaturehandler.SignatureTypeEd25519 {
-		hashVerifier, err = hashsigner.NewEd25519HashVerifier(publicKeyBytes)
-	} else {
-		hashVerifier, err = hashsigner.NewEc521HashVerifier(publicKeyBytes)
-	}
-	if err != nil {
-		logger.PrintErrorf(56, "Could not create hash-verifier: %v", err)
-		return rcProcessError
-	}
-
-	var publicKeyHash []byte
-	publicKeyHash = getKeyHash(publicKeyBytes)
-	if err != nil {
-		logger.PrintErrorf(57, "Could not get public key hash: %v", err)
-		return rcProcessError
-	}
-
-	logger.PrintInfof(58, "Context id         : %s", contextId)
-	logger.PrintInfof(59, "Public key id      : %s", base32encoding.EncodeKey(publicKeyHash))
-	logger.PrintInfof(60, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(61, "Signature host name: %s", signatureData.Hostname)
+	var publicKeyId string
+	hashVerifier, publicKeyId, err = getHashVerifier(signatureData)
 
 	var ok bool
 	ok, err = signatureData.Verify(hashVerifier, contextId)
 	if err == nil {
 		if !ok {
-			logger.PrintError(62, "Signature file has been tampered with or wrong context id")
+			logger.PrintError(53, "Signature file has been tampered with or wrong context id")
 			return rcProcessError
 		}
 	} else {
-		logger.PrintErrorf(63, "Error verifying signature file data signature: %v", err)
+		logger.PrintErrorf(54, "Error verifying signature file data signature: %v", err)
 		return rcProcessError
 	}
 
-	successList, errorList := signaturehandler.VerifyFileHashes(hashVerifier, signatureData, hashList)
+	logger.PrintInfof(55, "Context id         : %s", contextId)
+	logger.PrintInfof(56, "Public key id      : %s", publicKeyId)
+	logger.PrintInfof(57, "Signature timestamp: %s", signatureData.Timestamp)
+	logger.PrintInfof(58, "Signature host name: %s", signatureData.Hostname)
+
+	successCount, errorCount, rc := verifyFiles(contextId, signatureData, hashVerifier)
+
+	successEnding := texthelper.GetCountEnding(successCount)
+	errorEnding := texthelper.GetCountEnding(errorCount)
+
+	switch rc {
+	case rcOK:
+		logger.PrintInfof(59, "Verification of %d file%s successful", successCount, successEnding)
+
+	case rcProcessWarning:
+		logger.PrintWarningf(59, "Verification of %d file%s successful and warnings present", successCount, successEnding)
+
+	case rcProcessError:
+		logger.PrintErrorf(59, "Verification of %d file%s successful and %d file%s unsuccessful", successCount, successEnding, errorCount, errorEnding)
+	}
+
+	return rc
+}
+
+func verifyFiles(contextId string,
+	signatureData *signaturehandler.SignatureResult,
+	hashVerifier hashsigner.HashVerifier) (int, int, int) {
+	filePaths, rc := getExistingFiles(maps.Keys(signatureData.FileSignatures))
+
+	if len(filePaths) == 0 {
+		logger.PrintWarning(60, "No files from signature file present")
+		return 0, 0, rcProcessWarning
+	}
+
+	hashList := filehashing.GetFileHashes(filePaths, contextId)
+	if existHashErrors(hashList) {
+		return 0, 0, rcProcessError
+	}
+
+	successList, errorList := signaturehandler.VerifyFileHashes(hashVerifier, signatureData.FileSignatures, hashList)
 
 	successCount := len(successList)
 	if successCount > 0 {
@@ -100,26 +100,56 @@ func doVerification(contextId string) int {
 		rc = rcProcessError
 	}
 
-	successEnding := texthelper.GetCountEnding(successCount)
-	errorEnding := texthelper.GetCountEnding(errorCount)
+	return successCount, errorCount, rc
+}
 
-	switch rc {
-	case rcOK:
-		logger.PrintInfof(64, "Verification of %d file%s successful", successCount, successEnding)
-
-	case rcProcessWarning:
-		logger.PrintWarningf(65, "Verification of %d file%s successful and warnings present", successCount, successEnding)
-
-	case rcProcessError:
-		logger.PrintErrorf(66, "Verification of %d file%s successful and %d file%s unsuccessful", successCount, successEnding, errorCount, errorEnding)
+func getHashVerifier(signatureData *signaturehandler.SignatureResult) (hashsigner.HashVerifier, string, error) {
+	publicKeyBytes, err := base32encoding.DecodeFromString(signatureData.PublicKey)
+	if err != nil {
+		return nil, "", fmt.Errorf("Could not convert public key to bytes: %w", err)
 	}
 
-	return rc
+	var hashVerifier hashsigner.HashVerifier
+	if signatureData.SignatureType == signaturehandler.SignatureTypeEd25519 {
+		hashVerifier, err = hashsigner.NewEd25519HashVerifier(publicKeyBytes)
+	} else {
+		hashVerifier, err = hashsigner.NewEc521HashVerifier(publicKeyBytes)
+	}
+	if err != nil {
+		return nil, "", fmt.Errorf("Could not create hash-verifier: %w", err)
+	}
+
+	return hashVerifier, getPublicKeyId(publicKeyBytes), nil
+}
+
+func getPublicKeyId(publicKeyBytes []byte) string {
+	var publicKeyHash []byte
+	publicKeyHash = getKeyHash(publicKeyBytes)
+
+	return base32encoding.EncodeKey(publicKeyHash)
+}
+
+func checkSignatureForm(signatureData *signaturehandler.SignatureResult) error {
+	err := checkMissingInformation(signatureData)
+	if err != nil {
+		return err
+	}
+
+	if signatureData.Format != signaturehandler.MaxFormatId {
+		return fmt.Errorf("Invalid signature format id: %d", signatureData.Format)
+	}
+
+	if signatureData.SignatureType != signaturehandler.SignatureTypeEd25519 &&
+		signatureData.SignatureType != signaturehandler.SignatureTypeEcDsaP521 {
+		return fmt.Errorf("Invalid signature type: %d", signatureData.SignatureType)
+	}
+
+	return nil
 }
 
 // getSignatureData reads the signature data from a file and returns the data in a SignatureResult structure.
 func getSignatureData(filePath string) (*signaturehandler.SignatureResult, error) {
-	result := &signaturehandler.SignatureResult{}
+	result := &signaturehandler.SignatureResult{Format: invalidType, SignatureType: invalidType}
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -151,4 +181,34 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 	}
 
 	return result, rc
+}
+
+// checkMissingInformation checks if any required signature result data is missing.
+func checkMissingInformation(signatureData *signaturehandler.SignatureResult) error {
+	if len(signatureData.DataSignature) == 0 {
+		return makeMissingFieldError("DataSignature")
+	}
+	if signatureData.FileSignatures == nil {
+		return makeMissingFieldError("FileSignatures")
+	}
+	if signatureData.Format == invalidType {
+		return makeMissingFieldError("Format")
+	}
+	if len(signatureData.Hostname) == 0 {
+		return makeMissingFieldError("Hostname")
+	}
+	if len(signatureData.PublicKey) == 0 {
+		return makeMissingFieldError("PublicKey")
+	}
+	if signatureData.SignatureType == invalidType {
+		return makeMissingFieldError("SignatureType")
+	}
+	if len(signatureData.Timestamp) == 0 {
+		return makeMissingFieldError("Timestamp")
+	}
+	return nil
+}
+
+func makeMissingFieldError(fieldName string) error {
+	return fmt.Errorf("Field '%s' is missing from signature file", fieldName)
 }

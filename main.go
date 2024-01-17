@@ -48,7 +48,7 @@ const argumentSeparator = "!"
 // Program information
 
 // myVersion contains the program version.
-const myVersion = "0.13.4"
+const myVersion = "0.14.0"
 
 // myName contains the program name.
 var myName string
