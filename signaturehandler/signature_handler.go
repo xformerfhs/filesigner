@@ -74,7 +74,7 @@ func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, context
 func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []byte) []byte {
 	hasher := contexthasher.NewContextHasher(sha3.New512(), contextBytes)
 
-	position, _ := bytecounter.NewByteSliceCounterForCount(uint(len(signatureData.FileSignatures) + 5))
+	position, _ := bytecounter.NewByteSliceCounterForCount(uint((len(signatureData.FileSignatures) << 1) + 5))
 	tempSlice := make([]byte, 1)
 
 	hashPosition(hasher, position)

@@ -2,10 +2,16 @@ package signaturefile
 
 import (
 	"encoding/json"
+	"errors"
+	"filesigner/filehelper"
 	"filesigner/signaturehandler"
 	"fmt"
 	"os"
 )
+
+// ******** Private constants ********
+
+const maxFileSize = 10_000_000
 
 // ******** Public functions ********
 
@@ -25,7 +31,13 @@ func WriteSignatureFile(filePath string, signatureData *signaturehandler.Signatu
 
 // ReadSignatureFile reads a signature file and returns the signature data.
 func ReadSignatureFile(filePath string) (*signaturehandler.SignatureData, error) {
-	result, err := getSignatureData(filePath)
+	err := checkFileSize(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var result *signaturehandler.SignatureData
+	result, err = getSignatureData(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +51,20 @@ func ReadSignatureFile(filePath string) (*signaturehandler.SignatureData, error)
 }
 
 // ******** Private functions ********
+
+// checkFileSize checks if the size of the signature file is within the allowed boundaries.
+func checkFileSize(filePath string) error {
+	fileSize, err := filehelper.FileSize(filePath)
+	if err != nil {
+		return err
+	}
+
+	if fileSize > maxFileSize {
+		return errors.New("Signature file is too large.")
+	}
+
+	return nil
+}
 
 // getSignatureData reads the signature data from a file and returns the data in a SignatureData structure.
 func getSignatureData(filePath string) (*signaturehandler.SignatureData, error) {

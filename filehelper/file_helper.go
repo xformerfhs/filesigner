@@ -21,3 +21,13 @@ func CloseFile(file *os.File) {
 func GetRealBaseName(filePath string) string {
 	return strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 }
+
+// FileSize returns the size of the named file.
+func FileSize(filePath string) (int64, error) {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	return fi.Size(), nil
+}
