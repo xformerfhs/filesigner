@@ -1,8 +1,8 @@
 package numberhelper
 
-func ByteCountForUint64(number uint64) uint {
+func ByteCountForUint64(number uint64) byte {
 	border := uint64(0x00ffffffffffffff)
-	byteLen := uint(7)
+	byteLen := byte(7)
 	for {
 		if number > border {
 			break
@@ -14,22 +14,22 @@ func ByteCountForUint64(number uint64) uint {
 	return byteLen + 1
 }
 
-func ByteCountForUint32(number uint32) uint {
+func ByteCountForUint32(number uint32) byte {
 	return ByteCountForUint64(uint64(number))
 }
 
-func ByteCountForUint(number uint) uint {
+func ByteCountForUint(number uint) byte {
 	return ByteCountForUint64(uint64(number))
 }
 
-func ByteCountForInt64(number int64) uint {
+func ByteCountForInt64(number int64) byte {
 	return ByteCountForUint64(uint64(number))
 }
 
-func ByteCountForInt32(number int32) uint {
+func ByteCountForInt32(number int32) byte {
 	return ByteCountForUint64(uint64(number))
 }
 
-func ByteCountForInt(number int) uint {
+func ByteCountForInt(number int) byte {
 	return ByteCountForUint64(uint64(number))
 }

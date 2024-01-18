@@ -12,7 +12,7 @@ type ByteSliceCounter struct {
 	Counter []byte
 }
 
-func NewByteSliceCounter(length uint) (*ByteSliceCounter, error) {
+func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
 	if length == 0 {
 		return nil, errors.New("Byte counter length must not be 0")
 	}
@@ -30,7 +30,7 @@ func NewByteSliceCounterForCount(count uint) (*ByteSliceCounter, error) {
 
 func (bc *ByteSliceCounter) Inc() {
 	counter := bc.Counter
-	for i := len(counter) - 1; i >= 0; i++ {
+	for i := len(counter) - 1; i >= 0; i-- {
 		a := counter[i]
 		a++
 		counter[i] = a
@@ -42,7 +42,7 @@ func (bc *ByteSliceCounter) Inc() {
 
 func (bc *ByteSliceCounter) Dec() {
 	counter := bc.Counter
-	for i := len(counter) - 1; i >= 0; i++ {
+	for i := len(counter) - 1; i >= 0; i-- {
 		a := counter[i]
 		a--
 		counter[i] = a
