@@ -48,7 +48,7 @@ const argumentSeparator = "!"
 // Program information
 
 // myVersion contains the program version.
-const myVersion = "0.14.0"
+const myVersion = "0.15.0"
 
 // myName contains the program name.
 var myName string
@@ -198,6 +198,6 @@ func printUsageText() {
 	_, _ = fmt.Println("                    Names prefixed by '-' are excluded from signatures")
 	_, _ = fmt.Printf("\n   %s verify {contextId}\n", myName)
 	_, _ = fmt.Printf("      verify: Verify files with signatures in file '%s'\n", signatureFileName)
-	_, _ = fmt.Println("         contextId: Arbitrary string used as a salt")
+	_, _ = fmt.Println("         contextId: Arbitrary string used as a domain separator")
 	_, _ = fmt.Println()
 }

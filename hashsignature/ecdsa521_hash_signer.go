@@ -1,4 +1,4 @@
-package hashsigner
+package hashsignature
 
 import (
 	"crypto/ecdsa"

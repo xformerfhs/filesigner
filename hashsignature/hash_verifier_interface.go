@@ -1,4 +1,4 @@
-package hashsigner
+package hashsignature
 
 // HashVerifier is the interface that each HashVerifier has to use.
 type HashVerifier interface {

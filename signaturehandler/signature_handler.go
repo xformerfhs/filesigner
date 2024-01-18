@@ -2,8 +2,9 @@ package signaturehandler
 
 import (
 	"filesigner/base32encoding"
+	"filesigner/bytecounter"
 	"filesigner/contexthasher"
-	"filesigner/hashsigner"
+	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"filesigner/stringhelper"
 	"golang.org/x/crypto/sha3"
@@ -44,8 +45,8 @@ const (
 // ******** Public type functions ********
 
 // Sign adds the data signature to a SignatureData
-func (sd *SignatureData) Sign(hashSigner hashsigner.HashSigner, contextId string) error {
-	hashValue := getHashValueOfSignatureData(sd, contextId)
+func (sd *SignatureData) Sign(hashSigner hashsignature.HashSigner, contextId string) error {
+	hashValue := getHashValueOfSignatureData(sd, stringhelper.UnsafeStringBytes(contextId))
 	signatureValue, err := hashSigner.SignHash(hashValue)
 	if err != nil {
 		return err
@@ -57,23 +58,23 @@ func (sd *SignatureData) Sign(hashSigner hashsigner.HashSigner, contextId string
 }
 
 // Verify verifies the data signature of a SignatureData
-func (sd *SignatureData) Verify(hashVerifier hashsigner.HashVerifier, contextId string) (bool, error) {
+func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, contextId string) (bool, error) {
 	dataSignature, err := base32encoding.DecodeFromString(sd.DataSignature)
 	if err != nil {
 		return false, err
 	}
 
-	hashValue := getHashValueOfSignatureData(sd, contextId)
+	hashValue := getHashValueOfSignatureData(sd, stringhelper.UnsafeStringBytes(contextId))
 	return hashVerifier.VerifyHash(hashValue, dataSignature)
 }
 
 // ******** Private functions ********
 
 // getHashValueOfSignatureData calculates the hash value of a SignatureData
-func getHashValueOfSignatureData(signatureData *SignatureData, contextId string) []byte {
-	hasher := contexthasher.NewContextHasher(sha3.New512(), contextId)
+func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []byte) []byte {
+	hasher := contexthasher.NewContextHasher(sha3.New512(), contextBytes)
 
-	position := make([]byte, 1)
+	position, _ := bytecounter.NewByteSliceCounterForCount(uint(len(signatureData.FileSignatures) + 5))
 	tempSlice := make([]byte, 1)
 
 	hashPosition(hasher, position)
@@ -81,13 +82,13 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextId string)
 	hasher.Write(tempSlice)
 
 	hashPosition(hasher, position)
-	hasher.Write([]byte(signatureData.PublicKey))
+	hasher.Write(stringhelper.UnsafeStringBytes(signatureData.PublicKey))
 
 	hashPosition(hasher, position)
-	hasher.Write([]byte(signatureData.Timestamp))
+	hasher.Write(stringhelper.UnsafeStringBytes(signatureData.Timestamp))
 
 	hashPosition(hasher, position)
-	hasher.Write([]byte(signatureData.Hostname))
+	hasher.Write(stringhelper.UnsafeStringBytes(signatureData.Hostname))
 
 	hashPosition(hasher, position)
 	tempSlice[0] = byte(signatureData.SignatureType)
@@ -106,7 +107,7 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextId string)
 }
 
 // hashPosition writes the position into the hasher
-func hashPosition(hasher hash.Hash, position []byte) {
-	position[0]++
-	hasher.Write(position)
+func hashPosition(hasher hash.Hash, position *bytecounter.ByteSliceCounter) {
+	position.Inc()
+	hasher.Write(position.Counter)
 }

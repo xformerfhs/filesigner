@@ -1,7 +1,7 @@
 package main
 
 import (
-	"filesigner/filehashing"
+	"filesigner/filehasher"
 	"filesigner/logger"
 	"filesigner/maphelper"
 	"sort"
@@ -24,12 +24,12 @@ func printErrorList(errorList []error) {
 }
 
 // existHashErrors checks if hash errors exist and prints them.
-func existHashErrors(hashResults map[string]*filehashing.HashResult) bool {
+func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 	result := false
 
 	keyList := maphelper.SortedKeys(hashResults)
 
-	var hr *filehashing.HashResult
+	var hr *filehasher.HashResult
 	for _, filePath := range keyList {
 		hr = hashResults[filePath]
 		if hr.Err != nil {

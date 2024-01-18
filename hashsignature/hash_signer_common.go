@@ -1,3 +1,3 @@
-package hashsigner
+package hashsignature
 
 const fileSignerContext = "fIlEsIgNeR"

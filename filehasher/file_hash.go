@@ -1,4 +1,4 @@
-package filehashing
+package filehasher
 
 import (
 	"filesigner/contexthasher"
@@ -17,9 +17,9 @@ type FileHasher struct {
 
 // ******** Creation functions ********
 
-// NewHasher Create new file hasher structure.
-func NewHasher(contextId string) (*FileHasher, error) {
-	hasher := contexthasher.NewContextHasher(sha3.New512(), contextId)
+// NewFileHasher Create new file hasher structure.
+func NewFileHasher(contextBytes []byte) (*FileHasher, error) {
+	hasher := contexthasher.NewContextHasher(sha3.New512(), contextBytes)
 
 	return &FileHasher{hasher}, nil
 }

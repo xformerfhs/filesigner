@@ -1,8 +1,9 @@
-package filehashing
+package filesignature
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/hashsigner"
+	"filesigner/filehasher"
+	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"fmt"
 )
@@ -10,7 +11,9 @@ import (
 // ******** Public functions ********
 
 // VerifyFileHashes verifies file hashes
-func VerifyFileHashes(hashVerifier hashsigner.HashVerifier, fileSignatures map[string]string, fileHashList map[string]*HashResult) ([]string, []error) {
+func VerifyFileHashes(hashVerifier hashsignature.HashVerifier,
+	fileSignatures map[string]string,
+	fileHashList map[string]*filehasher.HashResult) ([]string, []error) {
 	var err error
 
 	successCollection := make([]string, 0, len(fileHashList))

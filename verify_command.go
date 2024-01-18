@@ -2,8 +2,9 @@ package main
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/filehashing"
-	"filesigner/hashsigner"
+	"filesigner/filehasher"
+	"filesigner/filesignature"
+	"filesigner/hashsignature"
 	"filesigner/keyid"
 	"filesigner/logger"
 	"filesigner/signaturefile"
@@ -25,7 +26,7 @@ func doVerification(contextId string) int {
 		return rcProcessError
 	}
 
-	var hashVerifier hashsigner.HashVerifier
+	var hashVerifier hashsignature.HashVerifier
 	var publicKeyId string
 	hashVerifier, publicKeyId, err = getHashVerifier(signatureData)
 	if err != nil {
@@ -72,7 +73,7 @@ func doVerification(contextId string) int {
 // verifyFiles verifies the signatures of the files in the signature data.
 func verifyFiles(contextId string,
 	signatureData *signaturehandler.SignatureData,
-	hashVerifier hashsigner.HashVerifier) (int, int, int) {
+	hashVerifier hashsignature.HashVerifier) (int, int, int) {
 	filePaths, rc := getExistingFiles(maps.Keys(signatureData.FileSignatures))
 
 	if len(filePaths) == 0 {
@@ -80,12 +81,12 @@ func verifyFiles(contextId string,
 		return 0, 0, rcProcessWarning
 	}
 
-	hashList := filehashing.GetFileHashes(filePaths, contextId)
+	hashList := filehasher.FileHashes(filePaths, contextId)
 	if existHashErrors(hashList) {
 		return 0, 0, rcProcessError
 	}
 
-	successList, errorList := filehashing.VerifyFileHashes(hashVerifier, signatureData.FileSignatures, hashList)
+	successList, errorList := filesignature.VerifyFileHashes(hashVerifier, signatureData.FileSignatures, hashList)
 
 	successCount := len(successList)
 	if successCount > 0 {
@@ -102,17 +103,17 @@ func verifyFiles(contextId string,
 }
 
 // getHashVerifier constructs the hash verifier and the key id from the signature data.
-func getHashVerifier(signatureData *signaturehandler.SignatureData) (hashsigner.HashVerifier, string, error) {
+func getHashVerifier(signatureData *signaturehandler.SignatureData) (hashsignature.HashVerifier, string, error) {
 	publicKeyBytes, err := base32encoding.DecodeFromString(signatureData.PublicKey)
 	if err != nil {
 		return nil, "", fmt.Errorf("Could not convert public key to bytes: %w", err)
 	}
 
-	var hashVerifier hashsigner.HashVerifier
+	var hashVerifier hashsignature.HashVerifier
 	if signatureData.SignatureType == signaturehandler.SignatureTypeEd25519 {
-		hashVerifier, err = hashsigner.NewEd25519HashVerifier(publicKeyBytes)
+		hashVerifier, err = hashsignature.NewEd25519HashVerifier(publicKeyBytes)
 	} else {
-		hashVerifier, err = hashsigner.NewEc521HashVerifier(publicKeyBytes)
+		hashVerifier, err = hashsignature.NewEc521HashVerifier(publicKeyBytes)
 	}
 	if err != nil {
 		return nil, "", fmt.Errorf("Could not create hash verifier: %w", err)

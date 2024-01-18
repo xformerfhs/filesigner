@@ -3,8 +3,9 @@ package main
 import (
 	"filesigner/base32encoding"
 	"filesigner/cmdline"
-	"filesigner/filehashing"
-	"filesigner/hashsigner"
+	"filesigner/filehasher"
+	"filesigner/filesignature"
+	"filesigner/hashsignature"
 	"filesigner/keyid"
 	"filesigner/logger"
 	"filesigner/signaturefile"
@@ -46,17 +47,17 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 		return rcProcessError
 	}
 
-	resultList := filehashing.GetFileHashes(allFilePaths, contextId)
+	resultList := filehasher.FileHashes(allFilePaths, contextId)
 
 	if existHashErrors(resultList) {
 		return rcProcessError
 	}
 
-	var hashSigner hashsigner.HashSigner
+	var hashSigner hashsignature.HashSigner
 	if signatureType == signaturehandler.SignatureTypeEd25519 {
-		hashSigner, err = hashsigner.NewEd25519HashSigner()
+		hashSigner, err = hashsignature.NewEd25519HashSigner()
 	} else {
-		hashSigner, err = hashsigner.NewEcDsa521HashSigner()
+		hashSigner, err = hashsignature.NewEcDsa521HashSigner()
 	}
 	if err != nil {
 		logger.PrintErrorf(33, "Could not create hash-signer: %v", err)
@@ -72,7 +73,7 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
 
-	signatureData.FileSignatures, err = filehashing.SignFileHashes(hashSigner, resultList)
+	signatureData.FileSignatures, err = filesignature.SignFileHashes(hashSigner, resultList)
 	if err != nil {
 		logger.PrintErrorf(35, "Could not sign file hashes: %v", err)
 		return rcProcessError

@@ -1,8 +1,9 @@
-package filehashing
+package filesignature
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/hashsigner"
+	"filesigner/filehasher"
+	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"fmt"
 )
@@ -10,8 +11,8 @@ import (
 // ******** Public functions ********
 
 // SignFileHashes creates signatures for file hashes.
-func SignFileHashes(hashSigner hashsigner.HashSigner,
-	hashResultList map[string]*HashResult) (map[string]string, error) {
+func SignFileHashes(hashSigner hashsignature.HashSigner,
+	hashResultList map[string]*filehasher.HashResult) (map[string]string, error) {
 	filePathList := maphelper.SortedKeys(hashResultList)
 
 	return makeHashSignatures(hashSigner, filePathList, hashResultList)
@@ -19,9 +20,9 @@ func SignFileHashes(hashSigner hashsigner.HashSigner,
 
 // ******** Private functions ********
 
-func makeHashSignatures(hashSigner hashsigner.HashSigner,
+func makeHashSignatures(hashSigner hashsignature.HashSigner,
 	filePathList []string,
-	hashResultList map[string]*HashResult) (map[string]string, error) {
+	hashResultList map[string]*filehasher.HashResult) (map[string]string, error) {
 	var err error
 	signatures := make(map[string]string, len(filePathList))
 

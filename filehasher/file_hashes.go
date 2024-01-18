@@ -1,6 +1,7 @@
-package filehashing
+package filehasher
 
 import (
+	"filesigner/stringhelper"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -16,16 +17,17 @@ type HashResult struct {
 
 // ******** Public functions ********
 
-// GetFileHashes gets the hashes of the supplied files in an asynchronous manner
-func GetFileHashes(filePaths []string, contextId string) map[string]*HashResult {
+// FileHashes computes the hashes of the supplied files in an asynchronous manner.
+func FileHashes(filePaths []string, contextId string) map[string]*HashResult {
 	// hasherWaitGroup is used to wait for all hashers to finish
 	var hasherWaitGroup sync.WaitGroup
 
 	// hasherResultChannel is where the hashers place their results to be picked off by this function
 	hasherResultChannel := make(chan *HashResult, runtime.NumCPU())
 
+	contextBytes := stringhelper.UnsafeStringBytes(contextId)
 	// Start an asynchronous hasher for each file to hash
-	numHashes := startFileHashers(filePaths, contextId, &hasherWaitGroup, &hasherResultChannel)
+	numHashes := startFileHashers(filePaths, contextBytes, &hasherWaitGroup, &hasherResultChannel)
 
 	// Start an asynchronous function that waits for all hashers to finish and then close the hasherResultChannel
 	go waitForAllHashers(&hasherWaitGroup, &hasherResultChannel)
@@ -38,7 +40,7 @@ func GetFileHashes(filePaths []string, contextId string) map[string]*HashResult 
 
 // startFileHashers starts the file hasher processes asynchronously
 func startFileHashers(filePaths []string,
-	contextId string,
+	contextBytes []byte,
 	hasherWaitGroup *sync.WaitGroup,
 	hasherResultChannel *chan *HashResult) int {
 	numHashes := 0
@@ -50,7 +52,7 @@ func startFileHashers(filePaths []string,
 
 		numHashes++
 		hasherWaitGroup.Add(1) // This must be done before the start of the goroutine, so that the waiter will have to wait for the first goroutine to start
-		go fileHashWorker(normalizedPath, contextId, hasherWaitGroup, hasherResultChannel)
+		go fileHashWorker(normalizedPath, contextBytes, hasherWaitGroup, hasherResultChannel)
 	}
 
 	return numHashes
@@ -87,14 +89,14 @@ func waitForAllHashers(hasherWaitGroup *sync.WaitGroup, hasherResultChannel *cha
 
 // fileHashWorker calculates the hash value of one file
 func fileHashWorker(filePath string,
-	contextId string,
+	contextBytes []byte,
 	hasherWaitGroup *sync.WaitGroup,
 	hasherResultChannel *chan *HashResult) {
 	defer hasherWaitGroup.Done()
 
 	result := &HashResult{}
 	result.FilePath = filePath
-	fileHasher, err := NewHasher(contextId)
+	fileHasher, err := NewFileHasher(contextBytes)
 	if err == nil {
 		result.HashValue, result.Err = fileHasher.HashFile(filePath)
 	} else {
