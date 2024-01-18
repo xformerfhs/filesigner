@@ -14,11 +14,11 @@ type ByteSliceCounter struct {
 
 func NewByteSliceCounter(length uint) (*ByteSliceCounter, error) {
 	if length == 0 {
-		return nil, errors.New("Byte Counter length must not be 0")
+		return nil, errors.New("Byte counter length must not be 0")
 	}
 
 	if length > maxByteCounterLen {
-		return nil, errors.New("Byte Counter length is too large")
+		return nil, errors.New("Byte counter length is too large")
 	}
 
 	return &ByteSliceCounter{Counter: make([]byte, length)}, nil
