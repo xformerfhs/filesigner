@@ -1,12 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"filesigner/base32encoding"
 	"filesigner/cmdline"
 	"filesigner/filehashing"
 	"filesigner/hashsigner"
+	"filesigner/keyid"
 	"filesigner/logger"
+	"filesigner/signaturefile"
 	"filesigner/signaturehandler"
 	"filesigner/texthelper"
 	"golang.org/x/exp/maps"
@@ -22,11 +23,11 @@ const timeStampFormat = "2006-01-02 15:04:05 Z07:00"
 // ******** Private functions ********
 
 // doSigning signs all files with the given context id.
-func doSigning(signatureType byte, contextId string, filePaths []string) int {
+func doSigning(signatureType signaturehandler.SignatureType, contextId string, filePaths []string) int {
 	var err error
 
-	signatureData := &signaturehandler.SignatureResult{
-		Format:        signaturehandler.MaxFormatId,
+	signatureData := &signaturehandler.SignatureData{
+		Format:        signaturehandler.SignatureFormatV1,
 		Timestamp:     time.Now().Format(timeStampFormat),
 		SignatureType: signatureType,
 	}
@@ -71,7 +72,7 @@ func doSigning(signatureType byte, contextId string, filePaths []string) int {
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
 
-	signatureData.FileSignatures, err = signaturehandler.SignFileHashes(hashSigner, resultList)
+	signatureData.FileSignatures, err = filehashing.SignFileHashes(hashSigner, resultList)
 	if err != nil {
 		logger.PrintErrorf(35, "Could not sign file hashes: %v", err)
 		return rcProcessError
@@ -83,25 +84,16 @@ func doSigning(signatureType byte, contextId string, filePaths []string) int {
 		return rcProcessError
 	}
 
-	var jsonOutput []byte
-	jsonOutput, err = json.MarshalIndent(signatureData, "", "   ")
+	err = signaturefile.WriteSignatureFile(signatureFileName, signatureData)
 	if err != nil {
-		logger.PrintErrorf(37, "Could not create json output: %v", err)
+		logger.PrintError(37, err.Error())
 		return rcProcessError
 	}
 
-	err = os.WriteFile(signatureFileName, jsonOutput, 0600)
-	if err != nil {
-		logger.PrintErrorf(38, "Could not write output: %v", err)
-		return rcProcessError
-	}
-
-	var publicKeyHash []byte
-	publicKeyHash = getKeyHash(publicKeyBytes)
-	logger.PrintInfof(39, "Context id         : %s", contextId)
-	logger.PrintInfof(40, "Public key id      : %s", base32encoding.EncodeKey(publicKeyHash))
-	logger.PrintInfof(41, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(42, "Signature host name: %s", signatureData.Hostname)
+	logger.PrintInfof(38, "Context id         : %s", contextId)
+	logger.PrintInfof(39, "Public key id      : %s", keyid.KeyId(publicKeyBytes))
+	logger.PrintInfof(40, "Signature timestamp: %s", signatureData.Timestamp)
+	logger.PrintInfof(41, "Signature host name: %s", signatureData.Hostname)
 
 	successList := maps.Keys(signatureData.FileSignatures)
 
@@ -112,6 +104,6 @@ func doSigning(signatureType byte, contextId string, filePaths []string) int {
 
 	successEnding := texthelper.GetCountEnding(successCount)
 
-	logger.PrintInfof(43, "Signature%s for %d file%s successfully created", successEnding, len(successList), successEnding)
+	logger.PrintInfof(42, "Signature%s for %d file%s successfully created", successEnding, len(successList), successEnding)
 	return rcOK
 }

@@ -1,8 +1,7 @@
-package signaturehandler
+package filehashing
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/filehashing"
 	"filesigner/hashsigner"
 	"filesigner/maphelper"
 	"fmt"
@@ -12,7 +11,7 @@ import (
 
 // SignFileHashes creates signatures for file hashes.
 func SignFileHashes(hashSigner hashsigner.HashSigner,
-	hashResultList map[string]*filehashing.HashResult) (map[string]string, error) {
+	hashResultList map[string]*HashResult) (map[string]string, error) {
 	filePathList := maphelper.SortedKeys(hashResultList)
 
 	return makeHashSignatures(hashSigner, filePathList, hashResultList)
@@ -22,7 +21,7 @@ func SignFileHashes(hashSigner hashsigner.HashSigner,
 
 func makeHashSignatures(hashSigner hashsigner.HashSigner,
 	filePathList []string,
-	hashResultList map[string]*filehashing.HashResult) (map[string]string, error) {
+	hashResultList map[string]*HashResult) (map[string]string, error) {
 	var err error
 	signatures := make(map[string]string, len(filePathList))
 

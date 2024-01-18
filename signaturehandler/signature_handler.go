@@ -12,31 +12,39 @@ import (
 
 // ******** Public types ********
 
-type SignatureResult struct {
-	Format         byte
+type SignatureFormat byte
+type SignatureType byte
+
+type SignatureData struct {
+	Format         SignatureFormat
 	PublicKey      string
 	Timestamp      string
 	Hostname       string
-	SignatureType  byte
+	SignatureType  SignatureType
 	FileSignatures map[string]string
 	DataSignature  string
 }
 
-// ******** Private constants ********
+// ******** Public constants ********
 
-// MaxFormatId is the maximum (i.e. newest) format id of the signature result format.
-const MaxFormatId byte = 1
+// SignatureFormatMax is the maximum (i.e. newest) format id of the signature result format.
+const (
+	SignatureFormatInvalid SignatureFormat = iota
+	SignatureFormatV1
+	SignatureFormatMax = iota - 1
+)
 
 const (
-	SignatureTypeInvalid byte = iota
+	SignatureTypeInvalid SignatureType = iota
 	SignatureTypeEd25519
 	SignatureTypeEcDsaP521
+	SignatureTypeMax = iota - 1
 )
 
 // ******** Public type functions ********
 
-// Sign adds the data signature to a SignatureResult
-func (sd *SignatureResult) Sign(hashSigner hashsigner.HashSigner, contextId string) error {
+// Sign adds the data signature to a SignatureData
+func (sd *SignatureData) Sign(hashSigner hashsigner.HashSigner, contextId string) error {
 	hashValue := getHashValueOfSignatureData(sd, contextId)
 	signatureValue, err := hashSigner.SignHash(hashValue)
 	if err != nil {
@@ -48,8 +56,8 @@ func (sd *SignatureResult) Sign(hashSigner hashsigner.HashSigner, contextId stri
 	return nil
 }
 
-// Verify verifies the data signature of a SignatureResult
-func (sd *SignatureResult) Verify(hashVerifier hashsigner.HashVerifier, contextId string) (bool, error) {
+// Verify verifies the data signature of a SignatureData
+func (sd *SignatureData) Verify(hashVerifier hashsigner.HashVerifier, contextId string) (bool, error) {
 	dataSignature, err := base32encoding.DecodeFromString(sd.DataSignature)
 	if err != nil {
 		return false, err
@@ -61,15 +69,15 @@ func (sd *SignatureResult) Verify(hashVerifier hashsigner.HashVerifier, contextI
 
 // ******** Private functions ********
 
-// getHashValueOfSignatureData calculates the hash value of a SignatureResult
-func getHashValueOfSignatureData(signatureData *SignatureResult, contextId string) []byte {
+// getHashValueOfSignatureData calculates the hash value of a SignatureData
+func getHashValueOfSignatureData(signatureData *SignatureData, contextId string) []byte {
 	hasher := contexthasher.NewContextHasher(sha3.New512(), contextId)
 
 	position := make([]byte, 1)
 	tempSlice := make([]byte, 1)
 
 	hashPosition(hasher, position)
-	tempSlice[0] = signatureData.Format
+	tempSlice[0] = byte(signatureData.Format)
 	hasher.Write(tempSlice)
 
 	hashPosition(hasher, position)
@@ -82,7 +90,7 @@ func getHashValueOfSignatureData(signatureData *SignatureResult, contextId strin
 	hasher.Write([]byte(signatureData.Hostname))
 
 	hashPosition(hasher, position)
-	tempSlice[0] = signatureData.SignatureType
+	tempSlice[0] = byte(signatureData.SignatureType)
 	hasher.Write(tempSlice)
 
 	sortedFileNames := maphelper.SortedKeys(signatureData.FileSignatures)

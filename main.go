@@ -87,7 +87,7 @@ func mainWithReturnCode(args []string) int {
 			return rc
 		}
 
-		var signatureType byte
+		var signatureType signaturehandler.SignatureType
 		signatureType, rc = convertSignatureType(signatureTypeText)
 		if rc != rcOK {
 			return rc
@@ -141,7 +141,7 @@ func checkSignatureTypeAndSeparator(args []string, argLen int) (int, string, int
 }
 
 // convertSignatureType converts the signature type text into a byte.
-func convertSignatureType(signatureTypeText string) (byte, int) {
+func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, int) {
 	switch signatureTypeText {
 	case "ed25519":
 		return signaturehandler.SignatureTypeEd25519, rcOK
