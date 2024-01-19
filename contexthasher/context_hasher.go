@@ -23,9 +23,9 @@ var separator = []byte{0x33, 0x17, 0xd1, 0xdb, 0xc2, 0xf1}
 
 // NewContextHasher creates a new context hasher.
 func NewContextHasher(hashFunc hash.Hash, contextBytes []byte) hash.Hash {
-	contextLen := uint(len(contextBytes))
+	contextLen := uint64(len(contextBytes))
 	bc, _ := numberhelper.NewByteSliceCounterForCount(contextLen)
-	bc.SetUint64(uint64(contextLen))
+	bc.SetCount(contextLen)
 	result := &ContextHasher{hasher: hashFunc, context: contextBytes, contextLen: bc.Slice()}
 
 	// context points to the bytes of the string. It is not a copy.

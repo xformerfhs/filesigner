@@ -33,8 +33,8 @@ func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
 	return &ByteSliceCounter{counter: make([]byte, length), first: length, last: length}, nil
 }
 
-func NewByteSliceCounterForCount(count uint) (*ByteSliceCounter, error) {
-	return NewByteSliceCounter(ByteCountForNumber(uint64(count)))
+func NewByteSliceCounterForCount(count uint64) (*ByteSliceCounter, error) {
+	return NewByteSliceCounter(ByteCountForNumber(count))
 }
 
 // ******** Public functions ********
@@ -73,7 +73,7 @@ func (bc *ByteSliceCounter) Dec() {
 	}
 }
 
-func (bc *ByteSliceCounter) Clear() {
+func (bc *ByteSliceCounter) Zero() {
 	counter := bc.counter
 	slicehelper.ClearInteger(counter)
 }
@@ -82,9 +82,13 @@ func (bc *ByteSliceCounter) Slice() []byte {
 	return bc.counter[bc.first:]
 }
 
+func (bc *ByteSliceCounter) FullSlice() []byte {
+	return bc.counter
+}
+
 // -------- Setter and getter functions --------
 
-func (bc *ByteSliceCounter) SetUint64(value uint64) {
+func (bc *ByteSliceCounter) SetCount(value uint64) {
 	counter := bc.counter
 	i := bc.last
 	for {
@@ -100,7 +104,7 @@ func (bc *ByteSliceCounter) SetUint64(value uint64) {
 	bc.first = i
 }
 
-func (bc *ByteSliceCounter) GetUint64() uint64 {
+func (bc *ByteSliceCounter) GetCount() uint64 {
 	result := uint64(0)
 	first := bc.first
 	counter := bc.counter
@@ -112,6 +116,8 @@ func (bc *ByteSliceCounter) GetUint64() uint64 {
 		if i == first {
 			break
 		}
+
+		i--
 	}
 
 	return result
