@@ -1,8 +1,7 @@
-package bytecounter
+package numberhelper
 
 import (
 	"errors"
-	"filesigner/numberhelper"
 	"filesigner/slicehelper"
 )
 
@@ -33,7 +32,7 @@ func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
 }
 
 func NewByteSliceCounterForCount(count uint) (*ByteSliceCounter, error) {
-	return NewByteSliceCounter(numberhelper.ByteCountForUint(count))
+	return NewByteSliceCounter(ByteCountForNumber(uint64(count)))
 }
 
 // ******** Public functions ********

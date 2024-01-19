@@ -1,7 +1,7 @@
 package contexthasher
 
 import (
-	"filesigner/bytecounter"
+	"filesigner/numberhelper"
 	"hash"
 )
 
@@ -24,7 +24,7 @@ var separator = []byte{0x33, 0x17, 0xd1, 0xdb, 0xc2, 0xf1}
 // NewContextHasher creates a new context hasher.
 func NewContextHasher(hashFunc hash.Hash, contextBytes []byte) hash.Hash {
 	contextLen := uint(len(contextBytes))
-	bc, _ := bytecounter.NewByteSliceCounterForCount(contextLen)
+	bc, _ := numberhelper.NewByteSliceCounterForCount(contextLen)
 	bc.SetUint64(uint64(contextLen))
 	result := &ContextHasher{hasher: hashFunc, context: contextBytes, contextLen: bc.Slice()}
 

@@ -2,10 +2,10 @@ package signaturehandler
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/bytecounter"
 	"filesigner/contexthasher"
 	"filesigner/hashsignature"
 	"filesigner/maphelper"
+	"filesigner/numberhelper"
 	"filesigner/stringhelper"
 	"golang.org/x/crypto/sha3"
 	"hash"
@@ -74,7 +74,7 @@ func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, context
 func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []byte) []byte {
 	hasher := contexthasher.NewContextHasher(sha3.New512(), contextBytes)
 
-	position, _ := bytecounter.NewByteSliceCounterForCount(uint((len(signatureData.FileSignatures) << 1) + 5))
+	position, _ := numberhelper.NewByteSliceCounterForCount(uint((len(signatureData.FileSignatures) << 1) + 5))
 	tempSlice := make([]byte, 1)
 
 	hashPosition(hasher, position)
@@ -107,7 +107,7 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []by
 }
 
 // hashPosition writes the position into the hasher
-func hashPosition(hasher hash.Hash, position *bytecounter.ByteSliceCounter) {
+func hashPosition(hasher hash.Hash, position *numberhelper.ByteSliceCounter) {
 	position.Inc()
 	hasher.Write(position.Slice())
 }
