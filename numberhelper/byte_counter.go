@@ -28,7 +28,9 @@ func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
 		return nil, errors.New("Byte counter length is too large")
 	}
 
-	return &ByteSliceCounter{counter: make([]byte, length), first: length - 1, last: length - 1}, nil
+	length--
+
+	return &ByteSliceCounter{counter: make([]byte, length), first: length, last: length}, nil
 }
 
 func NewByteSliceCounterForCount(count uint) (*ByteSliceCounter, error) {
