@@ -109,5 +109,5 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []by
 // hashPosition writes the position into the hasher
 func hashPosition(hasher hash.Hash, position *bytecounter.ByteSliceCounter) {
 	position.Inc()
-	hasher.Write(position.Counter)
+	hasher.Write(position.Slice())
 }
