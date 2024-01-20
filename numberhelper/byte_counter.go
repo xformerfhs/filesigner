@@ -11,7 +11,7 @@ const maxByteCounterLen = 8
 
 // ******** Public types ********
 
-type ByteSliceCounter struct {
+type ByteCounter struct {
 	counter []byte
 	first   byte
 	last    byte
@@ -19,7 +19,7 @@ type ByteSliceCounter struct {
 
 // ******** Public creation functions ********
 
-func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
+func NewByteCounter(length byte) (*ByteCounter, error) {
 	if length == 0 {
 		return nil, errors.New("Byte counter length must not be 0")
 	}
@@ -30,18 +30,18 @@ func NewByteSliceCounter(length byte) (*ByteSliceCounter, error) {
 
 	maxIndex := length - 1
 
-	return &ByteSliceCounter{counter: make([]byte, length), first: maxIndex, last: maxIndex}, nil
+	return &ByteCounter{counter: make([]byte, length), first: maxIndex, last: maxIndex}, nil
 }
 
-func NewByteSliceCounterForCount(count uint64) (*ByteSliceCounter, error) {
-	return NewByteSliceCounter(ByteCountForNumber(count))
+func NewByteCounterForCount(count uint64) (*ByteCounter, error) {
+	return NewByteCounter(ByteCountForNumber(count))
 }
 
 // ******** Public functions ********
 
 // -------- Counting functions --------
 
-func (bc *ByteSliceCounter) Inc() {
+func (bc *ByteCounter) Inc() {
 	counter := bc.counter
 	i := bc.last
 	for {
@@ -58,7 +58,7 @@ func (bc *ByteSliceCounter) Inc() {
 	bc.first = i
 }
 
-func (bc *ByteSliceCounter) Dec() {
+func (bc *ByteCounter) Dec() {
 	counter := bc.counter
 	i := byte(len(counter) - 1)
 	for {
@@ -73,22 +73,22 @@ func (bc *ByteSliceCounter) Dec() {
 	}
 }
 
-func (bc *ByteSliceCounter) Zero() {
+func (bc *ByteCounter) Zero() {
 	counter := bc.counter
 	slicehelper.ClearInteger(counter)
 }
 
-func (bc *ByteSliceCounter) Slice() []byte {
+func (bc *ByteCounter) Slice() []byte {
 	return bc.counter[bc.first:]
 }
 
-func (bc *ByteSliceCounter) FullSlice() []byte {
+func (bc *ByteCounter) FullSlice() []byte {
 	return bc.counter
 }
 
 // -------- Setter and getter functions --------
 
-func (bc *ByteSliceCounter) SetCount(value uint64) {
+func (bc *ByteCounter) SetCount(value uint64) {
 	counter := bc.counter
 	i := bc.last
 	for {
@@ -104,7 +104,7 @@ func (bc *ByteSliceCounter) SetCount(value uint64) {
 	bc.first = i
 }
 
-func (bc *ByteSliceCounter) GetCount() uint64 {
+func (bc *ByteCounter) GetCount() uint64 {
 	result := uint64(0)
 	first := bc.first
 	counter := bc.counter

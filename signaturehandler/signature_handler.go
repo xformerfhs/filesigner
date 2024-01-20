@@ -74,12 +74,12 @@ func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, context
 func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []byte) []byte {
 	hasher := contexthasher.NewContextHasher(sha3.New512(), contextBytes)
 
-	position, _ := numberhelper.NewByteSliceCounterForCount(uint64((len(signatureData.FileSignatures) << 1) + 5))
-	tempSlice := make([]byte, 1)
+	position, _ := numberhelper.NewByteCounterForCount(uint64((len(signatureData.FileSignatures) << 1) + 5))
+	oneByteSlice := make([]byte, 1)
 
 	hashPosition(hasher, position)
-	tempSlice[0] = byte(signatureData.Format)
-	hasher.Write(tempSlice)
+	oneByteSlice[0] = byte(signatureData.Format)
+	hasher.Write(oneByteSlice)
 
 	hashPosition(hasher, position)
 	hasher.Write(stringhelper.UnsafeStringBytes(signatureData.PublicKey))
@@ -91,8 +91,8 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []by
 	hasher.Write(stringhelper.UnsafeStringBytes(signatureData.Hostname))
 
 	hashPosition(hasher, position)
-	tempSlice[0] = byte(signatureData.SignatureType)
-	hasher.Write(tempSlice)
+	oneByteSlice[0] = byte(signatureData.SignatureType)
+	hasher.Write(oneByteSlice)
 
 	sortedFileNames := maphelper.SortedKeys(signatureData.FileSignatures)
 	for _, fileName := range sortedFileNames {
@@ -107,7 +107,7 @@ func getHashValueOfSignatureData(signatureData *SignatureData, contextBytes []by
 }
 
 // hashPosition writes the position into the hasher
-func hashPosition(hasher hash.Hash, position *numberhelper.ByteSliceCounter) {
+func hashPosition(hasher hash.Hash, position *numberhelper.ByteCounter) {
 	position.Inc()
 	hasher.Write(position.Slice())
 }
