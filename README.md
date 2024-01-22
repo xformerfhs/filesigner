@@ -5,8 +5,8 @@ Like certificates, only better and easier ;-).
 
 ## Introduction
 
-We create artifacts and store them in different systems.
-Currently there is no way to check if anything has been changed in the stored artifacts.
+When one uses artifacts, one needs a method to check whether these artifacts are the ones that the creator created.
+Currently there is no way to check if artifacts have been manipulated.
 There are several ways to perform such a check:
 
 - Use of hash values
@@ -53,32 +53,34 @@ This is illustrated below with an example.
 
 ## Calls
 
-### Signature
+### Signing
 
-The signature call looks like this:
+The signing call looks like this:
 
 ```
-filesigner sign {contextId} [type] ! {fileList}
+filesigner sign {contextId} [-type {type}] [-if|-include-file {mask}] [-xf|-exclude-file {mask}] [-id|-include-dir {mask}] [-xd|-exclude-dir {mask}] [-no-subdirs]
 ```
 
-Where `contextId` is an arbitrary text used to make the signature depend on a topic.
-For example, one could use the GitLab pipeline number or some other attribute that matches the creation of the artifact.
+The parts have the following meaning:
 
-After the context id, there may or may not be a specification of the signature method.
-This is either `ed25519` or `ecdsap521`.
-If the type is not specified, `ed25519` is used.
+| Part | Meaning |
+|----------------------|---------------------------------------------------------------------------------------------------|
+| `contextId`          | An arbitrary text used to make the signature depend on a topic, also called a "domain separator". |
+| `type`               | Specification of the signature method. Either [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) or `ecdsap521`. If the type is not specified, `ed25519` is used. |
+| `include-file`, `if` | Specification of files to include. |
+| `exclude-file`, `xf` | Specification of files to exclude. |
+| `include-dir`, `id`  | Specification of directories to include. |
+| `exclude-dir`, `xd`  | Specification of directories to exclude. |
+| `no-subdirs`         | Only process files in the current directory. Do not descend into subdirectories. |
 
-This is followed by a single exclamation mark (`!`).
-This is used to separate the `contextId` and possibly the signature type logically and visually from the file list.
+Please note the following information:
 
-This is followed by a list of file names that are to be signed.
-Wildcards like `*` and `?` can be used.
+* All exclude/include options take one specification.
+* Wildcards (`*`, `?`) may be used in include/exclude options.
+* An include option excludes all objects that are not included.
+* On Linux wildcards need to be put in quotes (`'`) or double quotes (`"`).
 
-If a filename starts with a `-`, a file with the following name, or with a name matching the following pattern, will **not** be signed.
-E.g. a specification of `-*.exe` excludes all files with the extension `.exe`.
 The file `signatures.json` is **always** excluded and cannot be signed.
-It already contains a signature.
-On Linux, wildcard specifications for exclusion must always be enclosed in apostrophes (`'`).
 
 The call creates a file named `signatures.json` which has the following format:
 
@@ -119,156 +121,158 @@ The return code is:
 
 | Code | Meaning                      |
 |------|-------------------------------|
-| `0`  | Successful processing.     |
-| `1`  | Error in the command line.   |
-| `2`  | Warning while processing. |
-| `3`  | Error while processing.  |
+| `0`  | Successful processing     |
+| `1`  | Error in the command line   |
+| `2`  | Warning while processing |
+| `3`  | Error while processing  |
 
-### Verifizierung
+### Verification
 
-Der Aufruf zur Verifizierung sieht folgendermaßen aus:
+The verifcation call looks like this:
 
 ```
 filesigner verify {contextId} 
 ```
 
-Dabei hat `contextId` dieselbe Bedeutung, wie bei der Signatur.
+Here, `contextId` has the same meaning as for the signature.
 
-Weitere Parameter sind nicht erlaubt und führen zu einer Fehlermeldung.
+More parameters are not permitted and will result in an error message.
 
-Das Programm liest die Datei `signatures.json` ein und prüft, ob die dort genannten Dateien vorhanden sind und ob deren Signaturen zu den aktuellen Inhalten passen.
+The program reads the file `signatures.json` and checks whether the files named there exist and whether their signatures match the current content.
 
-Die Rückgabe-Codes sind dieselben, wie bei der Signierung.
+The return codes are the same as for signing.
 
-## Programme
+## Programs
 
-| OS      | Programm             |
-|---------|----------------------|
+| OS      | Program             |
+|---------|---------------------|
 | Windows | `filesigner.exe` |
 | Linux   | `filesigner`     |
 
-Das Linux-Programm ist auf jedem beliebigen Linux ausführbar.
+The Linux program can be executed on any Linux system.
 
-## Kodierung
+## Encoding
 
-Binärwerte sind in einer speziellen [Base32-Kodierung](https://en.wikipedia.org/wiki/Base32) abgelegt.
-Die Besonderheit besteht darin, dass das verwendete Alphabet keine Vokale, keine leicht zu verwechselnden Zeichen wie `0` und `O` oder `1` und `l` und keine Sonderzeichen enthält.
-Dadurch können die so kodierten Werte mit einem Doppelklick markiert werden, es können nicht versehentlich echte Worte entstehen und beim Vorlesen kann man keine Zeichen verwechseln.
+Binary values are stored in the word-safe [Base32 encoding](https://en.wikipedia.org/wiki/Base32).
+What makes this encoding special, is that the alphabet used contains no vowels, no easily confusable characters such as '0' and 'O' or '1' and 'l' and no special characters.
+This means that the encoded values can be marked with a double-click, no real words can be created by mistake and no characters can be confused when reading aloud.
 
-## Beispiel
+## Example
 
-Angenommen, für die Artefakte `filesigner`, `filesigner.exe`, alle `Go`-Dateien und alle Dateien, die mit dem Wort `go`beginnen, sollen für die Version `1.7.11` einer Anwendung Signaturen erzeugt und überprüft werden.
+### Signing
 
-Dann erzeugt man die Signatur mit folgendem Aufruf:
+Assume that signatures are to be created and checked for the artifacts `filesigner`, `filesigner.exe`, all `Go` files and all files beginning with the word `go` for version `1.7.11` of an application.
 
-```
-filesigner sign projekt1711 ! *.go filesign*
-```
-
-Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
+The signatures are created with the following call:
 
 ```
-2023-06-13 12:51:25 +02:00  18  I  filesigner V0.13.4 (go1.21.3, 12 cpus)
-2023-06-13 12:51:25 +02:00  39  I  Context id         : charm
-2023-06-13 12:51:25 +02:00  40  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
-2023-06-13 12:51:25 +02:00  41  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
-2023-06-13 12:51:25 +02:00  42  I  Signature host name: MDXN01022044
+filesigner sign project1711 -if *.go -if filesign*
+```
+
+The program then generates the following output on the console:
+
+```
+2023-06-13 12:51:25 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:25 +02:00  37  I  Context id         : project1711
+2023-06-13 12:51:25 +02:00  38  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
+2023-06-13 12:51:25 +02:00  39  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
+2023-06-13 12:51:25 +02:00  40  I  Signature host name: MDXN01022044
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'common.go'
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'filesigner'
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'filesigner.exe'
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'main.go'
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'sign_command.go'
 2023-06-13 12:51:25 +02:00  21  I  Signing succeeded for file 'verify_command.go'
-2023-06-13 12:51:25 +02:00  43  I  Signatures for 6 files successfully created
+2023-06-13 12:51:25 +02:00  41  I  Signatures for 6 files successfully created
 ```
 
-Der Rückgabe-Code ist 0.
+The return code is 0.
 
-Die Artefakte werden zusammen mit der Datei in einem Repository abgelegt und das Erzeuger-Team informiert die Empfänger mit einer signierten E-Mail, dass die Artefakte am Zielort liegen.
-In dieser E-Mail steht, dass die Signatur mit dem öffentlichen Schlüssel mit der Schlüssel-Id `85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW` und dem Kontext `projekt1711` auf dem Host `MDXN01022044` zum Zeitpunkt `2023-06-13 12:51:25 +02:00` erzeugt wurde und geprüft werden kann.
+### Verifying
 
-Die Empfänger laden die Dateien herunter und prüfen, ob in der Datei `signatures.json` der angegebene öffentliche Schlüssel steht.
-Dann rufen sie das Programm folgendermaßen auf:
+To verify the signatures one needs a trusted place where the public key id, the signature timestamp and the signature host name are published.
+This may be a signed email, a web site, a database, or whatever is deemed to be a secure trusted place.
 
-```
-filesigner verify projekt1711
-```
-
-Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
+Then the verifier runs the filesigner program with the following parameters:
 
 ```
-2023-06-13 12:51:52 +02:00  18  I  filesigner V0.13.4 (go1.21.3, 12 cpus)
-2023-06-13 12:51:53 +02:00  58  I  Context id         : charm
-2023-06-13 12:51:53 +02:00  59  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
-2023-06-13 12:51:53 +02:00  60  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
-2023-06-13 12:51:53 +02:00  61  I  Signature host name: MDXN01022044
+filesigner verify project1711
+```
+
+The program then generates the following output on the console:
+
+```
+2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
+2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
+2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
+2023-06-13 12:51:53 +02:00  58  I  Signature host name: MDXN01022044
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'common.go'
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'filesigner'
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'filesigner.exe'
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'main.go'
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'sign_command.go'
 2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'verify_command.go'
-2023-06-13 12:51:53 +02:00  64  I  Verification of 6 files successful
+2023-06-13 12:51:53 +02:00  59  I  Verification of 6 files successful
 ```
 
-Der Rückgabe-Code ist 0.
+The return code is 0.
 
-Damit sind die Signaturen verifiziert.
+The verifying person checks, if this ouput if the shown public key id, signature timestamp and signature host are the same as those stored in the trusted place.
+If this is not the case, the signature is deemed to be invalid and the files must not be trusted!
 
-Sollte z.B. die Datei `filesigner` manipuliert worden sein, würde folgende Ausgabe erscheinen:
+As another example, if the file `filesigner` has been manipulated, the following output would appear:
 
 ```
-2023-06-13 12:54:05 +02:00  18  I  filesigner V0.13.4 (go1.21.3, 12 cpus)
-2023-06-13 12:54:05 +02:00  58  I  Context id         : charm
-2023-06-13 12:54:05 +02:00  59  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
-2023-06-13 12:54:05 +02:00  60  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
-2023-06-13 12:54:05 +02:00  61  I  Signature host name: MDXN01022044
-2023-06-13 12:54:05 +02:00  21  I  Verification succeeded for file 'common.go'
-2023-06-13 12:54:05 +02:00  21  I  Verification succeeded for file 'filesigner.exe'
-2023-06-13 12:54:05 +02:00  21  I  Verification succeeded for file 'main.go'
-2023-06-13 12:54:05 +02:00  21  I  Verification succeeded for file 'sign_command.go'
-2023-06-13 12:54:05 +02:00  21  I  Verification succeeded for file 'verify_command.go'
+2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
+2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
+2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
+2023-06-13 12:51:53 +02:00  58  I  Signature host name: MDXN01022044
+2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'common.go'
+2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'filesigner.exe'
+2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'main.go'
+2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'sign_command.go'
+2023-06-13 12:51:53 +02:00  21  I  Verification succeeded for file 'verify_command.go'
 2023-06-13 12:54:05 +02:00  22  E  File 'filesigner' has been tampered with
-2023-06-13 12:54:05 +02:00  66  E  Verification of 5 files successful and 1 file unsuccessful
+2023-06-13 12:54:05 +02:00  61  E  Verification of 5 files successful and 1 file unsuccessful
 ```
 
-Der Rückgabe-Code ist 3.
+The return code is 3.
 
-Sollte z.B. die Signaturdatei manipuliert worden sein oder die falsche Kontext-Id angegeben worden sein, würde folgende Ausgabe erscheinen:
+If, for example, the signature file has been manipulated or the wrong context ID has been specified, the following output would appear:
 
 ```
-2023-06-13 12:54:56 +02:00  18  I  filesigner V0.13.4 (go1.21.3, 12 cpus)
-2023-06-13 12:54:56 +02:00  58  I  Context id         : charm
-2023-06-13 12:54:56 +02:00  59  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
-2023-06-13 12:54:56 +02:00  60  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
-2023-06-13 12:54:56 +02:00  61  I  Signature host name: MDXN01022044
-2023-06-13 12:54:56 +02:00  62  E  Signature file has been tampered with or wrong context id
+2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
+2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
+2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
+2023-06-13 12:51:53 +02:00  58  I  Signature host name: MDXN01022044
+2023-06-13 12:54:56 +02:00  53  E  Signature file has been tampered with or wrong context id
 ```
 
-Der Rückgabe-Code ist 3.
+The return code is 3.
 
-## Erstellung
+## Program build
 
-Zur Erstellung des Programms muss man Go installiert haben.
-Dabei wird ein Verzeichnis angelegt, dass in der Umgebungsvariablen `GOPATH` spezifiziert ist.
-Unter Windows ist das das Heimatverzeichnis, z.B. `D:\Users\Benutzername\go`.
-Unter Linux ist es `${HOME}/go`.
-Darunter befindet sich ein Verzeichnis mit dem Namen `src`.
+You must have Go installed to create the program.
+This creates a directory that is specified in the `GOPATH` environment variable.
+Under Windows, this is the home directory, e.g. `D:\Users\username\go`.
+Under Linux this is `${HOME}/go`.
+In that directory there is a subdirectory `src`.
 
-Zum Erstellen des Programms müssen die Quelltexte unter `%GOPATH%\src\filesigner`, bzw. `${HOME}/go/src/filesigner` abgelegt werden.
-Danach ruft man die Batch-Datei `gb.bat`, bzw. das Shell-Skript `gb` auf, die die Erstellung übernehmen.
-Sie erwarten das Programm UPX an einem bestimmten Ort.
-Diesen Ort kann man auf den lokal vorhandenen Pfad anpassen.
-Wenn UPX nicht vorhanden ist, wird keine Komprimierung durchgeführt.
+To create the program, the source code must be stored under `%GOPATH%\src\filesigner` or `${HOME}/go/src/filesigner`.
+Then one has to start the batch file `gb.bat` or the shell script `gb`, which builds the executables.
+These scripts expect the UPX program to be in a specific location.
+This location can be adapted to the local path.
+If UPX is not available, no compression is performed.
 
-Als Ergebnis werden die Dateien `filesigner` für Linux und `filesigner.exe` für Windows erstellt.
+As a result, the files `filesigner` for Linux and `filesigner.exe` for Windows are created.
 
-Die Artefakte findet man in unserem Artifactory unter der [Web-Oberfläche](https://bahnhub.tech.rz.db.de/ui/repos/tree/General/davit-generic-stage-dev-local/zzz/tools/filesigner/) oder als [Download](https://bahnhub.tech.rz.db.de:443/artifactory/davit-generic-stage-dev-local/zzz/tools/filesigner/).
+## Contakt
 
-## Kontakt
+Frank Schwab ([Mail](mailto:frank.schwab@live.de "Mail"))
 
-Frank Schwab ([Mail](mailto:frank.schwab@deutschebahn.com "Mail"))
+## License
 
-## Lizenz
-
-Das Programm ist unter der [Apache-Lizenz V2](https://www.apache.org/licenses/LICENSE-2.0.txt) veröffentlicht.
+This source code is published under the [Apache License V2](https://www.apache.org/licenses/LICENSE-2.0.txt).
