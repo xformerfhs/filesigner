@@ -87,7 +87,7 @@ func mainWithReturnCode(args []string) int {
 		}
 
 		if argLen > 3 {
-			return printUsageError(13, "There must be no files specified for verification")
+			return printUsageError(13, "There must be no other parameters than 'verify' and the context id")
 		}
 
 		return doVerification(args[2])
