@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"golang.org/x/exp/maps"
 	"os"
-	"path/filepath"
 )
 
 // ******** Private functions ********
@@ -137,7 +136,7 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 				logger.PrintWarningf(64, "'%s' from signature file is a directory", fp)
 				rc = rcProcessWarning
 			} else {
-				result = append(result, filepath.FromSlash(fp))
+				result = append(result, fp)
 			}
 		}
 	}

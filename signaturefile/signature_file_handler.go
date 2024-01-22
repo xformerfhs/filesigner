@@ -7,6 +7,7 @@ import (
 	"filesigner/signaturehandler"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // ******** Private constants ********
@@ -16,6 +17,10 @@ const maxFileSize = 10_000_000
 // ******** Public functions ********
 
 func WriteSignatureFile(filePath string, signatureData *signaturehandler.SignatureData) error {
+	if filepath.ListSeparator != '/' {
+		signatureData.FileSignatures = keysWithSlashSeparator(signatureData.FileSignatures)
+	}
+
 	jsonOutput, err := json.MarshalIndent(signatureData, "", "   ")
 	if err != nil {
 		return fmt.Errorf("Could not create json format for signature file: %w", err)
@@ -42,6 +47,10 @@ func ReadSignatureFile(filePath string) (*signaturehandler.SignatureData, error)
 		return nil, err
 	}
 
+	if filepath.ListSeparator != '/' {
+		result.FileSignatures = keysWithPlatformSeparator(result.FileSignatures)
+	}
+
 	err = checkSignatureForm(result)
 	if err != nil {
 		return nil, err
@@ -51,6 +60,28 @@ func ReadSignatureFile(filePath string) (*signaturehandler.SignatureData, error)
 }
 
 // ******** Private functions ********
+
+// keysWithPlatformSeparator replaces all slashes in the map keys with the platform specific separator.
+func keysWithPlatformSeparator(signatureMap map[string]string) map[string]string {
+	result := make(map[string]string, len(signatureMap))
+
+	for k, v := range signatureMap {
+		result[filepath.FromSlash(k)] = v
+	}
+
+	return result
+}
+
+// keysWithSlashSeparator replaces all platform specific separators in the map keys with slashes.
+func keysWithSlashSeparator(signatureMap map[string]string) map[string]string {
+	result := make(map[string]string, len(signatureMap))
+
+	for k, v := range signatureMap {
+		result[filepath.ToSlash(k)] = v
+	}
+
+	return result
+}
 
 // checkFileSize checks if the size of the signature file is within the allowed boundaries.
 func checkFileSize(filePath string) error {

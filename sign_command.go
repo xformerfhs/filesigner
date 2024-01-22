@@ -2,7 +2,6 @@ package main
 
 import (
 	"filesigner/base32encoding"
-	"filesigner/cmdline"
 	"filesigner/filehasher"
 	"filesigner/filesignature"
 	"filesigner/hashsignature"
@@ -39,15 +38,7 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 		return rcProcessError
 	}
 
-	var allFilePaths []string
-	allFilePaths, err = cmdline.GetAllFilePaths(filePaths)
-
-	if err != nil {
-		logger.PrintErrorf(32, "Could not get file paths: %v", err)
-		return rcProcessError
-	}
-
-	resultList := filehasher.FileHashes(allFilePaths, contextId)
+	resultList := filehasher.FileHashes(filePaths, contextId)
 
 	if existHashErrors(resultList) {
 		return rcProcessError

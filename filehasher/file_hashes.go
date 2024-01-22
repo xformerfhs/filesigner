@@ -2,7 +2,6 @@ package filehasher
 
 import (
 	"filesigner/stringhelper"
-	"path/filepath"
 	"runtime"
 	"sync"
 )
@@ -45,14 +44,10 @@ func startFileHashers(filePaths []string,
 	hasherResultChannel *chan *HashResult) int {
 	numHashes := 0
 
-	var normalizedPath string
-
 	for _, aFilePath := range filePaths {
-		normalizedPath = filepath.ToSlash(aFilePath)
-
 		numHashes++
 		hasherWaitGroup.Add(1) // This must be done before the start of the goroutine, so that the waiter will have to wait for the first goroutine to start
-		go fileHashWorker(normalizedPath, contextBytes, hasherWaitGroup, hasherResultChannel)
+		go fileHashWorker(aFilePath, contextBytes, hasherWaitGroup, hasherResultChannel)
 	}
 
 	return numHashes

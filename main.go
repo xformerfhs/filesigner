@@ -4,7 +4,6 @@ import (
 	"filesigner/cmdline"
 	"filesigner/filehelper"
 	"filesigner/logger"
-	"filesigner/signaturehandler"
 	"fmt"
 	"os"
 	"runtime"
@@ -42,13 +41,10 @@ const (
 // signatureFileName is the fixed file name of the signature file
 const signatureFileName = "signatures.json"
 
-// argumentSeparator separates parameters from the sign command
-const argumentSeparator = "!"
-
 // Program information
 
 // myVersion contains the program version.
-const myVersion = "0.15.0"
+const myVersion = "0.50.0"
 
 // myName contains the program name.
 var myName string
@@ -75,30 +71,15 @@ func mainWithReturnCode(args []string) int {
 
 	case commandSign:
 		if argLen < 3 {
-			return printMissingSignParameters("Context id, separator and list")
+			return printMissingSignParameters("Context id")
 		}
 
-		if argLen < 4 {
-			return printMissingSignParameters("Separator and list")
+		fileList, signatureType, err := cmdline.FilesToProcess(args[3:], signatureFileName)
+		if err != nil {
+			return printUsageErrorf(12, "Error processing file names: %v", err)
 		}
 
-		fileListIndex, signatureTypeText, rc := checkSignatureTypeAndSeparator(args, argLen)
-		if rc != rcOK {
-			return rc
-		}
-
-		var signatureType signaturehandler.SignatureType
-		signatureType, rc = convertSignatureType(signatureTypeText)
-		if rc != rcOK {
-			return rc
-		}
-
-		if argLen < fileListIndex+1 {
-			return printMissingSignParameters("List")
-		}
-
-		args = append(args, string(cmdline.NegatePrefix)+signatureFileName) // Never include the signatures file
-		return doSigning(signatureType, args[2], args[fileListIndex:])
+		return doSigning(signatureType, args[2], fileList)
 
 	case commandVerify:
 		if argLen < 3 {
@@ -117,47 +98,6 @@ func mainWithReturnCode(args []string) int {
 }
 
 // ******** Private functions ********
-
-// checkSignatureTypeAndSeparator checks for the presence of the separator and gets a signature type, if present.
-func checkSignatureTypeAndSeparator(args []string, argLen int) (int, string, int) {
-	fileListIndex := 4
-	signatureTypeText := "ed25519"
-
-	if args[3] != argumentSeparator {
-		if argLen > 4 {
-			signatureTypeText = strings.ToLower(args[3])
-
-			if args[4] != argumentSeparator {
-				return 0, "", printMissingSeparatorError()
-			}
-
-			fileListIndex++
-		} else {
-			return 0, "", printMissingSeparatorError()
-		}
-	}
-
-	return fileListIndex, signatureTypeText, rcOK
-}
-
-// convertSignatureType converts the signature type text into a byte.
-func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, int) {
-	switch signatureTypeText {
-	case "ed25519":
-		return signaturehandler.SignatureTypeEd25519, rcOK
-
-	case "ecdsap521":
-		return signaturehandler.SignatureTypeEcDsaP521, rcOK
-
-	default:
-		return signaturehandler.SignatureTypeInvalid, printUsageErrorf(16, "Invalid signature type: '%s'", signatureTypeText)
-	}
-}
-
-// printMissingSeparatorError prints a message that the list separator is missing.
-func printMissingSeparatorError() int {
-	return printUsageError(15, "Required file list separator '!' missing")
-}
 
 // printMissingSignParameters prints an error message for missing sign parameters.
 func printMissingSignParameters(parameters string) int {
@@ -189,13 +129,23 @@ func printUsageErrorf(msgNum byte, msgFormat string, args ...any) int {
 
 // printUsageText prints the usage text.
 func printUsageText() {
-	_, _ = fmt.Printf("\nUsage:\n\n   %s sign {contextId} [type] ! {fileList}\n", myName)
+	_, _ = fmt.Printf("\nUsage:\n\n   %s sign {contextId} [-type {type}] [-if|-include-file {mask}] [-xf|-exclude-file {mask}] [-id|-include-dir {mask}] [-xd|-exclude-dir {mask}] [-no-subdirs]\n", myName)
 	_, _ = fmt.Printf("      sign: Sign files and write signatures into file '%s'\n", signatureFileName)
-	_, _ = fmt.Println("         contextId: Arbitrary string used as a salt")
-	_, _ = fmt.Println("         type: Signature type (optional, 'ed25519' or 'ecdsap521', default is 'ed25519')")
-	_, _ = fmt.Println("         !:         Required separator before file list")
-	_, _ = fmt.Println("         fileList:  Space-separated list of names of files to sign (wildcards are permitted)")
-	_, _ = fmt.Println("                    Names prefixed by '-' are excluded from signatures")
+	_, _ = fmt.Println("           contextId:    Arbitrary string used as a domain separator")
+	_, _ = fmt.Println("           type:         Signature type (optional, 'ed25519' or 'ecdsap521', default is 'ed25519')")
+	_, _ = fmt.Println("           include-file: File to include (optional, may contain wildcards, one per option)")
+	_, _ = fmt.Println("              if:        Short for 'include-file'")
+	_, _ = fmt.Println("           exclude-file: File to exclude (optional, may contain wildcards, one per option)")
+	_, _ = fmt.Println("              xf:        Short for 'exclude-file'")
+	_, _ = fmt.Println("           include-dir:  Directory to include (optional, may contain wildcards, one per option)")
+	_, _ = fmt.Println("              id:        Short for 'include-dir'")
+	_, _ = fmt.Println("           exclude-dir:  Directory to exclude (optional, may contain wildcards, one per option)")
+	_, _ = fmt.Println("              xd:        Short for 'exclude-dir'")
+	_, _ = fmt.Println("           no-subdirs:   Do not descend into subdirectories (optional)")
+	if runtime.GOOS != "windows" {
+		_, _ = fmt.Println("      Masks with wildcards need to be enclosed in quotes (') or double quotes (\")")
+	}
+	_, _ = fmt.Println("      Specifying an 'include' option implies that all others are excluded")
 	_, _ = fmt.Printf("\n   %s verify {contextId}\n", myName)
 	_, _ = fmt.Printf("      verify: Verify files with signatures in file '%s'\n", signatureFileName)
 	_, _ = fmt.Println("         contextId: Arbitrary string used as a domain separator")
