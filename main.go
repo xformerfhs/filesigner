@@ -71,7 +71,7 @@ func mainWithReturnCode(args []string) int {
 
 	case commandSign:
 		if argLen < 3 {
-			return printMissingSignParameters("Context id")
+			return printMissingContextId()
 		}
 
 		fileList, signatureType, err := cmdline.FilesToProcess(args[3:], signatureFileName)
@@ -83,21 +83,25 @@ func mainWithReturnCode(args []string) int {
 
 	case commandVerify:
 		if argLen < 3 {
-			return printUsageError(13, "Context id missing")
+			return printMissingContextId()
 		}
 
 		if argLen > 3 {
-			return printUsageError(14, "There must be no other parameters than 'verify' and the context id")
+			return printUsageError(13, "There must be no other parameters than 'verify' and the context id")
 		}
 
 		return doVerification(args[2])
 
 	default:
-		return printUsageErrorf(15, "Unknown command: '%s'", command)
+		return printUsageErrorf(14, "Unknown command: '%s'", command)
 	}
 }
 
 // ******** Private functions ********
+
+func printMissingContextId() int {
+	return printUsageError(15, "Context id missing")
+}
 
 // printMissingSignParameters prints an error message for missing sign parameters.
 func printMissingSignParameters(parameters string) int {
