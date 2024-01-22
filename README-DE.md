@@ -273,7 +273,7 @@ Als Ergebnis werden die Dateien `filesigner` für Linux und `filesigner.exe` fü
 
 ## Kontakt
 
-Frank Schwab ([Mail](mailto:frank.schwab@deutschebahn.com "Mail"))
+Frank Schwab ([Mail](mailto:frank.schwab@live.de "Mail"))
 
 ## Lizenz
 
