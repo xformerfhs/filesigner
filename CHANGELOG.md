@@ -10,7 +10,7 @@ and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ### Changed
 - Totally new interface for signing.
-- Major restructuring of code code modules.
+- Major restructuring of code modules.
 
 ## [0.13.4] - 2023-07-26
 
