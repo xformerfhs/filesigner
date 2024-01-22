@@ -6,13 +6,14 @@ import (
 	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"fmt"
+	"path/filepath"
 )
 
 // ******** Public functions ********
 
 // SignFileHashes creates signatures for file hashes.
 func SignFileHashes(hashSigner hashsignature.HashSigner,
-	hashResultList map[string]*filehasher.HashResult) (map[string]string, error) {
+	hashResultList map[string]*filehasher.HashResult) (map[string]string, []string, error) {
 	filePathList := maphelper.SortedKeys(hashResultList)
 
 	return makeHashSignatures(hashSigner, filePathList, hashResultList)
@@ -22,7 +23,7 @@ func SignFileHashes(hashSigner hashsignature.HashSigner,
 
 func makeHashSignatures(hashSigner hashsignature.HashSigner,
 	filePathList []string,
-	hashResultList map[string]*filehasher.HashResult) (map[string]string, error) {
+	hashResultList map[string]*filehasher.HashResult) (map[string]string, []string, error) {
 	var err error
 	signatures := make(map[string]string, len(filePathList))
 
@@ -30,11 +31,11 @@ func makeHashSignatures(hashSigner hashsignature.HashSigner,
 	for _, filePath := range filePathList {
 		signature, err = hashSigner.SignHash(hashResultList[filePath].HashValue)
 		if err != nil {
-			return nil, fmt.Errorf("Could not sign hash of file '%s': %w", filePath, err)
+			return nil, nil, fmt.Errorf("Could not sign hash of file '%s': %w", filePath, err)
 		}
 
-		signatures[filePath] = base32encoding.EncodeToString(signature)
+		signatures[filepath.ToSlash(filePath)] = base32encoding.EncodeToString(signature)
 	}
 
-	return signatures, nil
+	return signatures, filePathList, nil
 }

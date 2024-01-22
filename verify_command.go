@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"golang.org/x/exp/maps"
 	"os"
+	"path/filepath"
 )
 
 // ******** Private functions ********
@@ -127,16 +128,17 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 
 	result := make([]string, 0, len(filePaths))
 	for _, fp := range filePaths {
-		fi, err := os.Stat(fp)
+		nfp := filepath.FromSlash(fp)
+		fi, err := os.Stat(nfp)
 		if err != nil {
-			logger.PrintWarningf(63, "'%s' from signature file does not exist", fp)
+			logger.PrintWarningf(63, "'%s' from signature file does not exist", nfp)
 			rc = rcProcessWarning
 		} else {
 			if fi.IsDir() {
-				logger.PrintWarningf(64, "'%s' from signature file is a directory", fp)
+				logger.PrintWarningf(64, "'%s' from signature file is a directory", nfp)
 				rc = rcProcessWarning
 			} else {
-				result = append(result, fp)
+				result = append(result, nfp)
 			}
 		}
 	}

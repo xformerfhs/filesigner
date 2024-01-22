@@ -6,6 +6,7 @@ import (
 	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"fmt"
+	"path/filepath"
 )
 
 // ******** Public functions ********
@@ -24,19 +25,20 @@ func VerifyFileHashes(hashVerifier hashsignature.HashVerifier,
 	var signatureString string
 	var signatureValue []byte
 	for _, filePath := range filePathList {
-		fileHashResult, haveHashForFilePath := fileHashList[filePath]
+		normalizedFilePath := filepath.FromSlash(filePath)
+		fileHashResult, haveHashForFilePath := fileHashList[normalizedFilePath]
 		if haveHashForFilePath {
 			signatureString = fileSignatures[filePath]
 			signatureValue, err = base32encoding.DecodeFromString(signatureString)
 			if err != nil {
-				errCollection = append(errCollection, fmt.Errorf("Signature of file '%s' has invalid encoding: %w", filePath, err))
+				errCollection = append(errCollection, fmt.Errorf("Signature of file '%s' has invalid encoding: %w", normalizedFilePath, err))
 			} else {
 				var ok bool
 				ok, err = hashVerifier.VerifyHash(fileHashResult.HashValue, signatureValue)
 				if ok {
-					successCollection = append(successCollection, filePath)
+					successCollection = append(successCollection, normalizedFilePath)
 				} else {
-					errCollection = append(errCollection, fmt.Errorf("File '%s' has been tampered with", filePath))
+					errCollection = append(errCollection, fmt.Errorf("File '%s' has been tampered with", normalizedFilePath))
 				}
 			}
 		}

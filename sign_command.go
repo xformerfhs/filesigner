@@ -10,7 +10,6 @@ import (
 	"filesigner/signaturefile"
 	"filesigner/signaturehandler"
 	"filesigner/texthelper"
-	"golang.org/x/exp/maps"
 	"os"
 	"time"
 )
@@ -64,7 +63,8 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
 
-	signatureData.FileSignatures, err = filesignature.SignFileHashes(hashSigner, resultList)
+	var successList []string
+	signatureData.FileSignatures, successList, err = filesignature.SignFileHashes(hashSigner, resultList)
 	if err != nil {
 		logger.PrintErrorf(35, "Could not sign file hashes: %v", err)
 		return rcProcessError
@@ -86,8 +86,6 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 	logger.PrintInfof(39, "Public key id      : %s", keyid.KeyId(publicKeyBytes))
 	logger.PrintInfof(40, "Signature timestamp: %s", signatureData.Timestamp)
 	logger.PrintInfof(41, "Signature host name: %s", signatureData.Hostname)
-
-	successList := maps.Keys(signatureData.FileSignatures)
 
 	successCount := len(successList)
 	if successCount > 0 {
