@@ -103,14 +103,9 @@ func printMissingContextId() int {
 	return printUsageError(15, "Context id missing")
 }
 
-// printMissingSignParameters prints an error message for missing sign parameters.
-func printMissingSignParameters(parameters string) int {
-	return printUsageErrorf(16, "%s of files to sign missing", parameters)
-}
-
 // printVersion prints the program version information.
 func printVersion() {
-	logger.PrintInfof(17, "%s V%s (%s, %d cpus)",
+	logger.PrintInfof(16, "%s V%s (%s, %d cpus)",
 		myName,
 		myVersion,
 		runtime.Version(),

@@ -172,7 +172,7 @@ filesigner sign project1711 -if *.go -if filesign*
 The program then generates the following output on the console:
 
 ```
-2023-06-13 12:51:25 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:25 +02:00  16  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
 2023-06-13 12:51:25 +02:00  37  I  Context id         : project1711
 2023-06-13 12:51:25 +02:00  38  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
 2023-06-13 12:51:25 +02:00  39  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
@@ -202,7 +202,7 @@ filesigner verify project1711
 The program then generates the following output on the console:
 
 ```
-2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:52 +02:00  16  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
 2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
 2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
 2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
@@ -224,7 +224,7 @@ If this is not the case, the signature is deemed to be invalid and the files mus
 As another example, if the file `filesigner` has been manipulated, the following output would appear:
 
 ```
-2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:52 +02:00  16  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
 2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
 2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
 2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
@@ -243,7 +243,7 @@ The return code is 3.
 If, for example, the signature file has been manipulated or the wrong context ID has been specified, the following output would appear:
 
 ```
-2023-06-13 12:51:52 +02:00  17  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
+2023-06-13 12:51:52 +02:00  16  I  filesigner V0.50.0 (go1.21.6, 12 cpus)
 2023-06-13 12:51:53 +02:00  55  I  Context id         : project1711
 2023-06-13 12:51:53 +02:00  56  I  Public key id      : 85R3-VZPX-JRV8-RN6R-G0L1-SV4U-NW
 2023-06-13 12:51:53 +02:00  57  I  Signature timestamp: 2023-06-13 12:51:25 +02:00
