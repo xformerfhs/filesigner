@@ -83,17 +83,17 @@ func mainWithReturnCode(args []string) int {
 
 	case commandVerify:
 		if argLen < 3 {
-			return printUsageError(12, "Context id missing")
+			return printUsageError(13, "Context id missing")
 		}
 
 		if argLen > 3 {
-			return printUsageError(13, "There must be no other parameters than 'verify' and the context id")
+			return printUsageError(14, "There must be no other parameters than 'verify' and the context id")
 		}
 
 		return doVerification(args[2])
 
 	default:
-		return printUsageErrorf(14, "Unknown command: '%s'", command)
+		return printUsageErrorf(15, "Unknown command: '%s'", command)
 	}
 }
 
@@ -101,12 +101,12 @@ func mainWithReturnCode(args []string) int {
 
 // printMissingSignParameters prints an error message for missing sign parameters.
 func printMissingSignParameters(parameters string) int {
-	return printUsageErrorf(17, "%s of files to sign missing", parameters)
+	return printUsageErrorf(16, "%s of files to sign missing", parameters)
 }
 
 // printVersion prints the program version information.
 func printVersion() {
-	logger.PrintInfof(18, "%s V%s (%s, %d cpus)",
+	logger.PrintInfof(17, "%s V%s (%s, %d cpus)",
 		myName,
 		myVersion,
 		runtime.Version(),

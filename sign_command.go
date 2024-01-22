@@ -50,7 +50,7 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 		hashSigner, err = hashsignature.NewEcDsa521HashSigner()
 	}
 	if err != nil {
-		logger.PrintErrorf(33, "Could not create hash-signer: %v", err)
+		logger.PrintErrorf(32, "Could not create hash-signer: %v", err)
 		return rcProcessError
 	}
 	defer hashSigner.Destroy()
@@ -58,7 +58,7 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 	var publicKeyBytes []byte
 	publicKeyBytes, err = hashSigner.GetPublicKey()
 	if err != nil {
-		logger.PrintErrorf(34, "Could not get public key bytes: %v", err)
+		logger.PrintErrorf(33, "Could not get public key bytes: %v", err)
 		return rcProcessError
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
@@ -66,26 +66,26 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 	var successList []string
 	signatureData.FileSignatures, successList, err = filesignature.SignFileHashes(hashSigner, resultList)
 	if err != nil {
-		logger.PrintErrorf(35, "Could not sign file hashes: %v", err)
+		logger.PrintErrorf(34, "Could not sign file hashes: %v", err)
 		return rcProcessError
 	}
 
 	err = signatureData.Sign(hashSigner, contextId)
 	if err != nil {
-		logger.PrintErrorf(36, "Could not sign signature file data: %v", err)
+		logger.PrintErrorf(35, "Could not sign signature file data: %v", err)
 		return rcProcessError
 	}
 
 	err = signaturefile.WriteSignatureFile(signatureFileName, signatureData)
 	if err != nil {
-		logger.PrintError(37, err.Error())
+		logger.PrintError(36, err.Error())
 		return rcProcessError
 	}
 
-	logger.PrintInfof(38, "Context id         : %s", contextId)
-	logger.PrintInfof(39, "Public key id      : %s", keyid.KeyId(publicKeyBytes))
-	logger.PrintInfof(40, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(41, "Signature host name: %s", signatureData.Hostname)
+	logger.PrintInfof(37, "Context id         : %s", contextId)
+	logger.PrintInfof(38, "Public key id      : %s", keyid.KeyId(publicKeyBytes))
+	logger.PrintInfof(39, "Signature timestamp: %s", signatureData.Timestamp)
+	logger.PrintInfof(40, "Signature host name: %s", signatureData.Hostname)
 
 	successCount := len(successList)
 	if successCount > 0 {
@@ -94,6 +94,6 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 
 	successEnding := texthelper.GetCountEnding(successCount)
 
-	logger.PrintInfof(42, "Signature%s for %d file%s successfully created", successEnding, len(successList), successEnding)
+	logger.PrintInfof(41, "Signature%s for %d file%s successfully created", successEnding, len(successList), successEnding)
 	return rcOK
 }
