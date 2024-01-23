@@ -17,13 +17,13 @@ type SignatureFormat byte
 type SignatureType byte
 
 type SignatureData struct {
-	Format         SignatureFormat
-	PublicKey      string
-	Timestamp      string
-	Hostname       string
-	SignatureType  SignatureType
-	FileSignatures map[string]string
-	DataSignature  string
+	Format         SignatureFormat   `json:"format"`
+	PublicKey      string            `json:"publicKey"`
+	Timestamp      string            `json:"timeStamp"`
+	Hostname       string            `json:"hostname"`
+	SignatureType  SignatureType     `json:"signatureType"`
+	FileSignatures map[string]string `json:"fileSignatures"`
+	DataSignature  string            `json:"dataSignature"`
 }
 
 // ******** Public constants ********
