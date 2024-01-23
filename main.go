@@ -44,7 +44,7 @@ const signatureFileName = "signatures.json"
 // Program information
 
 // myVersion contains the program version.
-const myVersion = "0.50.0"
+const myVersion = "0.50.1"
 
 // myName contains the program name.
 var myName string
