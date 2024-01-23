@@ -13,9 +13,13 @@ import (
 
 // ******** Public types ********
 
+// SignatureFormat contains the the format id of the signature file.
 type SignatureFormat byte
+
+// SignatureType contains the the code for the signature algorithm.
 type SignatureType byte
 
+// SignatureData contains all the data that comprise a filesigner signature.
 type SignatureData struct {
 	Format         SignatureFormat   `json:"format"`
 	PublicKey      string            `json:"publicKey"`
@@ -28,13 +32,14 @@ type SignatureData struct {
 
 // ******** Public constants ********
 
-// SignatureFormatMax is the maximum (i.e. newest) format id of the signature result format.
+// These are the possible values for SignatureFormat.
 const (
 	SignatureFormatInvalid SignatureFormat = iota
 	SignatureFormatV1
 	SignatureFormatMax = iota - 1
 )
 
+// These are the possible values for SignatureType.
 const (
 	SignatureTypeInvalid SignatureType = iota
 	SignatureTypeEd25519
