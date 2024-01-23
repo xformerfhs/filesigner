@@ -75,7 +75,11 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 	}
 
 	if !shouldProcess {
-		return nil
+		if !isDir {
+			return nil
+		} else {
+			return filepath.SkipDir
+		}
 	}
 
 	// Add the entry to the result list. We come here if the entry is not excluded.
