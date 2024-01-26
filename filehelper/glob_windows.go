@@ -7,9 +7,13 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// SensibleGlob globs a pattern with Windows API calls as this is the only correct
+// ******** Public functions ********
+
+// ******** Private functions ********
+
+// sensibleGlobWithSwitch globs a pattern with Windows API calls as this is the only correct
 // way to handle globbing on the case-insensitive Windows file system.
-func SensibleGlob(pattern string) ([]string, error) {
+func sensibleGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]string, error) {
 	// Initialize result
 	result := make([]string, 0, 64)
 
@@ -39,7 +43,7 @@ func SensibleGlob(pattern string) ([]string, error) {
 	defer findCloseHelper(findHandle)
 
 	// Append first file to result
-	result = appendFileNameIfNoDir(result, findData)
+	result = appendNameIfEligible(result, findData, withDirs, withFiles)
 
 	// Now loop through more matching files
 	for {
@@ -47,7 +51,7 @@ func SensibleGlob(pattern string) ([]string, error) {
 
 		switch {
 		case err == nil:
-			result = appendFileNameIfNoDir(result, findData)
+			result = appendNameIfEligible(result, findData, withDirs, withFiles)
 		case errors.Is(err, windows.ERROR_NO_MORE_FILES):
 			return result, nil
 		default:
@@ -56,10 +60,20 @@ func SensibleGlob(pattern string) ([]string, error) {
 	}
 }
 
-// appendFileNameIfNoDir appends a file name to the result list, if it does not represent a directory.
-func appendFileNameIfNoDir(result []string, findData windows.Win32finddata) []string {
+// appendNameIfEligible appends a file name to the result list, if it is eligible.
+func appendNameIfEligible(result []string, findData windows.Win32finddata, withDirs bool, withFiles bool) []string {
 	if (findData.FileAttributes & windows.FILE_ATTRIBUTE_DIRECTORY) == 0 {
-		result = append(result, windows.UTF16ToString(findData.FileName[:]))
+		if withFiles {
+			result = append(result, windows.UTF16ToString(findData.FileName[:]))
+		}
+	} else {
+		if withDirs {
+			dirName := windows.UTF16ToString(findData.FileName[:])
+
+			if dirName != "." && dirName != ".." {
+				result = append(result, dirName)
+			}
+		}
 	}
 
 	return result

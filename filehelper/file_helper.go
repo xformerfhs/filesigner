@@ -13,7 +13,15 @@ import (
 func CloseFile(file *os.File) {
 	err := file.Close()
 	if err != nil {
-		log.Printf("error closing file '%s': %v", file.Name(), err)
+		printFileOperationError(`clos`, file.Name(), err)
+	}
+}
+
+// DeleteFile deletes the file specified by the given file path.
+func DeleteFile(filePath string) {
+	err := os.Remove(filePath)
+	if err != nil {
+		printFileOperationError(`delet`, filePath, err)
 	}
 }
 
@@ -30,4 +38,21 @@ func FileSize(filePath string) (int64, error) {
 	}
 
 	return fi.Size(), nil
+}
+
+// IsDir checks if a file path is a directory.
+func IsDir(filePath string) (bool, error) {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return false, err
+	}
+
+	return fileInfo.IsDir(), nil
+}
+
+// ******** Private functions ********
+
+// printFileOperationError prints an error message for a file operation.
+func printFileOperationError(opName string, filePath string, err error) {
+	log.Printf(`error %sing file '%s': %v`, opName, filePath, err)
 }

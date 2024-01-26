@@ -7,26 +7,31 @@ import (
 	"path/filepath"
 )
 
-// ******** Public functions ********
+// ******** Private functions ********
 
-// SensibleGlob is the globbing function for all OSes except Windows.
-func SensibleGlob(pattern string) ([]string, error) {
+// sensibleGlobWithSwitch is the globbing function for all OSes except Windows.
+func sensibleGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]string, error) {
 	// Remove trailing separators, if any
 	pattern = ensureNoTrailingSeparator(pattern)
 
-	// Find files matching pattern
+	// Find files and directories matching pattern
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
 		return matches, err
 	}
 
-	return removeDirs(matches)
+	if !withDirs {
+		matches = removeElements(matches, true)
+	}
+	if !withFiles {
+		matches = removeElements(matches, false)
+	}
+
+	return matches
 }
 
-// ******** Private functions ********
-
-// removeDirs removes all directories in the globbing list.
-func removeDirs(matchList []string) ([]string, error) {
+// removeElements removes all elements in the globbing list that are either no directories or no no files.
+func removeElements(matchList []string, noDirs bool) ([]string, error) {
 	result := make([]string, 0, len(matchList))
 	for _, filePath := range matchList {
 		fi, err := os.Stat(filePath)
@@ -34,8 +39,14 @@ func removeDirs(matchList []string) ([]string, error) {
 			return nil, err
 		}
 
-		if !fi.IsDir() {
-			result = append(result, filePath)
+		if fi.IsDir() {
+			if !noDirs {
+				result = append(result, filePath)
+			}
+		} else {
+			if noDirs {
+				result = append(result, filePath)
+			}
 		}
 	}
 
