@@ -38,7 +38,7 @@ func filterMatches(matchList []string, withDirs bool, withFiles bool) ([]string,
 			}
 		} else {
 			if withDirs {
-				if fileName != "." && fileName != ".." {
+				if fileName != `.` && fileName != `..` {
 					result = append(result, fileName)
 				}
 			}
