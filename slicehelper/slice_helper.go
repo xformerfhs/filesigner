@@ -31,6 +31,11 @@ func MakeCopy[S ~[]T, T any](a S) S {
 	return result
 }
 
+// Prepend adds an element v at the beginning of a slice s.
+func Prepend[T any](v T, s []T) []T {
+	return append([]T{v}, s...)
+}
+
 // ******** Private functions ********
 
 // ensureLengthIsCapacity ensures that the length of the slice is its capacity.

@@ -89,11 +89,29 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 		return resultList, signatureType, nil
 	*/
 	resultList, err = checkAndNormalizeFilePaths(resultList)
+
 	if err != nil {
 		return nil, signatureType, err
 	}
 
+	resultList, err = convertFileSpecToDirNames(resultList)
 	return resultList, signatureType, nil
+}
+
+func convertFileSpecToDirNames(cmdLinePaths []string) ([]string, error) {
+	result := make([]string, 0, len(cmdLinePaths))
+	var globList []string
+	var err error
+	for _, path := range cmdLinePaths {
+		globList, err = filehelper.PathGlob(path)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, globList...)
+	}
+
+	return result, nil
 }
 
 // addFilesFromCmdLineOrStdIn adds files from the command line or from StdIn
@@ -131,17 +149,7 @@ func checkAndNormalizeFilePaths(filepathList []string) ([]string, error) {
 
 		// 2. Convert to relative path, or complain if the specified absolute path is not in the current directory
 		if strings.HasPrefix(normalizedFilePath, thisDirPath) {
-			candidateFilePath := normalizedFilePath[thisDirPathLen:]
-
-			var isDir bool
-			isDir, err = filehelper.IsDir(candidateFilePath)
-			if err != nil {
-				return nil, err
-			}
-
-			if !isDir {
-				resultList = append(resultList, candidateFilePath)
-			}
+			resultList = append(resultList, normalizedFilePath[thisDirPathLen:])
 		} else {
 			return nil, fmt.Errorf("Absolute file path '%s' is not within the current directory", filePath)
 		}
@@ -174,10 +182,12 @@ func normalizeFilePath(filePath string) (string, error) {
 // getPathLen calculates the length of the path that is used to convert an absolute to a relative path.
 func getPathLen(filePath string) int {
 	filePathLen := len(filePath)
+	vol := filepath.VolumeName(filePath)
+	filePath = filePath[len(vol):]
 
 	// Add one to length to account for the file path separator.
 	// Except when this is a root directory.
-	if !(filePath == `/` || filePath == `\` || strings.HasSuffix(filePath, `:\`)) {
+	if filePathLen > 1 || (filePath != `/` && filePath != `\`) {
 		filePathLen++
 	}
 

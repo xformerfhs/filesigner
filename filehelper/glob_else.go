@@ -20,32 +20,27 @@ func sensibleGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]st
 		return matches, err
 	}
 
-	if !withDirs {
-		matches = removeElements(matches, true)
-	}
-	if !withFiles {
-		matches = removeElements(matches, false)
-	}
-
-	return matches
+	return filterMatches(matches, withDirs, withFiles)
 }
 
-// removeElements removes all elements in the globbing list that are either no directories or no no files.
-func removeElements(matchList []string, noDirs bool) ([]string, error) {
+// filterMatches filters all elements in the globbing list according to being directories or files.
+func filterMatches(matchList []string, withDirs bool, withFiles bool) ([]string, error) {
 	result := make([]string, 0, len(matchList))
-	for _, filePath := range matchList {
-		fi, err := os.Stat(filePath)
+	for _, fileName := range matchList {
+		fi, err := os.Stat(fileName)
 		if err != nil {
 			return nil, err
 		}
 
-		if fi.IsDir() {
-			if !noDirs {
-				result = append(result, filePath)
+		if !fi.IsDir() {
+			if withFiles {
+				result = append(result, fileName)
 			}
 		} else {
-			if noDirs {
-				result = append(result, filePath)
+			if withDirs {
+				if fileName != "." && fileName != ".." {
+					result = append(result, fileName)
+				}
 			}
 		}
 	}
