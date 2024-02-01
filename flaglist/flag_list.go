@@ -26,18 +26,37 @@
 //    2024-02-01: V1.0.0: Created.
 //
 
-package maphelper
+package flaglist
 
 import (
-	"cmp"
-	"golang.org/x/exp/maps"
-	"slices"
+	"fmt"
 )
 
-// SortedKeys returns the keys of the map m. The keys will be sorted.
-func SortedKeys[K cmp.Ordered, V any](m map[K]V) []K {
-	result := maps.Keys(m)
-	slices.Sort(result)
+type FlagList []string
 
-	return result
+func NewFlagList() *FlagList {
+	result := make(FlagList, 0, 100)
+	return &result
+}
+
+func (ftl *FlagList) String() string {
+	return fmt.Sprint(*ftl)
+}
+
+func (ftl *FlagList) Set(value string) error {
+	*ftl = append(*ftl, value)
+
+	return nil
+}
+
+func (ftl *FlagList) GetNames() []string {
+	return *ftl
+}
+
+func (ftl *FlagList) Len() int {
+	return len(*ftl)
+}
+
+func (ftl *FlagList) HasEntries() bool {
+	return len(*ftl) > 0
 }

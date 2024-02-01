@@ -1,7 +1,36 @@
+//
+// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// SPDX-FileType: SOURCE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+//
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Frank Schwab
+//
+// Version: 1.0.0
+//
+// Change history:
+//    2024-02-01: V1.0.0: Created.
+//
+
 package filehelper
 
 import (
-	"filesigner/typelist"
+	"filesigner/flaglist"
+	"filesigner/set"
 	"io/fs"
 	"path/filepath"
 	"runtime"
@@ -12,21 +41,21 @@ var modExcludeFileNameList []string
 var modIncludeFileNameList []string
 var modExcludeDirNameList []string
 var modIncludeDirNameList []string
-var modNoSubDirs bool
-var modResultList []string
+var modDoRecursion bool
+var modResultList *set.Set[string]
 var modMatchFunc func(string, string) (bool, error)
 
-func ScanDir(includeFileList *typelist.FlagTypeList,
-	excludeFileList *typelist.FlagTypeList,
-	includeDirList *typelist.FlagTypeList,
-	excludeDirList *typelist.FlagTypeList,
-	noSubDirs bool) ([]string, error) {
+func ScanDir(includeFileList *flaglist.FlagList,
+	excludeFileList *flaglist.FlagList,
+	includeDirList *flaglist.FlagList,
+	excludeDirList *flaglist.FlagList,
+	doRecursion bool) (*set.Set[string], error) {
 	modIncludeFileNameList = includeFileList.GetNames()
 	modExcludeFileNameList = excludeFileList.GetNames()
 	modIncludeDirNameList = includeDirList.GetNames()
 	modExcludeDirNameList = excludeDirList.GetNames()
-	modNoSubDirs = noSubDirs
-	modResultList = make([]string, 0, 100)
+	modDoRecursion = doRecursion
+	modResultList = set.New[string]()
 	if runtime.GOOS == "windows" {
 		modMatchFunc = CaseInvariantMatchFunction
 	} else {
@@ -51,7 +80,7 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 	isDir := dirEntry.IsDir()
 
 	// If the entry is a directory and subdirectories are not allowed return SkipDir
-	if isDir && modNoSubDirs {
+	if isDir && !modDoRecursion {
 		return filepath.SkipDir
 	}
 
@@ -86,7 +115,7 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 	// If there are includes the entry also has to match an include specification.
 	// Only add files, not directories.
 	if !isDir {
-		modResultList = append(modResultList, path)
+		modResultList.Add(path)
 	}
 
 	return nil

@@ -1,23 +1,54 @@
+//
+// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// SPDX-FileType: SOURCE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+//
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Frank Schwab
+//
+// Version: 1.0.0
+//
+// Change history:
+//    2024-02-01: V1.0.0: Created.
+//
+
 package cmdline
 
 import (
 	"bufio"
 	"filesigner/filehelper"
-	"filesigner/signaturehandler"
-	"filesigner/stringhelper"
+	"filesigner/flaglist"
+	"filesigner/set"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
+// ******** Private constants ********
+
 const readFromStdInArg = "-"
 
+// ******** Public functions ********
+
 // FilesToProcess searches for the file names that match the command line options
-func FilesToProcess(args []string, signatureFileName string) ([]string, signaturehandler.SignatureType, error) {
-	signCmd := flag.NewFlagSet("sign", flag.ExitOnError)
+func FilesToProcess(args []string, signatureFileName string) ([]string, error) {
+	signCmd := flag.NewFlagSet("sign", flag.ContinueOnError)
 
 	var signatureTypeText string
 	signCmd.StringVar(&signatureTypeText, "algorithm", "ed25519", "Signature algorithm (either 'ed25519' or 'ecdsap521')")
@@ -34,181 +65,166 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	var beQuiet bool
 	signCmd.BoolVar(&beQuiet, "quiet", false, "Only write output if something goes wrong")
 	signCmd.BoolVar(&beQuiet, "q", false, "Short form of 'quiet'")
-	/*
-		excludeFileList := typelist.NewFlagTypeList()
-		signCmd.Var(excludeFileList, "exclude-file", "Name of file to exclude from signing (may contain wild-cards).")
-		signCmd.Var(excludeFileList, "xf", "Short for 'exclude-file'")
 
-		includeFileList := typelist.NewFlagTypeList()
-		signCmd.Var(includeFileList, "include-file", "Name of file to include in signing may contain wild-cards)")
-		signCmd.Var(includeFileList, "if", "Short for 'include-file'")
+	var doRecursion bool
+	signCmd.BoolVar(&doRecursion, "recurse", false, "Only write output if something goes wrong")
+	signCmd.BoolVar(&doRecursion, "r", false, "Short form of 'recurse'")
 
-		excludeDirList := typelist.NewFlagTypeList()
-		signCmd.Var(excludeDirList, "exclude-dir", "Name of directory to exclude from signing.")
-		signCmd.Var(excludeDirList, "xd", "Short for 'exclude-dir'")
+	var readStdIn bool
+	signCmd.BoolVar(&readStdIn, "stdin", false, "Read list of files from stdin")
+	signCmd.BoolVar(&readStdIn, "n", false, "Short form of 'stdin'")
 
-		includeDirList := typelist.NewFlagTypeList()
-		signCmd.Var(includeDirList, "include-dir", "Name of directory to include in signing")
-		signCmd.Var(includeDirList, "id", "Short for 'include-dir'")
-	*/
+	excludeFileList := flaglist.NewFlagList()
+	signCmd.Var(excludeFileList, "exclude-file", "Name of file to exclude from signing (may contain wild-cards).")
+	signCmd.Var(excludeFileList, "xf", "Short for 'exclude-file'")
 
-	var signatureType signaturehandler.SignatureType
+	includeFileList := flaglist.NewFlagList()
+	signCmd.Var(includeFileList, "include-file", "Name of file to include in signing may contain wild-cards)")
+	signCmd.Var(includeFileList, "if", "Short for 'include-file'")
+
+	excludeDirList := flaglist.NewFlagList()
+	signCmd.Var(excludeDirList, "exclude-dir", "Name of directory to exclude from signing (may contain wild-cards).")
+	signCmd.Var(excludeDirList, "xd", "Short for 'exclude-dir'")
+
+	includeDirList := flaglist.NewFlagList()
+	signCmd.Var(includeDirList, "include-dir", "Name of directory to include in signing may contain wild-cards)")
+	signCmd.Var(includeDirList, "id", "Short for 'include-dir'")
+
+	// 1. Parse command line
 	err := signCmd.Parse(args)
-	if err != nil {
-		return nil, signatureType, err
-	}
-
-	signatureType, err = convertSignatureType(strings.ToLower(signatureTypeText))
-	if err != nil {
-		return nil, signatureType, err
-	}
-
-	//	*excludeFileList = append(*excludeFileList, signatureFileName)
-
-	resultList := make([]string, 0, 100)
-
-	if len(fromFileName) != 0 {
-		resultList, err = addFilesFromFileName(fromFileName, resultList)
-	}
-
-	if signCmd.NArg() != 0 {
-		resultList = addFilesFromCmdLineOrStdIn(signCmd, resultList)
-	}
-
-	/*
-			resultList, err = filehelper.ScanDir(includeFileList,
-				excludeFileList,
-				includeDirList,
-				excludeDirList,
-				noSubDirs)
-
-			if err != nil {
-				return nil, signatureType, err
-			}
-
-		return resultList, signatureType, nil
-	*/
-	resultList, err = checkAndNormalizeFilePaths(resultList)
-
-	if err != nil {
-		return nil, signatureType, err
-	}
-
-	resultList, err = convertFileSpecToDirNames(resultList)
-	return resultList, signatureType, nil
-}
-
-func convertFileSpecToDirNames(cmdLinePaths []string) ([]string, error) {
-	result := make([]string, 0, len(cmdLinePaths))
-	var globList []string
-	var err error
-	for _, path := range cmdLinePaths {
-		globList, err = filehelper.PathGlob(path)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, globList...)
-	}
-
-	return result, nil
-}
-
-// addFilesFromCmdLineOrStdIn adds files from the command line or from StdIn
-func addFilesFromCmdLineOrStdIn(signCmd *flag.FlagSet, resultList []string) []string {
-	remArgs := signCmd.Args()
-
-	// Add files from the command line, except when the first argument is "-"
-	if remArgs[0] != readFromStdInArg {
-		resultList = append(resultList, remArgs...)
-	} else {
-		resultList = addFilesFromFile(os.Stdin, resultList)
-	}
-
-	return resultList
-}
-
-// checkAndNormalizeFilePaths checks the file paths if they are valid file paths and normalizes them.
-func checkAndNormalizeFilePaths(filepathList []string) ([]string, error) {
-	thisDirPath, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	thisDirPathLen := getPathLen(thisDirPath)
+	// 2. Read file names from command line, StdIn and options.
 
-	var normalizedFilePath string
+	// 2.1. See if there is a file that contains file names.
+	var fileSpecs []string
+	if len(fromFileName) != 0 {
+		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
+	}
 
-	resultList := make([]string, 0, len(filepathList))
-	for _, filePath := range filepathList {
-		// 1. Make file path a normalized absolute path
-		normalizedFilePath, err = normalizeFilePath(filePath)
+	// 2.2. Add file names from StdIn and the command line.
+	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, signCmd.Args(), fileSpecs)
+
+	// 3. Convert file specs to absolute path names.
+	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
+	if err != nil {
+		return nil, err
+	}
+
+	var filePaths *set.Set[string]
+	filePaths, err = getRealFilePathsFromSpecs(fileSpecs)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2.3 If no files are specified, or any include "include" is specified, scan the current directory.
+	var scanPaths *set.Set[string]
+	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
+		scanPaths, err = filehelper.ScanDir(includeFileList, excludeFileList, includeDirList, excludeDirList, doRecursion)
+	} else {
+		scanPaths = set.New[string]()
+	}
+
+	return filePaths.Union(scanPaths).Elements(), nil
+}
+
+// ******** Private functions ********
+
+// getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
+func getRealFilePathsFromSpecs(fileSpecs []string) (*set.Set[string], error) {
+	filePaths := set.NewWithLength[string](len(fileSpecs))
+
+	thisDirPath, err := makeThisDirPath()
+	if err != nil {
+		return filePaths, err
+	}
+
+	var selectedFilePaths []string
+	for _, fileSpec := range fileSpecs {
+		selectedFilePaths, err = filehelper.PathGlob(fileSpec)
 		if err != nil {
 			return nil, err
 		}
 
-		// 2. Convert to relative path, or complain if the specified absolute path is not in the current directory
-		if strings.HasPrefix(normalizedFilePath, thisDirPath) {
-			resultList = append(resultList, normalizedFilePath[thisDirPathLen:])
-		} else {
-			return nil, fmt.Errorf("Absolute file path '%s' is not within the current directory", filePath)
+		if len(selectedFilePaths) == 0 {
+			return nil, fmt.Errorf("No files found for specification '%s'", fileSpec)
+		}
+
+		for _, selectedFilePath := range selectedFilePaths {
+			selectedFilePath, err = removeThisDirPath(thisDirPath, selectedFilePath)
+			if err != nil {
+				return filePaths, err
+			}
+
+			filePaths.Add(selectedFilePath)
 		}
 	}
 
-	return resultList, nil
+	return filePaths, nil
 }
 
-// normalizeFilePath converts a file path to an absolute file path.
-func normalizeFilePath(filePath string) (string, error) {
-	// 1. Convert the specified path to an absolute path
-	normalizedFilePath, err := filepath.Abs(filePath)
+// removeThisDirPath removes the current directory path from a file path.
+func removeThisDirPath(thisDirPath string, filePath string) (string, error) {
+	if strings.HasPrefix(filePath, thisDirPath) {
+		return filePath[len(thisDirPath):], nil
+	}
+	return "", fmt.Errorf("file path '%s' is not inside current directory '%s'", filePath, thisDirPath)
+}
+
+// makeThisDirPath builds the current directory path.
+func makeThisDirPath() (string, error) {
+	thisDirPath, err := os.Getwd()
+
 	if err != nil {
-		return "", err
+		return ``, err
 	}
 
-	// 2. If this is Windows convert the drive letter to upper case
-	//    This is a hack to avoid creating a new string just because
-	//    the first character is converted to upper case
-	normalizedFilePathBytes := stringhelper.UnsafeStringBytes(normalizedFilePath)
-	if runtime.GOOS == "windows" && normalizedFilePathBytes[1] == ':' {
-		if normalizedFilePathBytes[0] > 'Z' {
-			normalizedFilePathBytes[0] ^= 0x20
+	if !os.IsPathSeparator(thisDirPath[len(thisDirPath)-1]) {
+		thisDirPath += string(os.PathSeparator)
+	}
+
+	return thisDirPath, nil
+}
+
+// makeAbsFileSpecs converts the supplied file specifications to absolute path specifications.
+func makeAbsFileSpecs(fileSpecs []string) ([]string, error) {
+	for i, fileSpec := range fileSpecs {
+		// Make an absolute path.
+		normalizedFileSpec, err := filepath.Abs(fileSpec)
+		if err != nil {
+			return nil, err
 		}
+
+		fileSpecs[i] = normalizedFileSpec
 	}
 
-	return normalizedFilePath, nil
+	return fileSpecs, nil
 }
 
-// getPathLen calculates the length of the path that is used to convert an absolute to a relative path.
-func getPathLen(filePath string) int {
-	filePathLen := len(filePath)
-	vol := filepath.VolumeName(filePath)
-	filePath = filePath[len(vol):]
-
-	// Add one to length to account for the file path separator.
-	// Except when this is a root directory.
-	if filePathLen > 1 || (filePath != `/` && filePath != `\`) {
-		filePathLen++
+// addFileSpecsFromCmdLineAndStdIn adds files from StdIn and from the command line.
+func addFileSpecsFromCmdLineAndStdIn(readStdIn bool, args []string, fileSpecs []string) []string {
+	// If 1. argument on the command line is '-' set readStdIn
+	if args[0] == readFromStdInArg {
+		readStdIn = true
+		args = args[1:]
 	}
 
-	return filePathLen
-}
-
-// convertSignatureType converts the signature type text into a byte.
-func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, error) {
-	switch signatureTypeText {
-	case "ed25519":
-		return signaturehandler.SignatureTypeEd25519, nil
-
-	case "ecdsap521":
-		return signaturehandler.SignatureTypeEcDsaP521, nil
-
-	default:
-		return signaturehandler.SignatureTypeInvalid, fmt.Errorf("Invalid signature type: '%s'", signatureTypeText)
+	// Read file names from StdIn
+	if readStdIn {
+		fileSpecs = addFilesFromFile(os.Stdin, fileSpecs)
 	}
+
+	// Read files from command line
+	fileSpecs = append(fileSpecs, args...)
+
+	return fileSpecs
 }
 
-func addFilesFromFileName(fromFileName string, fileLines []string) ([]string, error) {
+// addFileSpecsFromFileName reads the contents of the file with the supplied file name
+// and adds them to the given fileLines slice. It returns the updated fileLines slice.
+func addFileSpecsFromFileName(fromFileName string, fileSpecs []string) ([]string, error) {
 	readFile, err := os.Open(fromFileName)
 
 	if err != nil {
@@ -217,18 +233,20 @@ func addFilesFromFileName(fromFileName string, fileLines []string) ([]string, er
 
 	defer filehelper.CloseFile(readFile)
 
-	fileLines = addFilesFromFile(readFile, fileLines)
+	fileSpecs = addFilesFromFile(readFile, fileSpecs)
 
-	return fileLines, nil
+	return fileSpecs, nil
 }
 
-func addFilesFromFile(readFile *os.File, fileLines []string) []string {
-	fileScanner := bufio.NewScanner(readFile)
+// addFilesFromFile reads the content of the given os.File and appends each line to the provided fileLines slice.
+// It returns the updated fileLines slice.
+func addFilesFromFile(fromFile *os.File, fileSpecs []string) []string {
+	fileScanner := bufio.NewScanner(fromFile)
 	fileScanner.Split(bufio.ScanLines)
 
 	for fileScanner.Scan() {
-		fileLines = append(fileLines, fileScanner.Text())
+		fileSpecs = append(fileSpecs, fileScanner.Text())
 	}
 
-	return fileLines
+	return fileSpecs
 }
