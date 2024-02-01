@@ -33,6 +33,7 @@ import (
 	"filesigner/filehelper"
 	"filesigner/flaglist"
 	"filesigner/set"
+	"filesigner/signaturehandler"
 	"flag"
 	"fmt"
 	"os"
@@ -47,7 +48,7 @@ const readFromStdInArg = "-"
 // ******** Public functions ********
 
 // FilesToProcess searches for the file names that match the command line options
-func FilesToProcess(args []string, signatureFileName string) ([]string, error) {
+func FilesToProcess(args []string, signatureFileName string) ([]string, signaturehandler.SignatureType, error) {
 	signCmd := flag.NewFlagSet("sign", flag.ContinueOnError)
 
 	var signatureTypeText string
@@ -91,9 +92,15 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, error) {
 	signCmd.Var(includeDirList, "id", "Short for 'include-dir'")
 
 	// 1. Parse command line
+	var signatureType signaturehandler.SignatureType
 	err := signCmd.Parse(args)
 	if err != nil {
-		return nil, err
+		return nil, signatureType, err
+	}
+
+	signatureType, err = convertSignatureType(strings.ToLower(signatureTypeText))
+	if err != nil {
+		return nil, signatureType, err
 	}
 
 	// 2. Read file names from command line, StdIn and options.
@@ -110,13 +117,13 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, error) {
 	// 3. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
 	if err != nil {
-		return nil, err
+		return nil, signatureType, err
 	}
 
 	var filePaths *set.Set[string]
 	filePaths, err = getRealFilePathsFromSpecs(fileSpecs)
 	if err != nil {
-		return nil, err
+		return nil, signatureType, err
 	}
 
 	// 2.3 If no files are specified, or any include "include" is specified, scan the current directory.
@@ -127,10 +134,24 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, error) {
 		scanPaths = set.New[string]()
 	}
 
-	return filePaths.Union(scanPaths).Elements(), nil
+	return filePaths.Union(scanPaths).Elements(), signatureType, nil
 }
 
 // ******** Private functions ********
+
+// convertSignatureType converts the signature type text into a byte.
+func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, error) {
+	switch signatureTypeText {
+	case "ed25519":
+		return signaturehandler.SignatureTypeEd25519, nil
+
+	case "ecdsap521":
+		return signaturehandler.SignatureTypeEcDsaP521, nil
+
+	default:
+		return signaturehandler.SignatureTypeInvalid, fmt.Errorf("Invalid signature type: '%s'", signatureTypeText)
+	}
+}
 
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
 func getRealFilePathsFromSpecs(fileSpecs []string) (*set.Set[string], error) {
