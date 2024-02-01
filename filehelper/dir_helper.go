@@ -29,8 +29,8 @@
 package filehelper
 
 import (
-	"cmdlinetest/slicehelper"
-	"cmdlinetest/stringhelper"
+	"filesigner/slicehelper"
+	"filesigner/stringhelper"
 	"os"
 	"path/filepath"
 	"runtime"
