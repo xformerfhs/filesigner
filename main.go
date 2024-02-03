@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -72,7 +72,7 @@ const signatureFileName = "signatures.json"
 // Program information
 
 // myVersion contains the program version.
-const myVersion = "0.50.1"
+const myVersion = "0.70.0"
 
 // myName contains the program name.
 var myName string

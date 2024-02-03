@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -104,15 +104,8 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	}
 
 	// 2. Read file names from command line, StdIn and options.
-
-	// 2.1. See if there is a file that contains file names.
 	var fileSpecs []string
-	if len(fromFileName) != 0 {
-		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
-	}
-
-	// 2.2. Add file names from StdIn and the command line.
-	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, signCmd.Args(), fileSpecs)
+	fileSpecs, err = getFileSpecsFromCmdLine(signCmd.Args(), fromFileName, readStdIn)
 
 	// 3. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
@@ -121,9 +114,13 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	}
 
 	var filePaths *set.Set[string]
-	filePaths, err = getRealFilePathsFromSpecs(fileSpecs)
+	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.GetNames(), excludeFileList.GetNames())
 	if err != nil {
 		return nil, signatureType, err
+	}
+
+	if excludeFileList.Len() != 0 || excludeDirList.Len() != 0 {
+		// Remove excluded files and directories
 	}
 
 	// 2.3 If no files are specified, or any include "include" is specified, scan the current directory.
@@ -138,6 +135,21 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 }
 
 // ******** Private functions ********
+
+// getFileSpecsFromCmdLine gathers all file specifications from the command line.
+func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool) ([]string, error) {
+	var err error
+	var fileSpecs []string
+
+	// 1. See if there is a file that contains file names.
+	if len(fromFileName) != 0 {
+		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
+	}
+
+	// 2. Add file names from StdIn and the command line.
+	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, args, fileSpecs)
+	return fileSpecs, err
+}
 
 // convertSignatureType converts the signature type text into a byte.
 func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, error) {
@@ -154,7 +166,7 @@ func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureT
 }
 
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
-func getRealFilePathsFromSpecs(fileSpecs []string) (*set.Set[string], error) {
+func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.Set[string], error) {
 	filePaths := set.NewWithLength[string](len(fileSpecs))
 
 	thisDirPath, err := makeThisDirPath()
@@ -164,7 +176,7 @@ func getRealFilePathsFromSpecs(fileSpecs []string) (*set.Set[string], error) {
 
 	var selectedFilePaths []string
 	for _, fileSpec := range fileSpecs {
-		selectedFilePaths, err = filehelper.PathGlob(fileSpec)
+		selectedFilePaths, err = filehelper.PathGlob(fileSpec, excludeDirList, excludeFileList)
 		if err != nil {
 			return nil, err
 		}

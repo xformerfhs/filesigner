@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -77,7 +77,7 @@ func SplitPath(path string) (parts []string) {
 }
 
 // PathGlob returns all globbed files from a path that may contain wildcards.
-func PathGlob(path string) ([]string, error) {
+func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([]string, error) {
 	// An empty path returns nil
 	if len(path) == 0 {
 		return nil, nil
@@ -95,6 +95,7 @@ func PathGlob(path string) ([]string, error) {
 	fullPaths := make([]string, 1)
 	fullPaths[0] = ``
 
+	var isExcluded bool
 	for i, aPart := range parts {
 		if os.IsPathSeparator(aPart[len(aPart)-1]) {
 			if runtime.GOOS == `windows` {
@@ -103,7 +104,18 @@ func PathGlob(path string) ([]string, error) {
 
 			fullPaths[0] = aPart
 		} else {
-			fullPaths, err = walkThroughPart(fullPaths, aPart, i != lastPartIndex)
+			findDirs := i != lastPartIndex
+
+			isExcluded, err = isPartExcluded(aPart, findDirs, excludeDirList, excludeFileList)
+			if err != nil {
+				return nil, err
+			}
+
+			if isExcluded {
+				continue
+			}
+
+			fullPaths, err = walkThroughPart(fullPaths, aPart, findDirs)
 			if err != nil {
 				return nil, err
 			}
@@ -115,12 +127,25 @@ func PathGlob(path string) ([]string, error) {
 
 // ******** Private functions ********
 
+func isPartExcluded(aPart string, findDirs bool, excludeDirList []string, excludeFileList []string) (bool, error) {
+	var err error
+	var isExcluded bool
+
+	if findDirs {
+		isExcluded, err = MatchesAny(excludeDirList, aPart)
+	} else {
+		isExcluded, err = MatchesAny(excludeFileList, aPart)
+	}
+
+	return isExcluded, err
+}
+
 // ensureDriveLetterIsUpperCase ensures that the drive letter is an upper-case letter.
-func ensureDriveLetterIsUpperCase(aPart string) {
-	if aPart[1] == ':' {
-		driveLetter := aPart[0]
+func ensureDriveLetterIsUpperCase(vol string) {
+	if vol[1] == ':' {
+		driveLetter := vol[0]
 		if driveLetter >= 'a' && driveLetter <= 'z' {
-			aPartBytes := stringhelper.UnsafeStringBytes(aPart)
+			aPartBytes := stringhelper.UnsafeStringBytes(vol)
 			aPartBytes[0] ^= 0x20
 		}
 	}

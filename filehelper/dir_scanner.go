@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -33,8 +33,6 @@ import (
 	"filesigner/set"
 	"io/fs"
 	"path/filepath"
-	"runtime"
-	"strings"
 )
 
 var modExcludeFileNameList []string
@@ -43,7 +41,6 @@ var modExcludeDirNameList []string
 var modIncludeDirNameList []string
 var modDoRecursion bool
 var modResultList *set.Set[string]
-var modMatchFunc func(string, string) (bool, error)
 
 func ScanDir(includeFileList *flaglist.FlagList,
 	excludeFileList *flaglist.FlagList,
@@ -56,11 +53,6 @@ func ScanDir(includeFileList *flaglist.FlagList,
 	modExcludeDirNameList = excludeDirList.GetNames()
 	modDoRecursion = doRecursion
 	modResultList = set.New[string]()
-	if runtime.GOOS == "windows" {
-		modMatchFunc = CaseInvariantMatchFunction
-	} else {
-		modMatchFunc = filepath.Match
-	}
 
 	// Always walk the current directory
 	return modResultList, filepath.WalkDir(".", WalkEntryFunction)
@@ -126,46 +118,18 @@ func shouldProcessEntry(entryName string, includeNames []string, excludeNames []
 	var err error
 
 	if len(excludeNames) != 0 {
-		isEntryInList, err = matchesAnyInList(entryName, excludeNames)
+		isEntryInList, err = MatchesAny(excludeNames, entryName)
 		if isEntryInList || err != nil {
 			return false, err
 		}
 	}
 
 	if len(includeNames) != 0 {
-		isEntryInList, err = matchesAnyInList(entryName, includeNames)
+		isEntryInList, err = MatchesAny(includeNames, entryName)
 		if !isEntryInList || err != nil {
 			return false, err
 		}
 	}
 
 	return true, nil
-}
-
-func matchesAnyInList(entryName string, nameList []string) (bool, error) {
-	isMatch, err := matchesEntry(entryName, nameList)
-	if err != nil {
-		return false, err
-	}
-
-	return isMatch, nil
-}
-
-func CaseInvariantMatchFunction(pattern string, name string) (bool, error) {
-	return filepath.Match(strings.ToLower(pattern), strings.ToLower(name))
-}
-
-func matchesEntry(name string, entries []string) (bool, error) {
-	for _, entry := range entries {
-		isMatch, err := modMatchFunc(entry, name)
-		if err != nil {
-			return false, err
-		}
-
-		if isMatch {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }

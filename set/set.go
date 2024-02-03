@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2023 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -44,12 +44,12 @@ func New[K comparable]() *Set[K] {
 	return &Set[K]{m: make(map[K]bool)}
 }
 
-// NewWithLength creates a new set with a given length.
+// NewWithLength creates a new set with a given initial length.
 func NewWithLength[K comparable](length int) *Set[K] {
 	return &Set[K]{m: make(map[K]bool, length)}
 }
 
-// NewWithElements creates a new set which contains the given elements.
+// NewWithElements creates a new set which initially contains the given elements.
 func NewWithElements[K comparable](elements ...K) *Set[K] {
 	n := make(map[K]bool, len(elements))
 
@@ -62,7 +62,7 @@ func NewWithElements[K comparable](elements ...K) *Set[K] {
 
 // ******** Public functions ********
 
-// -------- Element function --------
+// -------- Element functions --------
 
 // Elements returns the elements of the set as a slice.
 func (s *Set[K]) Elements() []K {
@@ -103,7 +103,7 @@ func (s *Set[K]) Do(f func(K)) {
 
 // -------- Set functions --------
 
-// Difference finds the difference between two sets.
+// Difference returns a set with all elements of "s" that are *not* present in "other".
 func (s *Set[K]) Difference(other *Set[K]) *Set[K] {
 	n := make(map[K]bool)
 
@@ -116,7 +116,7 @@ func (s *Set[K]) Difference(other *Set[K]) *Set[K] {
 	return &Set[K]{m: n}
 }
 
-// Intersection finds the intersection of two sets.
+// Intersection returns a set with all elements of "s" that are also present in "other".
 func (s *Set[K]) Intersection(other *Set[K]) *Set[K] {
 	n := make(map[K]bool)
 
@@ -129,7 +129,7 @@ func (s *Set[K]) Intersection(other *Set[K]) *Set[K] {
 	return &Set[K]{m: n}
 }
 
-// Union returns the union of two sets.
+// Union returns a set that contains all elements of "s" and "other".
 func (s *Set[K]) Union(other *Set[K]) *Set[K] {
 	n := make(map[K]bool, len(s.m)+len(other.m))
 
@@ -148,14 +148,14 @@ func (s *Set[K]) Union(other *Set[K]) *Set[K] {
 
 // -------- Set test function ---------
 
-// IsSubsetOf tests whether or not this set is a subset of "other".
+// IsSubsetOf tests whether all elements of "s" are present in "other".
 func (s *Set[K]) IsSubsetOf(other *Set[K]) bool {
 	if s.Len() > other.Len() {
 		return false
 	}
 
 	for k := range s.m {
-		if _, exists := other.m[k]; !exists {
+		if !other.m[k] {
 			return false
 		}
 	}
@@ -163,7 +163,7 @@ func (s *Set[K]) IsSubsetOf(other *Set[K]) bool {
 	return true
 }
 
-// IsProperSubsetOf tests whether or not this set is a proper subset of "other".
+// IsProperSubsetOf tests whether all elements of "s" are present in "other" and "other" has more elements than "s".
 func (s *Set[K]) IsProperSubsetOf(other *Set[K]) bool {
-	return s.IsSubsetOf(other) && s.Len() < other.Len()
+	return s.Len() < other.Len() && s.IsSubsetOf(other)
 }
