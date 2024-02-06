@@ -40,19 +40,19 @@ var modIncludeFileNameList []string
 var modExcludeDirNameList []string
 var modIncludeDirNameList []string
 var modDoRecursion bool
-var modResultList *set.Set[string]
+var modResultList *set.FileSystemStringSet
 
-func ScanDir(includeFileList *flaglist.FlagList,
-	excludeFileList *flaglist.FlagList,
-	includeDirList *flaglist.FlagList,
-	excludeDirList *flaglist.FlagList,
-	doRecursion bool) (*set.Set[string], error) {
-	modIncludeFileNameList = includeFileList.GetNames()
-	modExcludeFileNameList = excludeFileList.GetNames()
-	modIncludeDirNameList = includeDirList.GetNames()
-	modExcludeDirNameList = excludeDirList.GetNames()
+func ScanDir(includeFileList *flaglist.FileSystemFlagList,
+	excludeFileList *flaglist.FileSystemFlagList,
+	includeDirList *flaglist.FileSystemFlagList,
+	excludeDirList *flaglist.FileSystemFlagList,
+	doRecursion bool) (*set.FileSystemStringSet, error) {
+	modIncludeFileNameList = includeFileList.Elements()
+	modExcludeFileNameList = excludeFileList.Elements()
+	modIncludeDirNameList = includeDirList.Elements()
+	modExcludeDirNameList = excludeDirList.Elements()
 	modDoRecursion = doRecursion
-	modResultList = set.New[string]()
+	modResultList = set.NewFileSystemStringSet()
 
 	// Always walk the current directory
 	return modResultList, filepath.WalkDir(".", WalkEntryFunction)
@@ -65,7 +65,7 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 	}
 
 	// Never process current or parent directory
-	if path == "." || path == ".." {
+	if path == `.` || path == `..` {
 		return nil
 	}
 

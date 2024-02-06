@@ -24,23 +24,23 @@
 //
 // Change history:
 //    2024-02-03: V1.0.0: Created.
+//    2024-02-04: V1.1.0: Use cases.Fold.
 //
 
 package filehelper
 
 import (
+	"golang.org/x/text/cases"
 	"path/filepath"
 	"runtime"
-	"strings"
 )
+
+var foldCaser = cases.Fold()
 
 // ******** Private variables ********
 
 // matcherMatchFunc is the pointer to the platform-dependent matcher function.
 var matcherMatchFunc func(string, string) (bool, error)
-
-// isMatcherInitialized is true, if the matcher has been initialized.
-var isMatcherInitialized bool
 
 // ******** Public functions ********
 
@@ -73,22 +73,21 @@ func MatchesAny(patterns []string, name string) (bool, error) {
 
 // ensureMatcherIsInitialized ensures, that the matcher is initialized.
 func ensureMatcherIsInitialized() {
-	if !isMatcherInitialized {
+	if matcherMatchFunc == nil {
 		initMatcher()
-		isMatcherInitialized = true
 	}
 }
 
 // initMatcher initializes the platform-dependent match function of the matcher.
 func initMatcher() {
 	if runtime.GOOS == "windows" {
-		modMatchFunc = caseInsensitiveMatchFunction
+		matcherMatchFunc = caseInsensitiveMatchFunction
 	} else {
-		modMatchFunc = filepath.Match
+		matcherMatchFunc = filepath.Match
 	}
 }
 
 // caseInsensitiveMatchFunction is a filepath.Match-equivalent function for case-insensitive file systems.
 func caseInsensitiveMatchFunction(pattern string, name string) (bool, error) {
-	return filepath.Match(strings.ToLower(pattern), strings.ToLower(name))
+	return filepath.Match(foldCaser.String(pattern), foldCaser.String(name))
 }

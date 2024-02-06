@@ -75,24 +75,25 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	signCmd.BoolVar(&readStdIn, "stdin", false, "Read list of files from stdin")
 	signCmd.BoolVar(&readStdIn, "n", false, "Short form of 'stdin'")
 
-	excludeFileList := flaglist.NewFlagList()
+	excludeFileList := flaglist.NewFileSystemFlagList()
 	signCmd.Var(excludeFileList, "exclude-file", "Name of file to exclude from signing (may contain wild-cards).")
 	signCmd.Var(excludeFileList, "xf", "Short for 'exclude-file'")
 
-	includeFileList := flaglist.NewFlagList()
+	includeFileList := flaglist.NewFileSystemFlagList()
 	signCmd.Var(includeFileList, "include-file", "Name of file to include in signing may contain wild-cards)")
 	signCmd.Var(includeFileList, "if", "Short for 'include-file'")
 
-	excludeDirList := flaglist.NewFlagList()
+	excludeDirList := flaglist.NewFileSystemFlagList()
 	signCmd.Var(excludeDirList, "exclude-dir", "Name of directory to exclude from signing (may contain wild-cards).")
 	signCmd.Var(excludeDirList, "xd", "Short for 'exclude-dir'")
 
-	includeDirList := flaglist.NewFlagList()
+	includeDirList := flaglist.NewFileSystemFlagList()
 	signCmd.Var(includeDirList, "include-dir", "Name of directory to include in signing may contain wild-cards)")
 	signCmd.Var(includeDirList, "id", "Short for 'include-dir'")
 
-	// 1. Parse command line
 	var signatureType signaturehandler.SignatureType
+
+	// 1. Parse command line
 	err := signCmd.Parse(args)
 	if err != nil {
 		return nil, signatureType, err
@@ -106,6 +107,11 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	// 2. Read file names from command line, StdIn and options.
 	var fileSpecs []string
 	fileSpecs, err = getFileSpecsFromCmdLine(signCmd.Args(), fromFileName, readStdIn)
+	if err != nil {
+		return nil, signatureType, err
+	}
+
+	fileSpecs = moveWildCardFileSpecs(fileSpecs, includeFileList)
 
 	// 3. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
@@ -113,42 +119,21 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 		return nil, signatureType, err
 	}
 
-	var filePaths *set.Set[string]
-	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.GetNames(), excludeFileList.GetNames())
+	var filePaths *set.FileSystemStringSet
+	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.Elements(), excludeFileList.Elements())
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	if excludeFileList.Len() != 0 || excludeDirList.Len() != 0 {
-		// Remove excluded files and directories
-	}
-
 	// 2.3 If no files are specified, or any include "include" is specified, scan the current directory.
-	var scanPaths *set.Set[string]
+	var scanPaths *set.FileSystemStringSet
 	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
 		scanPaths, err = filehelper.ScanDir(includeFileList, excludeFileList, includeDirList, excludeDirList, doRecursion)
 	} else {
-		scanPaths = set.New[string]()
+		scanPaths = set.NewFileSystemStringSet()
 	}
 
 	return filePaths.Union(scanPaths).Elements(), signatureType, nil
-}
-
-// ******** Private functions ********
-
-// getFileSpecsFromCmdLine gathers all file specifications from the command line.
-func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool) ([]string, error) {
-	var err error
-	var fileSpecs []string
-
-	// 1. See if there is a file that contains file names.
-	if len(fromFileName) != 0 {
-		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
-	}
-
-	// 2. Add file names from StdIn and the command line.
-	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, args, fileSpecs)
-	return fileSpecs, err
 }
 
 // convertSignatureType converts the signature type text into a byte.
@@ -165,9 +150,40 @@ func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureT
 	}
 }
 
+// moveWildCardFileSpecs moves wild card file specifications to the includeFileList
+func moveWildCardFileSpecs(fileSpecs []string, includeFileList *flaglist.FileSystemFlagList) []string {
+	resultList := make([]string, 0, len(fileSpecs))
+	for _, fileSpec := range fileSpecs {
+		if strings.ContainsAny(fileSpec, `*?`) {
+			_ = includeFileList.Set(fileSpec)
+		} else {
+			resultList = append(resultList, fileSpec)
+		}
+	}
+
+	return resultList
+}
+
+// getFileSpecsFromCmdLine gathers all file specifications from the command line.
+func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool) ([]string, error) {
+	var err error
+	var fileSpecs []string
+
+	// 1. See if there is a file that contains file names.
+	if len(fromFileName) != 0 {
+		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
+	}
+
+	// 2. Add file names from StdIn and the command line.
+	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, args, fileSpecs)
+	return fileSpecs, err
+}
+
+// ******** Private functions ********
+
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
-func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.Set[string], error) {
-	filePaths := set.NewWithLength[string](len(fileSpecs))
+func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.FileSystemStringSet, error) {
+	filePaths := set.NewFileSystemStringSetWithLength(len(fileSpecs))
 
 	thisDirPath, err := makeThisDirPath()
 	if err != nil {
@@ -238,19 +254,24 @@ func makeAbsFileSpecs(fileSpecs []string) ([]string, error) {
 
 // addFileSpecsFromCmdLineAndStdIn adds files from StdIn and from the command line.
 func addFileSpecsFromCmdLineAndStdIn(readStdIn bool, args []string, fileSpecs []string) []string {
-	// If 1. argument on the command line is '-' set readStdIn
-	if args[0] == readFromStdInArg {
-		readStdIn = true
-		args = args[1:]
+	// Are there any arguments?
+	if len(args) != 0 {
+		// If 1. argument on the command line is '-' set readStdIn.
+		if args[0] == readFromStdInArg {
+			readStdIn = true
+			args = args[1:] // Set args to files specs remaining after '-', if any.
+		}
+
+		if len(args) != 0 {
+			// Read files from command line
+			fileSpecs = append(fileSpecs, args...)
+		}
 	}
 
 	// Read file names from StdIn
 	if readStdIn {
 		fileSpecs = addFilesFromFile(os.Stdin, fileSpecs)
 	}
-
-	// Read files from command line
-	fileSpecs = append(fileSpecs, args...)
 
 	return fileSpecs
 }

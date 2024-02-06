@@ -106,7 +106,7 @@ func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([
 		} else {
 			findDirs := i != lastPartIndex
 
-			isExcluded, err = isPartExcluded(aPart, findDirs, excludeDirList, excludeFileList)
+			isExcluded, err = isNameExcluded(aPart, findDirs, excludeDirList, excludeFileList)
 			if err != nil {
 				return nil, err
 			}
@@ -125,20 +125,21 @@ func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([
 	return fullPaths, nil
 }
 
-// ******** Private functions ********
-
-func isPartExcluded(aPart string, findDirs bool, excludeDirList []string, excludeFileList []string) (bool, error) {
+// isNameExcluded returns "true", if the name is member of an exclude list and "false", otherwise.
+func isNameExcluded(name string, findDirs bool, excludeDirList []string, excludeFileList []string) (bool, error) {
 	var err error
 	var isExcluded bool
 
 	if findDirs {
-		isExcluded, err = MatchesAny(excludeDirList, aPart)
+		isExcluded, err = MatchesAny(excludeDirList, name)
 	} else {
-		isExcluded, err = MatchesAny(excludeFileList, aPart)
+		isExcluded, err = MatchesAny(excludeFileList, name)
 	}
 
 	return isExcluded, err
 }
+
+// ******** Private functions ********
 
 // ensureDriveLetterIsUpperCase ensures that the drive letter is an upper-case letter.
 func ensureDriveLetterIsUpperCase(vol string) {
