@@ -93,39 +93,42 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 
 	var signatureType signaturehandler.SignatureType
 
-	// 1. Parse command line
+	// 1. Parse command line.
 	err := signCmd.Parse(args)
 	if err != nil {
 		return nil, signatureType, err
 	}
 
+	// 2. Get signature type.
 	signatureType, err = convertSignatureType(strings.ToLower(signatureTypeText))
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 2. Read file names from command line, StdIn and options.
+	// 3. Read file names from command line, StdIn and options.
 	var fileSpecs []string
 	fileSpecs, err = getFileSpecsFromCmdLine(signCmd.Args(), fromFileName, readStdIn)
 	if err != nil {
 		return nil, signatureType, err
 	}
 
+	// 4. Move any command line wild cards to the includeFileList.
 	fileSpecs = moveWildCardFileSpecs(fileSpecs, includeFileList)
 
-	// 3. Convert file specs to absolute path names.
+	// 5. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
 	if err != nil {
 		return nil, signatureType, err
 	}
 
+	// 6. Get the real path names for the file specifications.
 	var filePaths *set.FileSystemStringSet
 	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.Elements(), excludeFileList.Elements())
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 2.3 If no files are specified, or any include "include" is specified, scan the current directory.
+	// 7. If no files are specified, or any include "include" is specified, scan the current directory.
 	var scanPaths *set.FileSystemStringSet
 	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
 		scanPaths, err = filehelper.ScanDir(includeFileList, excludeFileList, includeDirList, excludeDirList, doRecursion)
@@ -133,10 +136,13 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 		scanPaths = set.NewFileSystemStringSet()
 	}
 
+	// 8. Combine the two file lists and return.
 	return filePaths.Union(scanPaths).Elements(), signatureType, nil
 }
 
-// convertSignatureType converts the signature type text into a byte.
+// ******** Private functions ********
+
+// convertSignatureType converts the signature type text into a SignatureType value.
 func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureType, error) {
 	switch signatureTypeText {
 	case "ed25519":
@@ -178,8 +184,6 @@ func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool)
 	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, args, fileSpecs)
 	return fileSpecs, err
 }
-
-// ******** Private functions ********
 
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
 func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.FileSystemStringSet, error) {
