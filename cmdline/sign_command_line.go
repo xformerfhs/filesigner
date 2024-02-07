@@ -102,36 +102,39 @@ func FilesToProcess(args []string, signatureFileName string) ([]string,
 		return nil, signatureType, err
 	}
 
-	// 2. Get signature type.
+	// 2. The signatures file must always be excluded.
+	_ = excludeFileList.Set(signaturesFileName)
+
+	// 3. Get signature type.
 	signatureType, err = convertSignatureType(strings.ToLower(signatureTypeText))
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 3. Read file names from command line, StdIn and options.
+	// 4. Read file names from command line, StdIn and options.
 	var fileSpecs []string
 	fileSpecs, err = getFileSpecsFromCmdLine(signCmd.Args(), fromFileName, readStdIn)
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 4. Move any command line wild cards to the includeFileList.
+	// 5. Move any command line wild cards to the includeFileList.
 	fileSpecs = moveWildCardFileSpecs(fileSpecs, includeFileList)
 
-	// 5. Convert file specs to absolute path names.
+	// 6. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 6. Get the real path names for the file specifications.
+	// 7. Get the real path names for the file specifications.
 	var filePaths *set.FileSystemStringSet
 	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.Elements(), excludeFileList.Elements())
 	if err != nil {
 		return nil, signatureType, err
 	}
 
-	// 7. If no files are specified, or any include "include" is specified, scan the current directory.
+	// 8. If no files are specified, or any include "include" is specified, scan the current directory.
 	var scanPaths *set.FileSystemStringSet
 	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
 		scanPaths, err = filehelper.ScanDir(
@@ -145,7 +148,7 @@ func FilesToProcess(args []string, signatureFileName string) ([]string,
 		scanPaths = set.NewFileSystemStringSet()
 	}
 
-	// 8. Combine the two file lists and return.
+	// 9. Combine the two file lists and return.
 	return filePaths.Union(scanPaths).Elements(), signatureType, nil
 }
 
