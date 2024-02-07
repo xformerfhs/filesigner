@@ -97,7 +97,6 @@ func FilesToProcess(args []string, signatureFileName string) ([]string,
 	var signatureType signaturehandler.SignatureType
 
 	// 1. Parse command line.
-	// !!!! An error here is a parsing error which should be answered by a usage message.
 	err := signCmd.Parse(args)
 	if err != nil {
 		return nil, signatureType, err
