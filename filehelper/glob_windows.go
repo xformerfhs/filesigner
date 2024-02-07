@@ -62,7 +62,7 @@ func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]st
 		return result, nil
 	}
 
-	// Convert pattern into a UTF-16 string.
+	// Convert pattern into an UTF-16 string.
 	patternUTF16Ptr, _ := windows.UTF16PtrFromString(pattern)
 	var findData windows.Win32finddata
 
@@ -70,9 +70,11 @@ func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]st
 	findHandle, err := windows.FindFirstFile(patternUTF16Ptr, &findData)
 	if err != nil {
 		if errors.Is(err, windows.ERROR_FILE_NOT_FOUND) {
-			return result, nil
+			// No match found. Return an empty result list.
+			return nil, nil
 		} else {
-			return result, err
+			// An error occurred.
+			return nil, err
 		}
 	}
 
@@ -88,10 +90,15 @@ func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]st
 
 		switch {
 		case err == nil:
+			// Add another file.
 			result = appendNameIfEligible(patternDir, result, findData, withDirs, withFiles)
+
 		case errors.Is(err, windows.ERROR_NO_MORE_FILES):
+			// This is the normal loop termination.
 			return result, nil
+
 		default:
+			// An error occurred.
 			return result, err
 		}
 	}
@@ -102,10 +109,12 @@ func appendNameIfEligible(patternDir string, result []string, findData windows.W
 	fileName := windows.UTF16ToString(findData.FileName[:])
 
 	if (findData.FileAttributes & windows.FILE_ATTRIBUTE_DIRECTORY) == 0 {
+		// Name is a file.
 		if withFiles {
 			result = append(result, filepath.Join(patternDir, fileName))
 		}
 	} else {
+		// Name is a directory.
 		if withDirs {
 			// Never return "." or "..".
 			if fileName != `.` && fileName != `..` {

@@ -48,52 +48,56 @@ const readFromStdInArg = "-"
 // ******** Public functions ********
 
 // FilesToProcess searches for the file names that match the command line options
-func FilesToProcess(args []string, signatureFileName string) ([]string, signaturehandler.SignatureType, error) {
-	signCmd := flag.NewFlagSet("sign", flag.ContinueOnError)
+func FilesToProcess(args []string, signatureFileName string) ([]string,
+	signaturehandler.SignatureType,
+	error) {
+	signCmd := flag.NewFlagSet(`sign`, flag.ContinueOnError)
 
 	var signatureTypeText string
-	signCmd.StringVar(&signatureTypeText, "algorithm", "ed25519", "Signature algorithm (either 'ed25519' or 'ecdsap521')")
-	signCmd.StringVar(&signatureTypeText, "a", "ed25519", "Short form of 'algorithm'")
+	signCmd.StringVar(&signatureTypeText, `algorithm`, `ed25519`, `Signature algorithm (either 'ed25519' or 'ecdsap521')`)
+	signCmd.StringVar(&signatureTypeText, `a`, `ed25519`, `Short form of 'algorithm'`)
 
 	var signaturesFileName string
-	signCmd.StringVar(&signaturesFileName, "signatures-file", signatureFileName, "Name of the file that receives the signatures")
-	signCmd.StringVar(&signaturesFileName, "s", signatureFileName, "Short form of 'signatures-file'")
+	signCmd.StringVar(&signaturesFileName, `signatures-file`, signatureFileName, `Name of the file that receives the signatures`)
+	signCmd.StringVar(&signaturesFileName, `signature-file`, signatureFileName, `Alternate form of 'signatures-file'`)
+	signCmd.StringVar(&signaturesFileName, `s`, signatureFileName, `Short form of 'signatures-file'`)
 
 	var fromFileName string
-	signCmd.StringVar(&fromFileName, "from-file", "", "Name of the file that contains a list of files to sign")
-	signCmd.StringVar(&fromFileName, "f", "", "Short form of 'from-file'")
+	signCmd.StringVar(&fromFileName, `from-file`, ``, `Name of the file that contains a list of files to sign`)
+	signCmd.StringVar(&fromFileName, `f`, ``, `Short form of 'from-file'`)
 
 	var beQuiet bool
-	signCmd.BoolVar(&beQuiet, "quiet", false, "Only write output if something goes wrong")
-	signCmd.BoolVar(&beQuiet, "q", false, "Short form of 'quiet'")
+	signCmd.BoolVar(&beQuiet, `quiet`, false, `Only write output if something goes wrong`)
+	signCmd.BoolVar(&beQuiet, `q`, false, `Short form of 'quiet'`)
 
 	var doRecursion bool
-	signCmd.BoolVar(&doRecursion, "recurse", false, "Only write output if something goes wrong")
-	signCmd.BoolVar(&doRecursion, "r", false, "Short form of 'recurse'")
+	signCmd.BoolVar(&doRecursion, `recurse`, false, `Only write output if something goes wrong`)
+	signCmd.BoolVar(&doRecursion, `r`, false, `Short form of 'recurse'`)
 
 	var readStdIn bool
-	signCmd.BoolVar(&readStdIn, "stdin", false, "Read list of files from stdin")
-	signCmd.BoolVar(&readStdIn, "n", false, "Short form of 'stdin'")
+	signCmd.BoolVar(&readStdIn, `stdin`, false, `Read list of files from stdin`)
+	signCmd.BoolVar(&readStdIn, `n`, false, `Short form of 'stdin'`)
 
 	excludeFileList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(excludeFileList, "exclude-file", "Name of file to exclude from signing (may contain wild-cards).")
-	signCmd.Var(excludeFileList, "xf", "Short for 'exclude-file'")
+	signCmd.Var(excludeFileList, `exclude-file`, `Name of file to exclude from signing (may contain wild-cards).`)
+	signCmd.Var(excludeFileList, `x`, `Short for 'exclude-file'`)
 
 	includeFileList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(includeFileList, "include-file", "Name of file to include in signing may contain wild-cards)")
-	signCmd.Var(includeFileList, "if", "Short for 'include-file'")
+	signCmd.Var(includeFileList, `include-file`, `Name of file to include in signing may contain wild-cards)`)
+	signCmd.Var(includeFileList, `i`, `Short for 'include-file'`)
 
 	excludeDirList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(excludeDirList, "exclude-dir", "Name of directory to exclude from signing (may contain wild-cards).")
-	signCmd.Var(excludeDirList, "xd", "Short for 'exclude-dir'")
+	signCmd.Var(excludeDirList, `exclude-dir`, "Name of directory to exclude from signing (may contain wild-cards).")
+	signCmd.Var(excludeDirList, `y`, "Short for 'exclude-dir'")
 
 	includeDirList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(includeDirList, "include-dir", "Name of directory to include in signing may contain wild-cards)")
-	signCmd.Var(includeDirList, "id", "Short for 'include-dir'")
+	signCmd.Var(includeDirList, `include-dir`, `Name of directory to include in signing may contain wild-cards)`)
+	signCmd.Var(includeDirList, `j`, `Short for 'include-dir'`)
 
 	var signatureType signaturehandler.SignatureType
 
 	// 1. Parse command line.
+	// !!!! An error here is a parsing error which should be answered by a usage message.
 	err := signCmd.Parse(args)
 	if err != nil {
 		return nil, signatureType, err
@@ -131,7 +135,13 @@ func FilesToProcess(args []string, signatureFileName string) ([]string, signatur
 	// 7. If no files are specified, or any include "include" is specified, scan the current directory.
 	var scanPaths *set.FileSystemStringSet
 	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
-		scanPaths, err = filehelper.ScanDir(includeFileList, excludeFileList, includeDirList, excludeDirList, doRecursion)
+		scanPaths, err = filehelper.ScanDir(
+			includeFileList.Elements(),
+			excludeFileList.Elements(),
+			includeDirList.Elements(),
+			excludeDirList.Elements(),
+			doRecursion,
+		)
 	} else {
 		scanPaths = set.NewFileSystemStringSet()
 	}
@@ -178,17 +188,20 @@ func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool)
 	// 1. See if there is a file that contains file names.
 	if len(fromFileName) != 0 {
 		fileSpecs, err = addFileSpecsFromFileName(fromFileName, fileSpecs)
+		return nil, err
 	}
 
 	// 2. Add file names from StdIn and the command line.
 	fileSpecs = addFileSpecsFromCmdLineAndStdIn(readStdIn, args, fileSpecs)
-	return fileSpecs, err
+
+	return fileSpecs, nil
 }
 
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
 func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.FileSystemStringSet, error) {
 	filePaths := set.NewFileSystemStringSetWithLength(len(fileSpecs))
 
+	// err is an OS error
 	thisDirPath, err := makeThisDirPath()
 	if err != nil {
 		return filePaths, err
@@ -196,6 +209,7 @@ func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excl
 
 	var selectedFilePaths []string
 	for _, fileSpec := range fileSpecs {
+		// Err can be "bad pattern" or some OS error
 		selectedFilePaths, err = filehelper.PathGlob(fileSpec, excludeDirList, excludeFileList)
 		if err != nil {
 			return nil, err

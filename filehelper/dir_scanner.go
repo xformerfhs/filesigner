@@ -29,11 +29,12 @@
 package filehelper
 
 import (
-	"filesigner/flaglist"
 	"filesigner/set"
 	"io/fs"
 	"path/filepath"
 )
+
+// ******** Private variables ********
 
 var modExcludeFileNameList []string
 var modIncludeFileNameList []string
@@ -42,15 +43,17 @@ var modIncludeDirNameList []string
 var modDoRecursion bool
 var modResultList *set.FileSystemStringSet
 
-func ScanDir(includeFileList *flaglist.FileSystemFlagList,
-	excludeFileList *flaglist.FileSystemFlagList,
-	includeDirList *flaglist.FileSystemFlagList,
-	excludeDirList *flaglist.FileSystemFlagList,
+func ScanDir(includeFileList []string,
+	excludeFileList []string,
+	includeDirList []string,
+	excludeDirList []string,
 	doRecursion bool) (*set.FileSystemStringSet, error) {
-	modIncludeFileNameList = includeFileList.Elements()
-	modExcludeFileNameList = excludeFileList.Elements()
-	modIncludeDirNameList = includeDirList.Elements()
-	modExcludeDirNameList = excludeDirList.Elements()
+	// We need to copy all the parameters to private variables,
+	// as WalkDir can not pass them to our WalkEntryFunction.
+	modIncludeFileNameList = includeFileList
+	modExcludeFileNameList = excludeFileList
+	modIncludeDirNameList = includeDirList
+	modExcludeDirNameList = excludeDirList
 	modDoRecursion = doRecursion
 	modResultList = set.NewFileSystemStringSet()
 
@@ -58,29 +61,34 @@ func ScanDir(includeFileList *flaglist.FileSystemFlagList,
 	return modResultList, filepath.WalkDir(".", WalkEntryFunction)
 }
 
+// WalkEntryFunction is called by filepath.WalkDir for each directory entry.
 func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
-	// Return immediately if walking the directory tree returned an error
+	// Return immediately if walking the directory tree returned an error.
 	if dirErr != nil {
 		return dirErr
 	}
 
-	// Never process current or parent directory
+	// Never process current or parent directory.
 	if path == `.` || path == `..` {
 		return nil
 	}
 
+	// Need to know if this is a directory.
 	isDir := dirEntry.IsDir()
 
-	// If the entry is a directory and subdirectories are not allowed return SkipDir
+	// If the entry is a directory and subdirectories are not allowed return SkipDir.
 	if isDir && !modDoRecursion {
 		return filepath.SkipDir
 	}
 
+	// Need to know the entry name.
 	entryName := dirEntry.Name()
 
 	var shouldProcess bool
 	var err error
 
+	// We need to use two different exclude and include lists, depending on
+	// the entry type.
 	if !isDir {
 		shouldProcess, err = shouldProcessEntry(entryName,
 			modIncludeFileNameList,
@@ -95,6 +103,8 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 		return err
 	}
 
+	// If this entry should not be processed the return value is nil
+	// if it is a file and SkipDir, if it is a directory.
 	if !shouldProcess {
 		if !isDir {
 			return nil
@@ -113,6 +123,7 @@ func WalkEntryFunction(path string, dirEntry fs.DirEntry, dirErr error) error {
 	return nil
 }
 
+// shouldProcessEntry returns "true" if the entry is not excluded from processing, "false" otherwise.
 func shouldProcessEntry(entryName string, includeNames []string, excludeNames []string) (bool, error) {
 	var isEntryInList bool
 	var err error

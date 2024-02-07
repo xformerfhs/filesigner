@@ -90,6 +90,7 @@ func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([
 
 	parts := SplitPath(path)
 	lastPartIndex := len(parts) - 1
+
 	var err error
 
 	fullPaths := make([]string, 1)

@@ -102,8 +102,8 @@ func mainWithReturnCode(args []string) int {
 			return printMissingContextId()
 		}
 
-		fileList, signatureType, err := cmdline.FilesToProcess(args[3:], signatureFileName)
-		if err != nil {
+		fileList, signatureType, usageErr, processingErr, warnings := cmdline.FilesToProcess(args[3:], signatureFileName)
+		if usageErr != nil {
 			return printUsageErrorf(12, "Error processing file names: %v", err)
 		}
 
