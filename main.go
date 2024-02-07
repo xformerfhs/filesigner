@@ -66,9 +66,6 @@ const (
 	commandVerify = "verify"
 )
 
-// signatureFileName is the fixed file name of the signature file
-const signatureFileName = "signatures.json"
-
 // Program information
 
 // myVersion contains the program version.
@@ -102,12 +99,19 @@ func mainWithReturnCode(args []string) int {
 			return printMissingContextId()
 		}
 
-		fileList, signatureType, err := cmdline.FilesToProcess(args[3:], signatureFileName)
+		cl := cmdline.NewSignCommandLine()
+		err := cl.Parse(args[3:])
 		if err != nil {
-			return printUsageErrorf(12, "Error processing file names: %v", err)
+			return printUsageErrorf(cl.PrintUsage, 12, "Error processing command line: %v", err)
 		}
 
-		return doSigning(signatureType, args[2], fileList)
+		err = cl.SignCommandData()
+		if err != nil {
+			logger.PrintError(12, err.Error())
+			return rcProcessError
+		}
+
+		return doSigning(cl.SignaturesFileName, cl.SignatureType, args[2], cl.FileList)
 
 	case commandVerify:
 		if argLen < 3 {
@@ -141,16 +145,16 @@ func printVersion() {
 }
 
 // printUsageError prints an error message followed by the usage message.
-func printUsageError(msgNum byte, msgText string) int {
+func printUsageError(usageFunction func(), msgNum byte, msgText string) int {
 	logger.PrintError(msgNum, msgText)
-	printUsageText()
+	usageFunction()
 	return rcCommandLineError
 }
 
 // printUsageErrorf prints an error message followed by the usage message with a format string.
-func printUsageErrorf(msgNum byte, msgFormat string, args ...any) int {
+func printUsageErrorf(usageFunction func(), msgNum byte, msgFormat string, args ...any) int {
 	logger.PrintErrorf(msgNum, msgFormat, args...)
-	printUsageText()
+	usageFunction()
 	return rcCommandLineError
 }
 

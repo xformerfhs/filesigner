@@ -59,6 +59,12 @@ func (fl *FileSystemFlagList) Set(value string) error {
 	return nil
 }
 
+// Type returns the type of the data that is expected.
+// It is part of the "Value" interface of the pflags package.
+func (fl *FileSystemFlagList) Type() string {
+	return `string`
+}
+
 // Elements returns the elements of the list.
 func (fl *FileSystemFlagList) Elements() []string {
 	return fl.st.Elements()

@@ -50,7 +50,12 @@ const timeStampFormat = "2006-01-02 15:04:05 Z07:00"
 // ******** Private functions ********
 
 // doSigning signs all files with the given context id.
-func doSigning(signatureType signaturehandler.SignatureType, contextId string, filePaths []string) int {
+func doSigning(
+	signaturesFileName string,
+	signatureType signaturehandler.SignatureType,
+	contextId string,
+	filePaths []string,
+) int {
 	var err error
 
 	signatureData := &signaturehandler.SignatureData{
@@ -104,7 +109,7 @@ func doSigning(signatureType signaturehandler.SignatureType, contextId string, f
 		return rcProcessError
 	}
 
-	err = signaturefile.WriteSignatureFile(signatureFileName, signatureData)
+	err = signaturefile.WriteSignatureFile(signaturesFileName, signatureData)
 	if err != nil {
 		logger.PrintError(36, err.Error())
 		return rcProcessError

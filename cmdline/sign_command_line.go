@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2024-02-07: V2.0.0: Make an object.
 //
 
 package cmdline
@@ -34,8 +35,8 @@ import (
 	"filesigner/flaglist"
 	"filesigner/set"
 	"filesigner/signaturehandler"
-	"flag"
 	"fmt"
+	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,113 +44,131 @@ import (
 
 // ******** Private constants ********
 
-const readFromStdInArg = "-"
+const readFromStdInArg = `-`
+const defaultSignaturesFileName = `signatures.json`
+const defaultSignatureAlgorithm = `ed25519`
+
+// ******** Public types ********
+
+// SignCommandLine is the object that contains all the data
+// to interpret a "sign" command line.
+type SignCommandLine struct {
+	// Private elements
+	fs                *pflag.FlagSet
+	signatureTypeText string
+	fromFileName      string
+	beQuiet           bool
+	doRecursion       bool
+	readStdIn         bool
+	excludeFileList   *flaglist.FileSystemFlagList
+	excludeDirList    *flaglist.FileSystemFlagList
+	includeFileList   *flaglist.FileSystemFlagList
+	includeDirList    *flaglist.FileSystemFlagList
+
+	// Public elements
+	SignatureType      signaturehandler.SignatureType
+	SignaturesFileName string
+	FileList           []string
+}
 
 // ******** Public functions ********
 
-// FilesToProcess searches for the file names that match the command line options
-func FilesToProcess(args []string, signatureFileName string) ([]string,
-	signaturehandler.SignatureType,
-	error) {
-	signCmd := flag.NewFlagSet(`sign`, flag.ContinueOnError)
+func NewSignCommandLine() *SignCommandLine {
+	signCmd := pflag.NewFlagSet(`sign`, pflag.ContinueOnError)
 
-	var signatureTypeText string
-	signCmd.StringVar(&signatureTypeText, `algorithm`, `ed25519`, `Signature algorithm (either 'ed25519' or 'ecdsap521')`)
-	signCmd.StringVar(&signatureTypeText, `a`, `ed25519`, `Short form of 'algorithm'`)
+	result := &SignCommandLine{fs: signCmd}
 
-	var signaturesFileName string
-	signCmd.StringVar(&signaturesFileName, `signatures-file`, signatureFileName, `Name of the file that receives the signatures`)
-	signCmd.StringVar(&signaturesFileName, `signature-file`, signatureFileName, `Alternate form of 'signatures-file'`)
-	signCmd.StringVar(&signaturesFileName, `s`, signatureFileName, `Short form of 'signatures-file'`)
+	signCmd.StringVarP(&result.signatureTypeText, `algorithm`, `a`, defaultSignatureAlgorithm, `Signature algorithm (either 'ed25519' or 'ecdsap521')`)
 
-	var fromFileName string
-	signCmd.StringVar(&fromFileName, `from-file`, ``, `Name of the file that contains a list of files to sign`)
-	signCmd.StringVar(&fromFileName, `f`, ``, `Short form of 'from-file'`)
+	signCmd.StringVarP(&result.SignaturesFileName, `signatures-file`, `s`, defaultSignaturesFileName, `Name of the file that receives the signatures`)
 
-	var beQuiet bool
-	signCmd.BoolVar(&beQuiet, `quiet`, false, `Only write output if something goes wrong`)
-	signCmd.BoolVar(&beQuiet, `q`, false, `Short form of 'quiet'`)
+	signCmd.StringVarP(&result.fromFileName, `from-file`, `f`, ``, `Name of the file that contains a list of files to sign`)
 
-	var doRecursion bool
-	signCmd.BoolVar(&doRecursion, `recurse`, false, `Only write output if something goes wrong`)
-	signCmd.BoolVar(&doRecursion, `r`, false, `Short form of 'recurse'`)
+	signCmd.BoolVarP(&result.beQuiet, `quiet`, `q`, false, `Only write output if something goes wrong`)
 
-	var readStdIn bool
-	signCmd.BoolVar(&readStdIn, `stdin`, false, `Read list of files from stdin`)
-	signCmd.BoolVar(&readStdIn, `n`, false, `Short form of 'stdin'`)
+	signCmd.BoolVarP(&result.doRecursion, `recurse`, `r`, false, `Only write output if something goes wrong`)
 
-	excludeFileList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(excludeFileList, `exclude-file`, `Name of file to exclude from signing (may contain wild-cards).`)
-	signCmd.Var(excludeFileList, `x`, `Short for 'exclude-file'`)
+	signCmd.BoolVarP(&result.readStdIn, `stdin`, `n`, false, `Read list of files from stdin`)
 
-	includeFileList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(includeFileList, `include-file`, `Name of file to include in signing may contain wild-cards)`)
-	signCmd.Var(includeFileList, `i`, `Short for 'include-file'`)
+	result.excludeFileList = flaglist.NewFileSystemFlagList()
+	signCmd.VarP(result.excludeFileList, `exclude-file`, `x`, `Name of file to exclude from signing (may contain wild-cards).`)
 
-	excludeDirList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(excludeDirList, `exclude-dir`, "Name of directory to exclude from signing (may contain wild-cards).")
-	signCmd.Var(excludeDirList, `y`, "Short for 'exclude-dir'")
+	result.includeFileList = flaglist.NewFileSystemFlagList()
+	signCmd.VarP(result.includeFileList, `include-file`, `i`, `Name of file to include in signing may contain wild-cards)`)
 
-	includeDirList := flaglist.NewFileSystemFlagList()
-	signCmd.Var(includeDirList, `include-dir`, `Name of directory to include in signing may contain wild-cards)`)
-	signCmd.Var(includeDirList, `j`, `Short for 'include-dir'`)
+	result.excludeDirList = flaglist.NewFileSystemFlagList()
+	signCmd.VarP(result.excludeDirList, `exclude-dir`, `y`, `Name of directory to exclude from signing (may contain wild-cards).`)
 
-	var signatureType signaturehandler.SignatureType
+	result.includeDirList = flaglist.NewFileSystemFlagList()
+	signCmd.VarP(result.includeDirList, `include-dir`, `j`, `Name of directory to include in signing may contain wild-cards)`)
 
-	// 1. Parse command line.
-	err := signCmd.Parse(args)
-	if err != nil {
-		return nil, signatureType, err
-	}
+	return result
+}
 
-	// 2. The signatures file must always be excluded.
-	_ = excludeFileList.Set(signaturesFileName)
+// Parse parses the command line according to the "sign" flag rules.
+func (cl *SignCommandLine) Parse(args []string) error {
+	return cl.fs.Parse(args)
+}
+
+// PrintUsage prints the usage information for the "sign" command.
+func (cl *SignCommandLine) PrintUsage() {
+	cl.fs.Usage()
+}
+
+// SignCommandData returns the data that are needed for a sign command.
+func (cl *SignCommandLine) SignCommandData() error {
+	// 1. The signatures file must always be excluded.
+	_ = cl.excludeFileList.Set(cl.SignaturesFileName)
+
+	var err error
 
 	// 3. Get signature type.
-	signatureType, err = convertSignatureType(strings.ToLower(signatureTypeText))
+	cl.SignatureType, err = convertSignatureType(strings.ToLower(cl.signatureTypeText))
 	if err != nil {
-		return nil, signatureType, err
+		return err
 	}
 
 	// 4. Read file names from command line, StdIn and options.
 	var fileSpecs []string
-	fileSpecs, err = getFileSpecsFromCmdLine(signCmd.Args(), fromFileName, readStdIn)
+	fileSpecs, err = getFileSpecsFromCmdLine(cl.fs.Args(), cl.fromFileName, cl.readStdIn)
 	if err != nil {
-		return nil, signatureType, err
+		return err
 	}
 
 	// 5. Move any command line wild cards to the includeFileList.
-	fileSpecs = moveWildCardFileSpecs(fileSpecs, includeFileList)
+	fileSpecs = moveWildCardFileSpecs(fileSpecs, cl.includeFileList)
 
 	// 6. Convert file specs to absolute path names.
 	fileSpecs, err = makeAbsFileSpecs(fileSpecs)
 	if err != nil {
-		return nil, signatureType, err
+		return err
 	}
 
 	// 7. Get the real path names for the file specifications.
 	var filePaths *set.FileSystemStringSet
-	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, excludeDirList.Elements(), excludeFileList.Elements())
+	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, cl.excludeDirList.Elements(), cl.excludeFileList.Elements())
 	if err != nil {
-		return nil, signatureType, err
+		return err
 	}
 
 	// 8. If no files are specified, or any include "include" is specified, scan the current directory.
 	var scanPaths *set.FileSystemStringSet
-	if filePaths.Len() == 0 || includeFileList.Len() != 0 || includeDirList.Len() != 0 {
+	if filePaths.Len() == 0 || cl.includeFileList.Len() != 0 || cl.includeDirList.Len() != 0 {
 		scanPaths, err = filehelper.ScanDir(
-			includeFileList.Elements(),
-			excludeFileList.Elements(),
-			includeDirList.Elements(),
-			excludeDirList.Elements(),
-			doRecursion,
+			cl.includeFileList.Elements(),
+			cl.excludeFileList.Elements(),
+			cl.includeDirList.Elements(),
+			cl.excludeDirList.Elements(),
+			cl.doRecursion,
 		)
 	} else {
 		scanPaths = set.NewFileSystemStringSet()
 	}
 
 	// 9. Combine the two file lists and return.
-	return filePaths.Union(scanPaths).Elements(), signatureType, nil
+	cl.FileList = filePaths.Union(scanPaths).Elements()
+
+	return nil
 }
 
 // ******** Private functions ********
@@ -164,7 +183,7 @@ func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureT
 		return signaturehandler.SignatureTypeEcDsaP521, nil
 
 	default:
-		return signaturehandler.SignatureTypeInvalid, fmt.Errorf("Invalid signature type: '%s'", signatureTypeText)
+		return signaturehandler.SignatureTypeInvalid, fmt.Errorf("invalid signature type: '%s'", signatureTypeText)
 	}
 }
 
@@ -218,7 +237,7 @@ func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excl
 		}
 
 		if len(selectedFilePaths) == 0 {
-			return nil, fmt.Errorf("No files found for specification '%s'", fileSpec)
+			return nil, fmt.Errorf("no files found for specification '%s'", fileSpec)
 		}
 
 		for _, selectedFilePath := range selectedFilePaths {
