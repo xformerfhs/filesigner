@@ -31,6 +31,7 @@ package cmdline
 
 import (
 	"bufio"
+	"errors"
 	"filesigner/filehelper"
 	"filesigner/flaglist"
 	"filesigner/set"
@@ -45,7 +46,6 @@ import (
 // ******** Private constants ********
 
 const readFromStdInArg = `-`
-const defaultSignaturesFileName = `signatures.json`
 const defaultSignatureAlgorithm = `ed25519`
 
 // ******** Public types ********
@@ -73,6 +73,7 @@ type SignCommandLine struct {
 
 // ******** Public functions ********
 
+// NewSignCommandLine sets up the flag parser for the "sign" command.
 func NewSignCommandLine() *SignCommandLine {
 	signCmd := pflag.NewFlagSet(`sign`, pflag.ContinueOnError)
 
@@ -86,37 +87,44 @@ func NewSignCommandLine() *SignCommandLine {
 
 	signCmd.BoolVarP(&result.beQuiet, `quiet`, `q`, false, `Only write output if something goes wrong`)
 
-	signCmd.BoolVarP(&result.doRecursion, `recurse`, `r`, false, `Only write output if something goes wrong`)
+	signCmd.BoolVarP(&result.doRecursion, `recurse`, `r`, false, `Search this directory and all subdirectories`)
 
 	signCmd.BoolVarP(&result.readStdIn, `stdin`, `n`, false, `Read list of files from stdin`)
 
 	result.excludeFileList = flaglist.NewFileSystemFlagList()
-	signCmd.VarP(result.excludeFileList, `exclude-file`, `x`, `Name of file to exclude from signing (may contain wild-cards).`)
+	signCmd.VarP(result.excludeFileList, `exclude-file`, `x`, `Name of file to exclude from signing (may contain wildcards).`)
 
 	result.includeFileList = flaglist.NewFileSystemFlagList()
-	signCmd.VarP(result.includeFileList, `include-file`, `i`, `Name of file to include in signing may contain wild-cards)`)
+	signCmd.VarP(result.includeFileList, `include-file`, `i`, `Name of file to include in signing (may contain wildcards)`)
 
 	result.excludeDirList = flaglist.NewFileSystemFlagList()
-	signCmd.VarP(result.excludeDirList, `exclude-dir`, `y`, `Name of directory to exclude from signing (may contain wild-cards).`)
+	signCmd.VarP(result.excludeDirList, `exclude-dir`, `y`, `Name of directory to exclude from signing (may contain wildcards).`)
 
 	result.includeDirList = flaglist.NewFileSystemFlagList()
-	signCmd.VarP(result.includeDirList, `include-dir`, `j`, `Name of directory to include in signing may contain wild-cards)`)
+	signCmd.VarP(result.includeDirList, `include-dir`, `j`, `Name of directory to include in signing may contain wildcards)`)
+
+	signCmd.SortFlags = true
 
 	return result
 }
 
-// Parse parses the command line according to the "sign" flag rules.
-func (cl *SignCommandLine) Parse(args []string) error {
-	return cl.fs.Parse(args)
+// Parse parses the command line according to the flag rules.
+func (cl *SignCommandLine) Parse(args []string) (error, bool) {
+	err := cl.fs.Parse(args)
+	if errors.Is(err, pflag.ErrHelp) {
+		return nil, true
+	}
+
+	return err, false
 }
 
-// PrintUsage prints the usage information for the "sign" command.
+// PrintUsage prints the usage information for the command.
 func (cl *SignCommandLine) PrintUsage() {
-	cl.fs.Usage()
+	cl.fs.PrintDefaults()
 }
 
-// SignCommandData returns the data that are needed for a sign command.
-func (cl *SignCommandLine) SignCommandData() error {
+// ExtractCommandData extracts the data that are needed for the command from the command line.
+func (cl *SignCommandLine) ExtractCommandData() error {
 	// 1. The signatures file must always be excluded.
 	_ = cl.excludeFileList.Set(cl.SignaturesFileName)
 

@@ -47,8 +47,8 @@ import (
 // ******** Private functions ********
 
 // doVerification verifies a signature file.
-func doVerification(contextId string) int {
-	signatureData, err := signaturefile.ReadSignatureFile(signatureFileName)
+func doVerification(contextId string, signaturesFileName string) int {
+	signatureData, err := signaturefile.ReadSignatureFile(signaturesFileName)
 	if err != nil {
 		logger.PrintError(51, err.Error())
 		return rcProcessError
