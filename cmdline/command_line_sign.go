@@ -45,7 +45,10 @@ import (
 
 // ******** Private constants ********
 
+// readFromStdInArg is the character after the end of all options that means "read from stdin".
 const readFromStdInArg = `-`
+
+// defaultSignatureAlgorithm is the name of the default signature algorithm.
 const defaultSignatureAlgorithm = `ed25519`
 
 // ******** Public types ********
