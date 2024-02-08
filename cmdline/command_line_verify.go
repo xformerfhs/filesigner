@@ -53,7 +53,7 @@ func NewVerifyCommandLine() *VerifyCommandLine {
 
 	result := &VerifyCommandLine{fs: verifyCmd}
 
-	verifyCmd.StringVarP(&result.SignaturesFileName, `signatures-file`, `s`, defaultSignaturesFileName, `Name of the file that receives the signatures`)
+	verifyCmd.StringVarP(&result.SignaturesFileName, `signatures-file`, `s`, defaultSignaturesFileName, `Name of the file that contains the signatures`)
 
 	verifyCmd.SortFlags = true
 

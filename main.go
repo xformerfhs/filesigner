@@ -179,23 +179,26 @@ func printUsageErrorf(msgNum byte, msgFormat string, args ...any) int {
 func printUsageText() {
 	_, _ = fmt.Println("\nUsage:")
 
-	_, _ = fmt.Println("\n  Sign files:")
+	_, _ = fmt.Println("\nSign files:")
 	_, _ = fmt.Printf("  %s sign {contextId} [flags] [files]\n", myName)
-	_, _ = fmt.Println("\n  with 'flags' being one of the following and 'files' a list of file names.\n")
+	_, _ = fmt.Println("\n  with 'flags' being one of the following and 'files' a list of file names:\n")
 	scl.PrintUsage()
 	_, _ = fmt.Println("\n  If no file names are given, the current directory is searched for files.")
 	_, _ = fmt.Println(`  This can be modified by the exclude and include options.`)
 	_, _ = fmt.Println(`  If no files and no exclude/include options are present, all files in the current directory will be signed.`)
-	_, _ = fmt.Println(`  The '--recurse' option only makes sense when there are include options present.`)
+	_, _ = fmt.Println(`  The '--recurse' option is only valid if there are either no files specified or if there are include options present.`)
 	_, _ = fmt.Println("  The files must be present in the current directory or one of its subdirectories.")
 	_, _ = fmt.Println("  Specifying a file outside the current directory tree is an error.")
-	_, _ = fmt.Println("  All file names that contain wildcards ('*', '?') are treated as if they were specified in an '--include-file' option.")
+	_, _ = fmt.Println("  All file names that contain wildcards ('*', '?') are treated as if they were specified in an '--include-file' option.\n")
 
-	_, _ = fmt.Println("\n\n  Verify files:")
+	_, _ = fmt.Println("\nVerify files:")
 	_, _ = fmt.Printf("  %s verify {contextId} [flag]\n", myName)
-	_, _ = fmt.Println("\n  with 'flag' being the following.\n")
+	_, _ = fmt.Println("\n  with 'flag' being the following:\n")
 	vcl.PrintUsage()
 	_, _ = fmt.Println("\n  All the files in the signatures file will be verified.\n")
 
-	_, _ = fmt.Println(`  The 'contextId' is an arbitrary word used to make the signature depend on a topic, also called a "domain separator".`)
+	_, _ = fmt.Println(`  The 'contextId' is an arbitrary word used to make the signature depend on a topic, also called a 'domain separator'.`)
+	_, _ = fmt.Println("\n\nHelp:")
+	_, _ = fmt.Printf("  Call: %s help\n", myName)
+	_, _ = fmt.Println("\n  Print this usage information.")
 }
