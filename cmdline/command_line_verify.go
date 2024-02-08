@@ -1,0 +1,86 @@
+//
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// SPDX-FileType: SOURCE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+//
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Frank Schwab
+//
+// Version: 1.0.0
+//
+// Change history:
+//    2024-02-08: V1.0.0: Created.
+//
+
+package cmdline
+
+import (
+	"errors"
+	"github.com/spf13/pflag"
+)
+
+// ******** Private constants ********
+
+// ******** Public types ********
+
+// VerifyCommandLine is the object that contains all the data
+// to interpret a "verify" command line.
+type VerifyCommandLine struct {
+	// Private elements
+	fs                 *pflag.FlagSet
+	SignaturesFileName string
+}
+
+// ******** Public functions ********
+
+// NewVerifyCommandLine sets up the flag parser for the "verify" command.
+func NewVerifyCommandLine() *VerifyCommandLine {
+	verifyCmd := pflag.NewFlagSet(`verify`, pflag.ContinueOnError)
+
+	result := &VerifyCommandLine{fs: verifyCmd}
+
+	verifyCmd.StringVarP(&result.SignaturesFileName, `signatures-file`, `s`, defaultSignaturesFileName, `Name of the file that contains the signatures`)
+
+	verifyCmd.SortFlags = true
+
+	return result
+}
+
+// Parse parses the command line according to the flag rules.
+func (cl *VerifyCommandLine) Parse(args []string) (error, bool) {
+	err := cl.fs.Parse(args)
+	if errors.Is(err, pflag.ErrHelp) {
+		return nil, true
+	}
+
+	if cl.fs.NArg() != 0 {
+		return errors.New(`there must be no arguments present without options`), false
+	}
+
+	return err, false
+}
+
+// PrintUsage prints the usage information for the command.
+func (cl *VerifyCommandLine) PrintUsage() {
+	cl.fs.PrintDefaults()
+}
+
+// ExtractCommandData returns the data that are needed for the command.
+func (cl *VerifyCommandLine) ExtractCommandData() error {
+	// Nothing to do here.
+	return nil
+}

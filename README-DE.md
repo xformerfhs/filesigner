@@ -57,29 +57,71 @@ Dies wird weiter unten an einem Beispiel dargestellt.
 Der Aufruf zur Signierung sieht folgendermaßen aus:
 
 ```
-filesigner sign {contextId} [-type {type}] [-if|-include-file {mask}] [-xf|-exclude-file {mask}] [-id|-include-dir {mask}] [-xd|-exclude-dir {mask}] [-no-subdirs]
+filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-j|--include-dir {pattern}] [-y|--exclude-dir {pattern}] [-f|--from-file {file}] [-s|--signatures-file {file}] [-r|--recurse] [-n|--stdin] [files...]
 ```
 
 Die einzelnen Teile haben die folgenden Bedeutungen:
 
 | Teil | Bedeutung |
-|----------------------|---------------------------------------------------------------------------------------------------|
-| `contextId`          | Ein beliebiger Text, der benutzt wird, um die Signatur von einem Thema abhängig zu machen. |
-| `type`               | Die Spezifikation der Signaturmethode. Entweder [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) oder `ecdsap521`. Wird der Typ nicht angegeben, wird `ed25519` verwendet. |
-| `include-file`, `if` | Spezifikation der Dateien, die signiert werden sollen. |
-| `exclude-file`, `xf` | Spezifikation der Dateien, die nicht signiert werden sollen. |
-| `include-dir`, `id`  | Spezifikation der Verzeichnisse, die signiert werden sollen. |
-| `exclude-dir`, `xd`  | Spezifikation der Verezichnisse, die nicht signiert werden sollen. |
-| `no-subdirs`         | Es werden nur Dateien im aktuellen Verzeichnis signiert. Unterverzeichnisse werden nicht bearbeitet. |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `contextId`       | An arbitrary text used to make the signature depend on a topic, also called a "domain separator".                                                               |
+| `algorithm`       | Specification of the signature method. Either [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) or `ecdsap521`. If the type is not specified, `ed25519` is used. |
+| `exclude-dir`     | Specification of directories to exclude.                                                                                                                        |
+| `exclude-file`    | Specification of files to exclude.                                                                                                                              |
+| `from-file`       | Read file names to process from the specified file. There is one file name per line.                                                                            |
+| `include-dir`     | Specification of directories to include.                                                                                                                        |
+| `include-file`    | Specification of files to include.                                                                                                                              |
+| `recurse`         | Descend also into subdirectories.                                                                                                                               |
+| `signatures-file` | Put signatures in the specified file. Default is `signatures.json`.                                                                                             |
+| `stdin`           | Read file names to process from the standard input. There is one file name per line.                                                                            |
+| `files`           | A blank-separated list of files to sign.                                                                                                                        |
 
 Folgendes ist wichtig zu wissen:
 
+* The exclude/include options scan the current directory
+  and the subdirectories if `--recurse` is specified.
+* All exclude/include options take one specification.
+* Wildcards (`*`, `?`) may be used in include/exclude options.
+* An include option excludes all objects that are not included.
+* If both, files and includes are specified, they are combined.
+* If both, files and excludes are specified, files that match an exclude specification are not processed.
+* If wildcards are specified in the files list, they are treated as if they are values in `--include-file` options.
+* On Linux, wildcards need to be put in quotes (`'`) or double quotes (`"`) or escaped by a \\ (like e.g. `--exclude-dir .\*` to exclude all directories starting with `.`).
+
+```
+filesigner sign {contextId} [-type {type}] [-if|-include-file {mask}] [-xf|-exclude-file {mask}] [-id|-include-dir {mask}] [-xd|-exclude-dir {mask}] [-no-subdirs]
+```
+
+Die einzelnen Teile haben die folgenden Bedeutungen:
+
+| Teil              | Bedeutung                                                                                                                                                                  |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `contextId`       | Ein beliebiger Text, der benutzt wird, um die Signatur von einem Thema abhängig zu machen.                                                                                 |
+| `algorithm`       | Die Spezifikation der Signaturmethode. Entweder [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) oder `ecdsap521`. Wird der Typ nicht angegeben, wird `ed25519` verwendet. |
+| `exclude-dir`     | Spezifikation der Verezichnisse, die nicht signiert werden sollen.                                                                                                         |
+| `exclude-file`    | Spezifikation der Dateien, die nicht signiert werden sollen.                                                                                                               |
+| `from-file`       | Die zu bearbeitenden Dateinamen werden aus der angegebenen Datei gelesen, die einen Dateinamen pro Zeile enthalten muss.                                                   |
+| `include-file`    | Spezifikation der Dateien, die signiert werden sollen.                                                                                                                     |
+| `include-dir`     | Spezifikation der Verzeichnisse, die signiert werden sollen.                                                                                                               |
+| `recurse`         | Es werden auch Unterverzeichnisse bearbeitet.                                                                                                                              |
+| `signatures-file` | Die Signaturen werden in die angegebenene Datei geschrieben. Die Voreinstellung ist `signatures.json`.                                                                     |
+| `stdin`           | Die zu bearbeitenden Dateinamen werden von der Standardeingabe gelesen, die einen Dateinamen pro Zeile enthalten muss.                                                     |
+| `files`           | Eine Liste von Dateinamen, die mit Leerzeichen getrennt sind.                                                                                                              |
+
+Folgendes ist wichtig zu wissen:
+
+* Alle exclude/include-Optionen durchlaufen das aktuelle Verzeichnis und 
+alle Unterverzeichnisse, wenn `--recurse` angegeben ist.
 * Alle exclude/include-Optionen müssen genau eine Dateispezifikation als Wert haben.
 * In include/exclude-Optionen können Platzhalter (`*`, `?`) benutzt werden.
+* Wenn sowohl Dateinamen, als auch include-Optionen angegeben sind, werden sie zusammengefasst.
+* Wenn sowohl Dateinamen, als auch exclude-Optionen angegeben sind, werden Dateinamen, die zu einer
+exclude-Option passen, nicht signiert.
+* Wenn in der Dateiliste Namen mit Wildcards enthalten sind, werden sie so behandelt, als ob sie in einer `--include-file`-Option angegeben wären.
 * Eine include-Option schließt alle Objekte aus, die nicht in einer include-Option benannt werden.
-* Unter Linux müssen Wildcards in einfache Anführungszeichen (`'`) oder doppelte Anführungszeichen (`"`) eingeschlossen werden.
+* Unter Linux müssen Wildcards in einfache Anführungszeichen (`'`) oder doppelte Anführungszeichen (`"`) eingeschlossen werden oder mit einem vorangestellten \\ versehen werden (z.B.. `--exclude-dir .\*` um alle Verzeichnisse auszuschließen, die mit einem `.` beginnen).
 
-Die Datei `signatures.json` wird **immer** ausgeschlossen und kann nicht signiert werden.
+Die Signaturendatei wird **immer** ausgeschlossen und kann nicht signiert werden.
 Sie enthält bereits eine Signatur.
 
 Der Aufruf erzeugt eine Datei mit dem Namen `signatures.json`, die folgendes Format hat:

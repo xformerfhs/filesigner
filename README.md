@@ -43,7 +43,7 @@ After the signing process, the private key is deleted.
 It is not stored and therefore cannot be stolen and misused by attackers.
 However, it is still possible to verify the signature using the public key.
 
-How can you now protect against an attacker dropping his forged artifact and generating the signature with the appropriate program?
+Now, how can you protect against an attacker dropping his forged artifact and generating the signature with the appropriate program?
 
 When artifacts are published, they and the signature file are stored.
 The public key used is made known to the recipients of the artifacts by another means.
@@ -58,27 +58,36 @@ This is illustrated below with an example.
 The signing call looks like this:
 
 ```
-filesigner sign {contextId} [-type {type}] [-if|-include-file {mask}] [-xf|-exclude-file {mask}] [-id|-include-dir {mask}] [-xd|-exclude-dir {mask}] [-no-subdirs]
+filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-j|--include-dir {pattern}] [-y|--exclude-dir {pattern}] [-f|--from-file {file}] [-s|--signatures-file {file}] [-r|--recurse] [-n|--stdin] [files...]
 ```
 
 The parts have the following meaning:
 
-| Part | Meaning |
-|----------------------|---------------------------------------------------------------------------------------------------|
-| `contextId`          | An arbitrary text used to make the signature depend on a topic, also called a "domain separator". |
-| `type`               | Specification of the signature method. Either [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) or `ecdsap521`. If the type is not specified, `ed25519` is used. |
-| `include-file`, `if` | Specification of files to include. |
-| `exclude-file`, `xf` | Specification of files to exclude. |
-| `include-dir`, `id`  | Specification of directories to include. |
-| `exclude-dir`, `xd`  | Specification of directories to exclude. |
-| `no-subdirs`         | Only process files in the current directory. Do not descend into subdirectories. |
+| Part              | Meaning                                                                                                                                                         |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `contextId`       | An arbitrary text used to make the signature depend on a topic, also called a "domain separator".                                                               |
+| `algorithm`       | Specification of the signature method. Either [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) or `ecdsap521`. If the type is not specified, `ed25519` is used. |
+| `exclude-dir`     | Specification of directories to exclude.                                                                                                                        |
+| `exclude-file`    | Specification of files to exclude.                                                                                                                              |
+| `from-file`       | Read file names to process from the specified file. There is one file name per line.                                                                            |
+| `include-dir`     | Specification of directories to include.                                                                                                                        |
+| `include-file`    | Specification of files to include.                                                                                                                              |
+| `recurse`         | Descend also into subdirectories.                                                                                                                               |
+| `signatures-file` | Put signatures in the specified file. Default is `signatures.json`.                                                                                             |
+| `stdin`           | Read file names to process from the standard input. There is one file name per line.                                                                            |
+| `files`           | A blank-separated list of files to sign.                                                                                                                        |
 
 Please note the following information:
 
+* The exclude/include options scan the current directory 
+and the subdirectories if `--recurse` is specified.
 * All exclude/include options take one specification.
 * Wildcards (`*`, `?`) may be used in include/exclude options.
 * An include option excludes all objects that are not included.
-* On Linux wildcards need to be put in quotes (`'`) or double quotes (`"`).
+* If both, files and includes are specified, they are combined.
+* If both, files and excludes are specified, files that match an exclude specification are not processed.
+* If wildcards are specified in the files list, they are treated as if they are values in `--include-file` options. 
+* On Linux, wildcards need to be put in quotes (`'`) or double quotes (`"`) or escaped by a \\ (like e.g. `--exclude-dir .\*` to exclude all directories starting with `.`).
 
 The file `signatures.json` is **always** excluded and cannot be signed.
 

@@ -1,3 +1,31 @@
+//
+// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// SPDX-FileType: SOURCE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+//
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Frank Schwab
+//
+// Version: 1.0.0
+//
+// Change history:
+//    2024-02-01: V1.0.0: Created.
+//
+
 package main
 
 import (
@@ -19,8 +47,8 @@ import (
 // ******** Private functions ********
 
 // doVerification verifies a signature file.
-func doVerification(contextId string) int {
-	signatureData, err := signaturefile.ReadSignatureFile(signatureFileName)
+func doVerification(contextId string, signaturesFileName string) int {
+	signatureData, err := signaturefile.ReadSignatureFile(signaturesFileName)
 	if err != nil {
 		logger.PrintError(51, err.Error())
 		return rcProcessError
@@ -38,18 +66,15 @@ func doVerification(contextId string) int {
 	ok, err = signatureData.Verify(hashVerifier, contextId)
 	if err == nil {
 		if !ok {
-			logger.PrintError(53, "Signature file has been tampered with or wrong context id")
+			logger.PrintError(53, `signature file has been tampered with or wrong context id`)
 			return rcProcessError
 		}
 	} else {
-		logger.PrintErrorf(54, "Error verifying signature file data signature: %v", err)
+		logger.PrintErrorf(54, `error verifying signature file data signature: %v`, err)
 		return rcProcessError
 	}
 
-	logger.PrintInfof(55, "Context id         : %s", contextId)
-	logger.PrintInfof(56, "Public key id      : %s", publicKeyId)
-	logger.PrintInfof(57, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(58, "Signature host name: %s", signatureData.Hostname)
+	printMetaData(contextId, publicKeyId, signatureData.Timestamp, signatureData.Hostname)
 
 	successCount, errorCount, rc := verifyFiles(contextId, signatureData, hashVerifier)
 
