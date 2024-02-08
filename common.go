@@ -61,10 +61,18 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 	for _, filePath := range keyList {
 		hr = hashResults[filePath]
 		if hr.Err != nil {
-			logger.PrintErrorf(23, "Could not get hash of file '%s': %v", hr.FilePath, hr.Err)
+			logger.PrintErrorf(23, "could not get hash of file '%s': %v", hr.FilePath, hr.Err)
 			result = true
 		}
 	}
 
 	return result
+}
+
+// printMetaData prints the meta data of the signatures.
+func printMetaData(contextId string, publicKeyId string, timestamp string, hostname string) {
+	logger.PrintInfof(24, "context id         : %s", contextId)
+	logger.PrintInfof(25, "public key id      : %s", publicKeyId)
+	logger.PrintInfof(26, "signature timestamp: %s", timestamp)
+	logger.PrintInfof(27, "signature host name: %s", hostname)
 }

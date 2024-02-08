@@ -80,7 +80,7 @@ func ensureMatcherIsInitialized() {
 
 // initMatcher initializes the platform-dependent match function of the matcher.
 func initMatcher() {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == `windows` {
 		matcherMatchFunc = caseInsensitiveMatchFunction
 	} else {
 		matcherMatchFunc = filepath.Match

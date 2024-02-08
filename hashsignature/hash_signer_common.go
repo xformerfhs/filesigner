@@ -28,4 +28,5 @@
 
 package hashsignature
 
-const fileSignerContext = "fIlEsIgNeR"
+// fileSignerContext is the context, or domain separator for the file signer hash.
+const fileSignerContext = `fIlEsIgNeR`

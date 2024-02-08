@@ -59,14 +59,14 @@ func VerifyFileHashes(hashVerifier hashsignature.HashVerifier,
 			signatureString = fileSignatures[filePath]
 			signatureValue, err = base32encoding.DecodeFromString(signatureString)
 			if err != nil {
-				errCollection = append(errCollection, fmt.Errorf("Signature of file '%s' has invalid encoding: %w", normalizedFilePath, err))
+				errCollection = append(errCollection, fmt.Errorf(`signature of file '%s' has invalid encoding: %w`, normalizedFilePath, err))
 			} else {
 				var ok bool
 				ok, err = hashVerifier.VerifyHash(fileHashResult.HashValue, signatureValue)
 				if ok {
 					successCollection = append(successCollection, normalizedFilePath)
 				} else {
-					errCollection = append(errCollection, fmt.Errorf("File '%s' has been tampered with", normalizedFilePath))
+					errCollection = append(errCollection, fmt.Errorf(`file '%s' has been tampered with`, normalizedFilePath))
 				}
 			}
 		}

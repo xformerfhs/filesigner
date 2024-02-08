@@ -46,12 +46,12 @@ const maxFileSize = 10_000_000
 func WriteSignatureFile(filePath string, signatureData *signaturehandler.SignatureData) error {
 	jsonOutput, err := json.MarshalIndent(signatureData, "", "   ")
 	if err != nil {
-		return fmt.Errorf("Could not create json format for signature file: %w", err)
+		return fmt.Errorf(`could not convert data to json format: %w`, err)
 	}
 
 	err = os.WriteFile(filePath, jsonOutput, 0600)
 	if err != nil {
-		return fmt.Errorf("Could not write signature file: %w", err)
+		return fmt.Errorf(`could not write signature file: %w`, err)
 	}
 
 	return nil
@@ -88,7 +88,7 @@ func checkFileSize(filePath string) error {
 	}
 
 	if fileSize > maxFileSize {
-		return errors.New("Signature file is too large.")
+		return errors.New(`signature file is too large`)
 	}
 
 	return nil
@@ -118,11 +118,11 @@ func checkSignatureForm(signatureData *signaturehandler.SignatureData) error {
 	}
 
 	if signatureData.Format > signaturehandler.SignatureFormatMax {
-		return fmt.Errorf("Invalid signature format id: %d", signatureData.Format)
+		return fmt.Errorf(`invalid signature format id: %d`, signatureData.Format)
 	}
 
 	if signatureData.SignatureType > signaturehandler.SignatureTypeMax {
-		return fmt.Errorf("Invalid signature type: %d", signatureData.SignatureType)
+		return fmt.Errorf(`invalid signature type: %d`, signatureData.SignatureType)
 	}
 
 	return nil
@@ -131,30 +131,30 @@ func checkSignatureForm(signatureData *signaturehandler.SignatureData) error {
 // checkMissingInformation checks if any required signature result data is missing.
 func checkMissingInformation(signatureData *signaturehandler.SignatureData) error {
 	if len(signatureData.DataSignature) == 0 {
-		return makeMissingFieldError("DataSignature")
+		return makeMissingFieldError(`DataSignature`)
 	}
 	if signatureData.FileSignatures == nil {
-		return makeMissingFieldError("FileSignatures")
+		return makeMissingFieldError(`FileSignatures`)
 	}
 	if signatureData.Format == signaturehandler.SignatureFormatInvalid {
-		return makeMissingFieldError("Format")
+		return makeMissingFieldError(`Format`)
 	}
 	if len(signatureData.Hostname) == 0 {
-		return makeMissingFieldError("Hostname")
+		return makeMissingFieldError(`Hostname`)
 	}
 	if len(signatureData.PublicKey) == 0 {
-		return makeMissingFieldError("PublicKey")
+		return makeMissingFieldError(`PublicKey`)
 	}
 	if signatureData.SignatureType == signaturehandler.SignatureTypeInvalid {
-		return makeMissingFieldError("SignatureType")
+		return makeMissingFieldError(`SignatureType`)
 	}
 	if len(signatureData.Timestamp) == 0 {
-		return makeMissingFieldError("Timestamp")
+		return makeMissingFieldError(`Timestamp`)
 	}
 	return nil
 }
 
 // makeMissingFieldError build the error for a "missing field" error type.
 func makeMissingFieldError(fieldName string) error {
-	return fmt.Errorf("Field '%s' is missing from signature file", fieldName)
+	return fmt.Errorf(`field '%s' is missing from signature file`, fieldName)
 }

@@ -43,11 +43,11 @@ func TestEncodeKey(t *testing.T) {
 		es := EncodeKey(s)
 		ds, err := DecodeKey(es)
 		if err != nil {
-			t.Fatalf("Error decoding key '%s': %v", es, err)
+			t.Fatalf(`error decoding key '%s': %v`, es, err)
 		}
 
 		if !bytes.Equal(s, ds) {
-			t.Fatalf("Decoding '%s' did not result in '%x', but '%x'", es, s, ds)
+			t.Fatalf(`decoding '%s' did not result in '%x', but '%x'`, es, s, ds)
 		}
 	}
 }

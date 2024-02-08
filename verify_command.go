@@ -66,18 +66,15 @@ func doVerification(contextId string, signaturesFileName string) int {
 	ok, err = signatureData.Verify(hashVerifier, contextId)
 	if err == nil {
 		if !ok {
-			logger.PrintError(53, "Signature file has been tampered with or wrong context id")
+			logger.PrintError(53, `signature file has been tampered with or wrong context id`)
 			return rcProcessError
 		}
 	} else {
-		logger.PrintErrorf(54, "Error verifying signature file data signature: %v", err)
+		logger.PrintErrorf(54, `error verifying signature file data signature: %v`, err)
 		return rcProcessError
 	}
 
-	logger.PrintInfof(55, "Context id         : %s", contextId)
-	logger.PrintInfof(56, "Public key id      : %s", publicKeyId)
-	logger.PrintInfof(57, "Signature timestamp: %s", signatureData.Timestamp)
-	logger.PrintInfof(58, "Signature host name: %s", signatureData.Hostname)
+	printMetaData(contextId, publicKeyId, signatureData.Timestamp, signatureData.Hostname)
 
 	successCount, errorCount, rc := verifyFiles(contextId, signatureData, hashVerifier)
 

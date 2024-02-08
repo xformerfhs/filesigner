@@ -59,7 +59,7 @@ func makeHashSignatures(hashSigner hashsignature.HashSigner,
 	for _, filePath := range filePathList {
 		signature, err = hashSigner.SignHash(hashResultList[filePath].HashValue)
 		if err != nil {
-			return nil, nil, fmt.Errorf("Could not sign hash of file '%s': %w", filePath, err)
+			return nil, nil, fmt.Errorf(`could not sign hash of file '%s': %w`, filePath, err)
 		}
 
 		signatures[filepath.ToSlash(filePath)] = base32encoding.EncodeToString(signature)

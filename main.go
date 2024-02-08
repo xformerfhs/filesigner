@@ -90,7 +90,7 @@ func mainWithReturnCode(args []string) int {
 
 	argLen := len(args)
 	if argLen < 2 {
-		return printUsageError(11, "Not enough arguments")
+		return printUsageError(11, `not enough arguments`)
 	}
 
 	command := strings.ToLower(args[1])
@@ -137,7 +137,7 @@ func mainWithReturnCode(args []string) int {
 		return doVerification(args[2], vcl.SignaturesFileName)
 
 	default:
-		return printUsageErrorf(13, "Unknown command: '%s'", command)
+		return printUsageErrorf(13, `unknown command: '%s'`, command)
 	}
 }
 
@@ -153,12 +153,12 @@ func printVersion() {
 }
 
 func printMissingContextId() int {
-	return printUsageError(15, "Context id missing")
+	return printUsageError(15, "context id missing")
 }
 
 // printCommandLineProcessingError prints an error message when there was in error in the command line processing.
 func printCommandLineProcessingError(err error) int {
-	return printUsageErrorf(16, "Error processing command line: %v", err)
+	return printUsageErrorf(16, "error processing command line: %v", err)
 }
 
 // printUsageError prints an error message followed by the usage message.

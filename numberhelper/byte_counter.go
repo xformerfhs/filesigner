@@ -49,11 +49,11 @@ type ByteCounter struct {
 
 func NewByteCounter(length byte) (*ByteCounter, error) {
 	if length == 0 {
-		return nil, errors.New("Byte counter length must not be 0")
+		return nil, errors.New(`byte counter length must not be 0`)
 	}
 
 	if length > maxByteCounterLen {
-		return nil, errors.New("Byte counter length is too large")
+		return nil, errors.New(`byte counter length is too large`)
 	}
 
 	maxIndex := length - 1

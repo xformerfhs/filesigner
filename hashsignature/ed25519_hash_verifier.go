@@ -44,7 +44,11 @@ type Ed25519HashVerifier struct {
 }
 
 // ******** Private constants ********
+
+// ed25519MinKeyLength is the minimum valid key length for an Ed25519 key.
 const ed25519MinKeyLength = 32
+
+// ed25519MaxKeyLength is the maximum valid key length for an Ed25519 key.
 const ed25519MaxKeyLength = 34
 
 // ******** Type creation ********
@@ -53,7 +57,7 @@ const ed25519MaxKeyLength = 34
 func NewEd25519HashVerifier(publicKey []byte) (HashVerifier, error) {
 	lenKey := len(publicKey)
 	if lenKey < ed25519MinKeyLength || lenKey > ed25519MaxKeyLength {
-		return nil, fmt.Errorf("bad ed25519 public key length: %d", lenKey)
+		return nil, fmt.Errorf(`bad ed25519 public key length: %d`, lenKey)
 	}
 
 	result := &Ed25519HashVerifier{
@@ -69,7 +73,7 @@ func NewEd25519HashVerifier(publicKey []byte) (HashVerifier, error) {
 // VerifyHash verifies the supplied hash with the supplied signature.
 func (hv *Ed25519HashVerifier) VerifyHash(hashValue []byte, signature []byte) (bool, error) {
 	result, err := hv.doVerifyHash(hashValue, signature)
-	if err != nil && strings.Contains(err.Error(), "invalid signature") {
+	if err != nil && strings.Contains(err.Error(), `invalid signature`) {
 		err = nil
 	}
 

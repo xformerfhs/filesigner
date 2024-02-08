@@ -194,7 +194,7 @@ func convertSignatureType(signatureTypeText string) (signaturehandler.SignatureT
 		return signaturehandler.SignatureTypeEcDsaP521, nil
 
 	default:
-		return signaturehandler.SignatureTypeInvalid, fmt.Errorf("invalid signature type: '%s'", signatureTypeText)
+		return signaturehandler.SignatureTypeInvalid, fmt.Errorf(`invalid signature type: '%s'`, signatureTypeText)
 	}
 }
 
@@ -248,7 +248,7 @@ func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excl
 		}
 
 		if len(selectedFilePaths) == 0 {
-			return nil, fmt.Errorf("no files found for specification '%s'", fileSpec)
+			return nil, fmt.Errorf(`no files found for specification '%s'`, fileSpec)
 		}
 
 		for _, selectedFilePath := range selectedFilePaths {
@@ -269,7 +269,7 @@ func removeThisDirPath(thisDirPath string, filePath string) (string, error) {
 	if strings.HasPrefix(filePath, thisDirPath) {
 		return filePath[len(thisDirPath):], nil
 	}
-	return "", fmt.Errorf("file path '%s' is not inside current directory '%s'", filePath, thisDirPath)
+	return "", fmt.Errorf(`file path '%s' is not inside current directory '%s'`, filePath, thisDirPath)
 }
 
 // makeThisDirPath builds the current directory path.
