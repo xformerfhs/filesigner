@@ -1,0 +1,75 @@
+#!/bin/bash
+
+function writeLog() {
+    echo "$(date +'%Y-%m-%d %H:%M:%S%z') $*"
+}
+
+# ${var%regex}: Delete everything after shortest match of regex
+# ${var##regex}: Delete everything before longest match of regex
+# ${var:-expr}: Use ${var} or 'expr' if $var is empty or not set
+function getExecutableName {
+   executableName="${PWD%"${PWD##*[!/]}"}" # Get all trailing '/' and remove them
+   executableName="${executableName##*/}"  # Remove everything up to last / leaving only the last part after the last /
+   executableName="${executableName:-/}"   # If the executable name is empty set it to '/'
+}
+
+function buildExecutable() {
+   writeLog "Start build for ${GOOS}/${GOARCH}"
+
+   realExecutableName=${executableName}
+   # ${var,,}: Convert value of 'var' to lower case
+   if [ "${GOOS,,}" == "windows" ]; then
+      realExecutableName="${realExecutableName}.exe"
+   fi
+
+   # -s: Omit the symbol table and debug information
+   # -w: Omit the DWARF symbol table
+   # -trimpath: Remove all file system paths from the resulting executable
+   go build -ldflags="-s -w" -trimpath
+   rc=$?
+   writeLog "Go build for ${GOOS}/${GOARCH} has error level ${rc}"
+
+   if [ ${rc} -eq 0 ]; then
+      if [ ${useCompression} -ne 0 ]; then
+         ${upxPath} --best --lzma -v "${realExecutableName}"
+      fi
+
+      writeLog "Built ${GOOS}/${GOARCH} executable ${realExecutableName}"
+   fi
+}
+
+thisProc="${0%"${0##*[!/]}"}" # extglob-free multi-trailing-/ trim
+thisProc="${thisProc##*/}"  # remove everything before the last /
+
+writeLog "Start ${thisProc}"
+
+# Constants
+upxPath="${HOME}/upx/upx"
+export CGO_ENABLED=0
+export GOARCH=amd64
+export GOAMD64=v2
+
+# Check parameter
+useCompression=0
+# ${var:+expr}: If var is empty or not set return an empty string, if it is set return 'expr'
+# This ensures a consistent value to check if $1 is set to any value
+if [ -n "${1:+x}" ]; then
+   if [ -f "${upxPath}" ]; then
+      useCompression=1
+   else
+      writeLog "UPX does not exist at ${upxPath}"
+   fi
+fi
+
+getExecutableName
+
+echo ""
+export GOOS=windows
+buildExecutable
+echo ""
+
+export GOOS=linux
+buildExecutable
+echo ""
+
+writeLog "End ${thisProc}"

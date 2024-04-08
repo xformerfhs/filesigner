@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function writeLog() {
+    echo "$(date +'%Y-%m-%d %H:%M:%S%z') $*"
+}
+
+if [ $# -eq 0 ]
+then
+   writeLog 'Context id is missing'
+   exit 1
+fi
+
+./filesigner sign "$1" -r -i \*.go -i go\* -i gb\* -i \*.md -X .\* filesigner_sbom.json
+
+writeLog "Signing had return code $?"
