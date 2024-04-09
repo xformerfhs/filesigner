@@ -31,7 +31,10 @@ package hashsignature
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	mrand "math/rand"
+	"strings"
 	"testing"
 )
 
@@ -180,6 +183,48 @@ func TestPublicKeyLen(t *testing.T) {
 	}
 }
 
+func TestWrongPublicKeyWithVerifyEcDsaP521(t *testing.T) {
+	wrongPublicKey := make([]byte, p521PublicKeyLength)
+	_, err := NewEcDsaP521HashVerifier(wrongPublicKey)
+	algorithmName := `EcDsaP521`
+	if err == nil || !strings.Contains(err.Error(), `public key`) {
+		t.Fatalf(`%s verifier has no error with invalid public key`, algorithmName)
+	}
+
+	var privKey *rsa.PrivateKey
+	privKey, err = rsa.GenerateKey(rand.Reader, 1000)
+	if err != nil {
+		t.Fatalf(`Error generating RSA key: %v`, err)
+	}
+
+	pubKey := &privKey.PublicKey
+	var pubKeyBytes []byte
+	pubKeyBytes, err = x509.MarshalPKIXPublicKey(pubKey)
+	if err != nil {
+		t.Fatalf(`Error converting RSA key: %v`, err)
+	}
+
+	_, err = NewEcDsaP521HashVerifier(pubKeyBytes)
+	if err == nil || !strings.Contains(err.Error(), `not an ECDSA key`) {
+		t.Fatalf(`Error generating RSA key: %v`, err)
+	}
+}
+
+func TestShortPublicKeyWithVerify(t *testing.T) {
+	wrongPublicKey := make([]byte, 3)
+	_, err := NewEcDsaP521HashVerifier(wrongPublicKey)
+	algorithmName := `EcDsaP521`
+	if err == nil || !strings.Contains(err.Error(), `key length`) {
+		t.Fatalf(`%s verifier has no error with wrong public key`, algorithmName)
+	}
+
+	_, err = NewEd25519HashVerifier(wrongPublicKey)
+	algorithmName = `Ed25519`
+	if err == nil || !strings.Contains(err.Error(), `key length`) {
+		t.Fatalf(`%s verifier has no error with wrong public key`, algorithmName)
+	}
+}
+
 func TestSignAndVerify(t *testing.T) {
 	ensureEnvironment(t)
 
@@ -209,9 +254,9 @@ func TestSignerDestroy(t *testing.T) {
 
 // These tests were written with the help of ChatGPT.
 
-func doTestPublicKeyLen(t *testing.T, typeText string, publicKey []byte, publicKeyLength int) {
+func doTestPublicKeyLen(t *testing.T, algorithmName string, publicKey []byte, publicKeyLength int) {
 	if len(publicKey) != publicKeyLength {
-		t.Fatalf(`%s: Invalid public key length: expected %d, got %d`, typeText, publicKeyLength, len(publicKey))
+		t.Fatalf(`%s: Invalid public key length: expected %d, got %d`, algorithmName, publicKeyLength, len(publicKey))
 	}
 }
 
