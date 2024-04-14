@@ -147,7 +147,7 @@ The parts have the following meaning:
 |----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `name`         | The signatures file name is `{name}-signatures.json`. Default for the name is `filesigner`.                                                                     |
 
-[!NOTE]
+> [!IMPORTANT]
 > More parameters are not permitted and will result in an error message.
 
 The program reads the signatures file and checks whether the files named there exist and whether their signatures match the current content.

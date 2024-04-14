@@ -181,7 +181,7 @@ Die einzelnen Teile haben die folgenden Bedeutungen:
 |----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `name`         | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`.                                                             |
 
-> [!NOTE]
+> [!IMPORTANT]
 > Weitere Parameter sind nicht erlaubt und führen zu einer Fehlermeldung.
 
 Das Programm liest die Signaturendatei ein und prüft, ob die dort genannten Dateien vorhanden sind und ob deren Signaturen zu den aktuellen Inhalten passen.
