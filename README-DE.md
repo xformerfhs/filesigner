@@ -125,7 +125,7 @@ Folgendes ist wichtig zu wissen:
 * Eine include-Option schließt alle Objekte aus, die nicht in einer include-Option benannt werden.
 * Unter Linux müssen Wildcards in einfache Anführungszeichen (`'`) oder doppelte Anführungszeichen (`"`) eingeschlossen werden oder mit einem vorangestellten \\ versehen werden (z.B.. `--exclude-dir .\*` um alle Verzeichnisse auszuschließen, die mit einem `.` beginnen).
 
-> [!NOTE]
+> [!IMPORTANT]
 > Die Signaturendatei wird **immer** ausgeschlossen und kann nicht signiert werden.
 > Sie enthält bereits eine Signatur.
 

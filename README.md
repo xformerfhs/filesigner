@@ -92,7 +92,7 @@ Please note the following information:
 * If wildcards are specified in the files list, they are treated as if they are values in `--include-file` options. 
 * On Linux, wildcards need to be put in quotes (`'`) or double quotes (`"`) or escaped by a \\ (like e.g. `--exclude-dir .\*` to exclude all directories starting with `.`).
 
-> [!NOTE]
+> [!IMPORTANT]
 > The signatures file is **always** excluded and cannot be signed.
 
 The call creates a signatures file[^1] which has the following format:
