@@ -52,7 +52,7 @@ func FillToCap[S ~[]T, T any](s S, v T) {
 	}
 }
 
-// ClearNumber clears an integer type slice.
+// ClearNumber clears a number type slice.
 func ClearNumber[S ~[]T, T constraints.Number](a S) {
 	FillToCap(a, 0)
 }
