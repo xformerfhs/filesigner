@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.1.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
