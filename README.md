@@ -184,7 +184,7 @@ filesigner sign project1711 -if *.go -if filesign*
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:48:51 +01:00  15  I  filesigner V0.80.0 (go1.21.8, 8 cpus)
+2024-03-05 15:48:51 +01:00  15  I  filesigner V0.80.1 (go1.21.9, 8 cpus)
 2024-03-05 15:48:51 +01:00  24  I  Context id         : project1711
 2024-03-05 15:48:51 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
 2024-03-05 15:48:51 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
@@ -215,7 +215,7 @@ filesigner verify
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:49:13 +01:00  15  I  filesigner V0.80.0 (go1.21.8, 8 cpus)
+2024-03-05 15:49:13 +01:00  15  I  filesigner V0.80.1 (go1.21.9, 8 cpus)
 2024-03-05 15:49:13 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:13 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:13 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -239,7 +239,7 @@ If this is not the case, the signature is deemed to be invalid and the files mus
 As another example, if the file `filesigner` has been manipulated, the following output would appear:
 
 ```
-2024-03-05 15:49:38 +01:00  15  I  filesigner V0.80.0 (go1.21.8, 8 cpus)
+2024-03-05 15:49:38 +01:00  15  I  filesigner V0.80.1 (go1.21.9, 8 cpus)
 2024-03-05 15:49:38 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:38 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:38 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -260,7 +260,7 @@ The return code is 3.
 If, for example, the signatures file has been manipulated the following output would appear:
 
 ```
-2024-03-05 15:50:04 +01:00  15  I  filesigner V0.80.0 (go1.21.8, 8 cpus)
+2024-03-05 15:50:04 +01:00  15  I  filesigner V0.80.1 (go1.21.9, 8 cpus)
 2024-03-05 15:50:04 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:50:04 +01:00  54  E  Signatures file has been tampered with
 ```

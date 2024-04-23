@@ -17,24 +17,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Author: Frank Schwab
-//
-// Version: 1.1.0
-//
-// Change history:
-//    2024-02-01: V1.0.0: Created.
-//    2024-03-17: V1.1.0: Add FillToCap.
-//
 
 // Package slicehelper implements helper functions for slices.
 package slicehelper
 
 import "filesigner/constraints"
 
+// ******** Private constants ********
+
+// powerFasterThresholdLen is the slice length where a PowerFill begins to be faster than a SimpleFill.
+const powerFasterThresholdLen = 74
+
 // ******** Public functions ********
 
-// Fill fills a slice with a value in an efficient way up to its length.
+// Fill fills a slice with a value in an optimal way up to its length.
 func Fill[S ~[]T, T any](s S, v T) {
 	sLen := len(s)
 
@@ -121,8 +117,24 @@ func Prepend[S ~[]T, T any](s S, e ...T) []T {
 
 // ******** Private functions ********
 
-// doFill fills a slice in an efficient way.
+// doFill fills a slice in an optimal way.
 func doFill[S ~[]T, T any](s S, v T, l int) {
+	if l >= powerFasterThresholdLen {
+		doPowerFill(s, v, l)
+	} else {
+		doSimpleFill(s, v, l)
+	}
+}
+
+// doSimpleFill fills a slice in a simple way.
+func doSimpleFill[S ~[]T, T any](s S, v T, l int) {
+	for i := 0; i < l; i++ {
+		s[i] = v
+	}
+}
+
+// doPowerFill fills a slice in an efficient way, at least above a certain length.
+func doPowerFill[S ~[]T, T any](s S, v T, l int) {
 	// Put the value into the first slice element
 	s[0] = v
 
