@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.80.0
+// Version: 0.80.1
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.80.0`
+const myVersion = `0.80.1`
 
 // ******** Formal main function ********
 
