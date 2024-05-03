@@ -3,6 +3,9 @@
 A program to have an easy way to use digital signatures.
 Like certificates, only better and easier ;-).
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/xformerfhs/filesigner)](https://goreportcard.com/report/github.com/xformerfhs/filesigner)
+[![License](https://img.shields.io/github/license/xformerfhs/filesigner)](https://github.com/xformerfhs/filesigner/blob/main/LICENSE)
+
 ## Introduction
 
 Today's IT world thrives on many, many libraries that are created by volunteers and maintained and developed with a great deal of energy and dedication.
