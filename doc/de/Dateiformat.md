@@ -71,11 +71,15 @@ Hier ein paar Beispiele für den Wert der Zeitzonenangabe:
 
 ### Kodierung von Binärwerten
 
-Der öffentliche Schlüssel, die Dateisignaturen und die Signatur der Signaturendatei sind Binärwerte, die mit dem [wort-sicheren Base32-Verfahren](https://en.wikipedia.org/wiki/Base32#Word-safe_alphabet) kodiert sind.
+Der öffentliche Schlüssel, die Dateisignaturen und die Signatur der Signaturendatei sind Binärwerte, die ähnlich dem [wort-sicheren Base32-Verfahren](https://en.wikipedia.org/wiki/Base32#Word-safe_alphabet) kodiert sind.
 
-In der wort-sicheren Base32-Kodierung steht ein Zeichen für 5 Bit aus dem Binärwert.
+In dieser Base32-Kodierung steht ein Zeichen für 5 Bit aus dem Binärwert.
+Das benutzte Alphabet lautet: `3479BCDFGHJLMRQSTVZbcdfghjmrstvz`.
+Jedes Zeichen steht für einen Binärwert.
+Die `3` steht für `0`, das `z`für `31` und die anderen Zeichen für die Werte dazwischen.
 
 Sie enthält keine Vokale, so dass nicht versehentlich Worte erzeugt werden, die eine Bedeutung haben.
+Gleichzeitig fehlen die Zeichen `6`, `X` und `x`, deren wiederholte Verwendung unerwünscht ist.
 Ebenso enthält es keine Sonderzeichen, so dass man jeden so kodierten Wert in einem Editor mit einem Doppelklick vollständig markieren kann.
 
 ### Dateipfade

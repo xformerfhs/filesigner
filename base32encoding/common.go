@@ -41,7 +41,7 @@ const keyGroupSize = 4
 // ******** Private variables ********
 
 // enc is a base32 encoder that uses the word-safe alphabet.
-var enc = base32.NewEncoding(`23456789CFGHJMPQRVWXcfghjmpqrvwx`).WithPadding(base32.NoPadding)
+var enc = base32.NewEncoding(`3479BCDFGHJLMRQSTVZbcdfghjmrstvz`).WithPadding(base32.NoPadding)
 
 // encKey is a base32 encoder which uses a custom alphabet with only upper-case letters and digits to encode keys.
 var encKey = base32.NewEncoding(`B9C8D7E6F5G4H3J2K1L0MNPQRSTVWXYZ`).WithPadding(base32.NoPadding)
