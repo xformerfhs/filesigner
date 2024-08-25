@@ -107,20 +107,20 @@ The call creates a signatures file[^1] which has the following format:
 {
    "format": 1,
    "contextId": "project1711",
-   "publicKey": "gH2547jHMHqh7hCQmwchpW7725WvWcwrPW5vfQPxPfVjF464vh5R",
+   "publicKey": "bfdjDDJ44djrcjhRfFRtdz4HFJjjdZTzBSm37FrZjDgMzFjdv7zT",
    "timestamp": "2024-03-05 15:48:51 +01:00",
    "hostname": "BuildHost",
    "signatureType": 1,
    "fileSignatures": {
-      "common.go": "xfV7hgh6MV3rCgGggHGH5H5h5HCH2wX6xFRqcWjFxV9WMhjPMFpCfgc5xG96XRmXfqxrFVf6R66JfCV2MP4pHV3VFcQ9RVm7J973G5R",
-      "filesigner": "qvwx8Gf7mCm3FC4cj9WXwF7FG4gFvVxcF4jgwjm9vQ3R9p8PJQJ56FwVM4WXVw9vcHf8q7cgxr8gQQxqGJfmVCqJ6HqFMf57MPM9g3j",
-      "filesigner.exe": "hRGX9pGFfHW9GR9QqgFh37hHmf872wM35J3rC8JH89pwXpRXg529fqjxfqHXVQJ4QVFMjPf2jFf9c8JFJMCMV2phJVJrW3p9hqwQP2R",
-      "filesigner_sbom.json": "6VqFr7CW52P24QQhxMQv76RwmpFQgMmwvCPjFgfM8x9p7RcqPmRmCQwR9M7J9fF6cH699vmfxXVF76GqvVgqWFF347f6xJm5v48q23j",
-      "main.go": "w6FgMm84prv2jPmmMRMxfJ6wJH6wF6QPpHm6vHfjM9wc4Mx9q98PfRMh2qp4Mgh852h9PFrM9Rp3rcpM5fcX8hpCCq5phPHWWCVPJ3C",
-      "sign_command.go": "grP74g6qgRqPvhCfwFcHv8w4X4Cm4R5cGXPgR7jh9CJ8P4crqX3M962cgr8qpFVjMvWxvj9gPpP5jFg6Xr7W925XG9GcWWJQ29vGr4R",
-      "verify_command.go": "VRpxrqC2j47QWRHF8QWmh58r89c6MjC7mVGFqcmVXrgFqmcWMpc5CWqRjgGXH4gjchqw8rG9m3rpFH62FQGVX7cFCHfGMMCfJwQrj22"
+      "common.go": "3sLc4CVCsMmfgmhtf4LBssGt9rtrZHmJhRrVB3QQ7M7LRdCvjGHh3rdHDH77mQgFC3Z9f9jmcDjdtRDFGS9QgC37r3QrHZSfzvcZ743",
+      "filesigner": "FsVSjJSbQTVLgfSJLvRS33G9bFHdMFSRFGb9FL94C9v37D7zrZSCBmRrFhDfQcHGTFhbhjFFZRhQVMJ4sGB3FVFSdfDgtfRgBzDLJ9G",
+      "filesigner.exe": "HMQm44ShmbLcfQSv94vcGsMHZLJ4VVZMsfgcbHDVDcbtQg4RTjBCBsm9b94rgDVLCgQdD4GHbBLzFM7RTGhQB94MQ9HQvMgRcQT7Q4h",
+      "filesigner_sbom.json": "bDvRzQG9dLDTQGVBHfrzJfJBTrCBDhrzbMVvsc7FbbzcFhM7FGtLzLftBCL9fVzRFrgMDMcCsmCTtTQc7j4fBmSGR7rfBSrs9tbbB4G",
+      "main.go": "QjgzMhsRSSsJMjBDhfTVm3BmBdSZzMZCTvbG7TssCrDVHG9mVrhGHjMVdvdthrrLrdr4jCJbZDfGstJsrdCSJR4gtSRMg9fSzbCrM9h",
+      "sign_command.go": "HcDcF7LmB4mSvvVJfTvbSSgCtcc7t3vCcjCjZgQc3jfGJ3MfdSS9FChQV37LjdBVhMChLsrdv9vQSJbmgSfD9HszhVJhSDdZL4TdM33",
+      "verify_command.go": "jQMcCcjRTVQmM7StcZbfVZmfJbstLv9FSFSDZrdrsVVBbHdJQ74BbcH4hsz4gL7V9cvTzgFSZDhVtBMhzbmDFRdR4Sg94ZSVDm7Qc7h"
    },
-   "dataSignature": "mP27JW8Xq73Hv6Wpm8QPQ5gmjWwvgWRQFpmv9JGxGfgRX4CpPgV9Mcphv685CgpR5PrP5MMxrcxWF88Gf3Jq57MXRPhjHpR6RP7rr5R"
+   "dataSignature": "cRSSgg3Cbhd3vGLgBf4MtFDCHb3SZrtzCJDrZmhHMzrHVVd3Vc94zhJLmD9g7CRdSRjhjQQhhszCmd3rH79LGT3t97tTg4Gt7bCHc7T"
 }
 ```
 
@@ -168,7 +168,7 @@ The Linux program can be executed on any Linux system.
 
 ## Encoding
 
-Binary values are stored in the word-safe [Base32 encoding](https://en.wikipedia.org/wiki/Base32).
+Binary values are stored in a special [Base32 encoding](https://en.wikipedia.org/wiki/Base32).
 What makes this encoding special, is that the alphabet used contains no vowels, no easily confusable characters such as '0' and 'O' or '1' and 'l' and no special characters.
 This means that the encoded values can be marked with a double click, no real words can be created by mistake and no characters can be confused when reading aloud.
 
