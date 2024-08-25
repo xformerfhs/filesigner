@@ -14,7 +14,7 @@ and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 ## [0.80.1] - 2024-04-23
 
 ### Changed
-- Made slicehelper. Fill a little faster.
+- Made slicehelper.Fill a little faster.
 
 ## [0.80.0] - 2024-04-01
 
