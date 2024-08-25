@@ -78,7 +78,7 @@ The alphabet used is: `3479BCDFGHJLMRQSTVZbcdfghjmrstvz`.
 The `3` stands for `0`, the `z` for `31` and the other characters for the values in between.
 
 It does not contain any vowels, so that words that have a meaning are not inadvertently created.
-Likewise, there is neither `6` nor `X`or `x` whose repeated stringing together is undesirable.
+Likewise, there is neither `6` nor `X` or `x` whose repeated stringing together is undesirable.
 It also does not contain any special characters, so that any value coded in this way can be completely marked in an editor with a double click.
 
 ### File paths
