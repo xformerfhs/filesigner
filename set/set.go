@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.0.1
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2024-08-25: V1.0.1: Correct IsProperSubsetOf function.
 //
 
 package set
@@ -174,7 +175,7 @@ func (s *Set[K]) IsSubsetOf(o *Set[K]) bool {
 
 // IsProperSubsetOf tests if this set is a proper subset of the other set.
 func (s *Set[K]) IsProperSubsetOf(o *Set[K]) bool {
-	return s.Size() < o.Size() && s.IsSubsetOf(o)
+	return s.Size() < o.Size() && s.isSubsetOf(o)
 }
 
 // -------- Management functions ---------
