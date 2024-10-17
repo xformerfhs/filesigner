@@ -2,7 +2,7 @@
     "SPDXID": "SPDXRef-DOCUMENT",
     "spdxVersion": "SPDX-2.3",
     "creationInfo": {
-        "created": "2024-08-24T16:45:45Z",
+        "created": "2024-10-17T11:40:14Z",
         "creators": [
             "Tool: GitHub.com-Dependency-Graph"
         ]
@@ -12,7 +12,7 @@
     "documentDescribes": [
         "SPDXRef-com.github.xformerfhs-filesigner"
     ],
-    "documentNamespace": "https://github.com/xformerfhs/filesigner/dependency_graph/sbom-1b9caf18d3d0cce1",
+    "documentNamespace": "https://github.com/xformerfhs/filesigner/dependency_graph/sbom-784b103cf75d05f2",
     "packages": [
         {
             "SPDXID": "SPDXRef-com.github.xformerfhs-filesigner",
@@ -46,23 +46,23 @@
             ]
         },
         {
-            "SPDXID": "SPDXRef-go-golang.org-x-text-0.17.0",
+            "SPDXID": "SPDXRef-go-golang.org-x-text-0.19.0",
             "name": "go:golang.org/x/text",
-            "versionInfo": "0.17.0",
+            "versionInfo": "0.19.0",
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": false,
             "supplier": "NOASSERTION",
             "externalRefs": [
                 {
                     "referenceCategory": "PACKAGE-MANAGER",
-                    "referenceLocator": "pkg:golang/golang.org/x/text@0.17.0",
+                    "referenceLocator": "pkg:golang/golang.org/x/text@0.19.0",
                     "referenceType": "purl"
                 }
             ]
         },
         {
-            "SPDXID": "SPDXRef-go-golang.org-x-crypto-0.26.0",
-            "name": "go:golang.org/x/crypto",
+            "SPDXID": "SPDXRef-go-golang.org-x-sys-0.26.0",
+            "name": "go:golang.org/x/sys",
             "versionInfo": "0.26.0",
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": false,
@@ -70,22 +70,22 @@
             "externalRefs": [
                 {
                     "referenceCategory": "PACKAGE-MANAGER",
-                    "referenceLocator": "pkg:golang/golang.org/x/crypto@0.26.0",
+                    "referenceLocator": "pkg:golang/golang.org/x/sys@0.26.0",
                     "referenceType": "purl"
                 }
             ]
         },
         {
-            "SPDXID": "SPDXRef-go-golang.org-x-sys-0.24.0",
-            "name": "go:golang.org/x/sys",
-            "versionInfo": "0.24.0",
+            "SPDXID": "SPDXRef-go-golang.org-x-crypto-0.28.0",
+            "name": "go:golang.org/x/crypto",
+            "versionInfo": "0.28.0",
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": false,
             "supplier": "NOASSERTION",
             "externalRefs": [
                 {
                     "referenceCategory": "PACKAGE-MANAGER",
-                    "referenceLocator": "pkg:golang/golang.org/x/sys@0.24.0",
+                    "referenceLocator": "pkg:golang/golang.org/x/crypto@0.28.0",
                     "referenceType": "purl"
                 }
             ]
@@ -100,17 +100,17 @@
         {
             "relationshipType": "DEPENDS_ON",
             "spdxElementId": "SPDXRef-com.github.xformerfhs-filesigner",
-            "relatedSpdxElement": "SPDXRef-go-golang.org-x-text-0.17.0"
+            "relatedSpdxElement": "SPDXRef-go-golang.org-x-text-0.19.0"
         },
         {
             "relationshipType": "DEPENDS_ON",
             "spdxElementId": "SPDXRef-com.github.xformerfhs-filesigner",
-            "relatedSpdxElement": "SPDXRef-go-golang.org-x-crypto-0.26.0"
+            "relatedSpdxElement": "SPDXRef-go-golang.org-x-sys-0.26.0"
         },
         {
             "relationshipType": "DEPENDS_ON",
             "spdxElementId": "SPDXRef-com.github.xformerfhs-filesigner",
-            "relatedSpdxElement": "SPDXRef-go-golang.org-x-sys-0.24.0"
+            "relatedSpdxElement": "SPDXRef-go-golang.org-x-crypto-0.28.0"
         }
     ]
 }
