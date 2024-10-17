@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [0.81.2] - 2024-10-17
+
+### Changed
+- Changed wording of modification/tamper messages.
+
 ## [0.81.1] - 2024-08-25
 
 ### Changed

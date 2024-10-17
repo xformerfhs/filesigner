@@ -72,7 +72,7 @@ func doVerification(signaturesFileName string) int {
 	ok, err = signatureData.Verify(hashVerifier, contextKey)
 	if err == nil {
 		if !ok {
-			logger.PrintError(54, `Signatures file has been tampered with`)
+			logger.PrintError(54, `Signatures file has been modified`)
 			return rcProcessError
 		}
 	} else {
@@ -162,11 +162,11 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 		nfp := filepath.FromSlash(fp)
 		fi, err := os.Stat(nfp)
 		if err != nil {
-			logger.PrintWarningf(60, `'%s' from signatures file does not exist`, nfp)
+			logger.PrintWarningf(60, `File '%s' in signatures file does not exist`, nfp)
 			rc = rcProcessWarning
 		} else {
 			if fi.IsDir() {
-				logger.PrintWarningf(61, `'%s' from signatures file is a directory`, nfp)
+				logger.PrintWarningf(61, `'%s' in signatures file is a directory`, nfp)
 				rc = rcProcessWarning
 			} else {
 				result = append(result, nfp)

@@ -66,7 +66,7 @@ func VerifyFileHashes(hashVerifier hashsignature.HashVerifier,
 				if ok {
 					successCollection = append(successCollection, normalizedFilePath)
 				} else {
-					errCollection = append(errCollection, fmt.Errorf(`File '%s' has been tampered with`, normalizedFilePath))
+					errCollection = append(errCollection, fmt.Errorf(`File '%s' has been modified`, normalizedFilePath))
 				}
 			}
 		}
