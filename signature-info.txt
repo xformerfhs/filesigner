@@ -1,6 +1,6 @@
 The files were signed with the following signature information:
 
 Context id         : fs_0.81.2
-Public key id      : 0ZKE-QQM2-BFFM-MTP2-XHQL-0TWX-KM
-Signature timestamp: 2024-10-17 13:41:27 +02:00
-Signature host name: Jetzt
+Public key id      : WGWT-SGJH-4YTT-G90J-K8JT-PZ7T-ND
+Signature timestamp: 2024-12-06 12:37:06 +01:00
+Signature host name: Atem
