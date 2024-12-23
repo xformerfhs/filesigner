@@ -10,6 +10,6 @@ then
    exit 1
 fi
 
-./filesigner sign "$1" -r -i \*.go -i go\* -i gb\* -i \*.md -X .\* filesigner_sbom.json
+./filesigner sign "$1" -r -i \*.go -i go\* -i gb\* -i \*.md -i filesigner_sbom.json -X .\* -m source
 
 writeLog "Signing had return code $?"

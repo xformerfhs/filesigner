@@ -20,12 +20,13 @@
 //
 // Author: Frank Schwab
 //
-// Version: 2.0.0
+// Version: 3.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-04-05: V1.0.1: Make type private.
 //    2024-04-05: V2.0.0: Correct name of type and creation function.
+//    2024-12-23: V3.0.0: Do not return an error.
 //
 
 package hashsignature
@@ -80,6 +81,6 @@ func NewEcDsaP521HashVerifier(publicKey []byte) (HashVerifier, error) {
 // ******** Public functions ********
 
 // VerifyHash verifies the supplied hash with the supplied signature.
-func (hv *ecDsaP521HashVerifier) VerifyHash(hashValue []byte, signature []byte) (bool, error) {
-	return ecdsa.VerifyASN1(hv.publicKey, hashValue, signature), nil
+func (hv *ecDsaP521HashVerifier) VerifyHash(hashValue []byte, signature []byte) bool {
+	return ecdsa.VerifyASN1(hv.publicKey, hashValue, signature)
 }

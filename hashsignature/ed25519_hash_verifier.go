@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.3.1
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
@@ -28,6 +28,7 @@
 //    2024-02-26: V1.2.0: Use a strengthened version of "Ed25519ph".
 //    2024-02-26: V1.3.0: Use a strengthened version of "Ed25519".
 //    2024-04-05: V1.3.1: Make type private.
+//    2024-12-23: V2.0.0: Do not return an error.
 //
 
 package hashsignature
@@ -72,7 +73,7 @@ func NewEd25519HashVerifier(publicKey []byte) (HashVerifier, error) {
 // ******** Public functions ********
 
 // VerifyHash verifies the supplied hash with the supplied signature.
-func (hv *ed25519HashVerifier) VerifyHash(hashValue []byte, signature []byte) (bool, error) {
+func (hv *ed25519HashVerifier) VerifyHash(hashValue []byte, signature []byte) bool {
 	// Ed25519 does its own hashing and expects the full source as a parameter.
 	// This is not possible here, as files can be arbitrarily large and Ed25519 can not have
 	// an io.Reader interface. So we can only supply the already computed hash.
@@ -80,7 +81,5 @@ func (hv *ed25519HashVerifier) VerifyHash(hashValue []byte, signature []byte) (b
 	// So we pad the hash value with a constant padding. This is similar to the HashEdDSA
 	// variant ed25519ph of RFC8032. This RFC uses a constant prefix. Here we use a constant
 	// prefix and suffix.
-	result := ed25519.Verify(hv.publicKey, paddedHash(hashValue), signature)
-
-	return result, nil
+	return ed25519.Verify(hv.publicKey, paddedHash(hashValue), signature)
 }

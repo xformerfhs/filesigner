@@ -101,7 +101,7 @@ func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, context
 	}
 
 	hashValue := hashValueOfSignatureData(sd, contextKey)
-	return hashVerifier.VerifyHash(hashValue, dataSignature)
+	return hashVerifier.VerifyHash(hashValue, dataSignature), nil
 }
 
 // ******** Private functions ********

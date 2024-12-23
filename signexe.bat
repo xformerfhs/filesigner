@@ -1,7 +1,7 @@
 @echo off
 if A%1==A goto :errNoArg
 
-filesigner.exe sign %1 --recurse --include-file *.go --include-file go* --include-file gb* --include-file *.md --include-file filesigner_sbom.json --exclude-dir .* --name source
+filesigner.exe sign %1 --include-file filesigner --include-file filesigner.exe  --name exe
 
 call :writeLog Signing had return code %errorlevel%
 

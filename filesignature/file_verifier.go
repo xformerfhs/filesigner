@@ -61,9 +61,7 @@ func VerifyFileHashes(hashVerifier hashsignature.HashVerifier,
 			if err != nil {
 				errCollection = append(errCollection, fmt.Errorf(`Signature of file '%s' has invalid encoding: %w`, normalizedFilePath, err))
 			} else {
-				var ok bool
-				ok, err = hashVerifier.VerifyHash(fileHashResult.HashValue, signatureValue)
-				if ok {
+				if hashVerifier.VerifyHash(fileHashResult.HashValue, signatureValue) {
 					successCollection = append(successCollection, normalizedFilePath)
 				} else {
 					errCollection = append(errCollection, fmt.Errorf(`File '%s' has been modified`, normalizedFilePath))

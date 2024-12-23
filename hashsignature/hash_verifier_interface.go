@@ -20,15 +20,16 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2024-12-23: V2.0.0: Do not return an error.
 //
 
 package hashsignature
 
 // HashVerifier is the interface that each HashVerifier has to use.
 type HashVerifier interface {
-	VerifyHash(hashValue []byte, signature []byte) (bool, error)
+	VerifyHash(hashValue []byte, signature []byte) bool
 }
