@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.0.1
 //
 // Change history:
 //    2024-02-05: V1.0.0: Created.
+//    2024-12-23: V1.0.1: Fix typo.
 //
 
 package set
@@ -79,12 +80,12 @@ func TestFSStringClear(t *testing.T) {
 
 func TestFSStringRemove(t *testing.T) {
 	s := NewFileSystemStringSet()
-	s.Add(`Whereever`)
+	s.Add(`Wherever`)
 	s.Add(`ƉØı`)
 	if s.Size() != 2 {
 		t.Fatal(`Not enough elements`)
 	}
-	s.Remove(`Whereever`)
+	s.Remove(`Wherever`)
 	if s.Size() != 1 {
 		t.Fatal(`Remove does not work`)
 	}
