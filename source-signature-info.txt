@@ -1,6 +1,6 @@
 The files were signed with the following signature information:
 
 Context id         : fs_0.82.0
-Public key id      : LNMK-24W1-J7FH-LS5Y-GTTK-SCP8-CH
-Signature timestamp: 2024-12-23 19:28:22 +01:00
+Public key id      : NNKL-ZXYB-C2XF-FGWQ-2FR8-VB5H-FM
+Signature timestamp: 2025-02-28 17:40:18 +01:00
 Signature host name: Jetzt
