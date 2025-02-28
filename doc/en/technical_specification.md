@@ -63,7 +63,7 @@ At present, however, there are hardly any libraries available for the use of the
 At the same time, elliptic curves are more efficient in terms of resource consumption due to their significantly shorter key lengths compared to RSA.
 In summary, there are currently no known effective attacks on elliptic curves.
 
-The Ed25519 method is based on the elliptic curve [Curve25519](https://www.rfc-editor.org/rfc/rfc8032#page-9), which is the most secure known elliptic curve and can be computed efficiently.
+The Ed25519 method is based on the elliptic curve [Curve25519](https://www.rfc-editor.org/rfc/rfc8032#page-9), which is one of the most secure known elliptic curve and can be computed efficiently.
 
 The ECDSA method with the P-521 curve, on the other hand, uses the P-521 curve standardized by NIST with the ECDSA standard also created by NIST.
 The method is significantly less efficient than Ed25519, but is available in many programming languages.

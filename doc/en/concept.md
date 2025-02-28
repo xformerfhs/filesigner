@@ -63,25 +63,24 @@ Unfortunately, certificates have many problems:
 The last point in particular leads to enormous problems:
 
 - Expired certificates cause total IT process failures.
-- When you receive a signed e-mail, the certificate associated with the signature has a limited validity.Almost all email programmers make the mistake of displaying the signature of an email as "invalid" if the associated certificate has expired.
-In fact, the signature is valid because the certificate was valid at the time of the digital signature.Programmers and operators are often overwhelmed with the correct handling of certificates.## Solution approach
+- When you receive a signed e-mail, the certificate associated with the signature has a limited validity. Almost all email programmers make the mistake of displaying the signature of an email as "invalid" if the associated certificate has expired. In fact, the signature is valid because the certificate was valid at the time of the digital signature. Programmers and operators are often overwhelmed with the correct handling of certificates.
+
+## Solution approach
 
 The signature system presented here avoids the two biggest weaknesses of certificates:
 
 1. Expiration date
 2. Permanent storage of the private key
 
-On the one hand, the solution presented here was inspired by the encryption software [age](https://github.com/FiloSottile/age) by encryption expert Filippo Valsorda.In age there are no certificates that expire.The public key is published and is valid for as long as it is published.This eliminates the first weak point.The second idea comes from my esteemed colleague Florian Schäfer from DB Systel GmbH:
-The private key is **not** stored after signing.
-This means that it can no longer be stolen or misused.
-
+The solution presented here was inspired by the encryption software [age](https://github.com/FiloSottile/age) by encryption expert Filippo Valsorda.
+In age there are no certificates that expire.
 The public key is published and is valid for as long as it is published.
+This eliminates the first weak point.
 
-This solves the first weak point.
-
-The second idea comes from my esteemed colleague Florian Schäfer of DB Systel GmbH:
+The second idea comes from my esteemed colleague Florian Schäfer from DB Systel GmbH:
 The private key is **not** stored after signing.
 This means that it can no longer be stolen or misused.
+
 Only the public key of a specific signing process is published in a trustworthy location.
 It can be used to verify a signature.
 
