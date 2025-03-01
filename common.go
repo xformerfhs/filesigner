@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2025 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.1.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2025-03-01: V1.1.0: Add message base.
 //
 
 package main
@@ -37,19 +38,27 @@ import (
 	"sort"
 )
 
+// ******** Private constants ********
+
+// commonMsgBase is the base number for all messages in common.
+// This file reserves numbers 20-29.
+const commonMsgBase = 20
+
+// ******** Private functions ********
+
 // printSuccessList prints the successful executions of an operation.
 func printSuccessList(operation string, successList []string) {
 	sort.Strings(successList)
 
 	for _, filePath := range successList {
-		logger.PrintInfof(21, `%s succeeded for file '%s'`, operation, filePath)
+		logger.PrintInfof(commonMsgBase+1, `%s succeeded for file '%s'`, operation, filePath)
 	}
 }
 
 // printErrorList prints the errors that occurred during an operation.
 func printErrorList(errorList []error) {
 	for _, err := range errorList {
-		logger.PrintError(22, err.Error())
+		logger.PrintError(commonMsgBase+2, err.Error())
 	}
 }
 
@@ -63,7 +72,7 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 	for _, filePath := range keyList {
 		hr = hashResults[filePath]
 		if hr.Err != nil {
-			logger.PrintErrorf(23, `Could not get hash of file '%s': %v`, hr.FilePath, hr.Err)
+			logger.PrintErrorf(commonMsgBase+3, `Could not get hash of file '%s': %v`, hr.FilePath, hr.Err)
 			result = true
 		}
 	}
@@ -73,8 +82,8 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 
 // printMetaData prints the meta data of the signatures.
 func printMetaData(signatureData *signaturehandler.SignatureData, publicKeyBytes []byte) {
-	logger.PrintInfof(24, `Context id         : %s`, signatureData.ContextId)
-	logger.PrintInfof(25, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
-	logger.PrintInfof(26, `Signature timestamp: %s`, signatureData.Timestamp)
-	logger.PrintInfof(27, `Signature host name: %s`, signatureData.Hostname)
+	logger.PrintInfof(commonMsgBase+4, `Context id         : %s`, signatureData.ContextId)
+	logger.PrintInfof(commonMsgBase+5, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
+	logger.PrintInfof(commonMsgBase+6, `Signature timestamp: %s`, signatureData.Timestamp)
+	logger.PrintInfof(commonMsgBase+7, `Signature host name: %s`, signatureData.Hostname)
 }

@@ -20,12 +20,13 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.2.0
+// Version: 1.3.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-17: V1.1.0: Create contextBytes as early, as possible.
 //    2024-03-04: V1.2.0: Use public key bytes, not id.
+//    2025-03-01: V1.3.0: Add message base.
 //
 
 package main
@@ -46,6 +47,10 @@ import (
 )
 
 // ******** Private constants ********
+
+// signCmdMsgBase is the base number for all messages in sign_command.
+// This file reserves numbers 30-49.
+const signCmdMsgBase = 30
 
 // timeStampFormat RFC3339 format for signatures file time stamp
 const timeStampFormat = "2006-01-02 15:04:05 Z07:00"
@@ -70,7 +75,7 @@ func doSigning(
 
 	signatureData.Hostname, err = os.Hostname()
 	if err != nil {
-		logger.PrintErrorf(31, `Could not get host name: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+1, `Could not get host name: %v`, err)
 		return rcProcessError
 	}
 
@@ -88,7 +93,7 @@ func doSigning(
 		hashSigner, err = hashsignature.NewEcDsaP521HashSigner()
 	}
 	if err != nil {
-		logger.PrintErrorf(32, `Could not create hash-signer: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+2, `Could not create hash-signer: %v`, err)
 		return rcProcessError
 	}
 	defer hashSigner.Destroy()
@@ -96,7 +101,7 @@ func doSigning(
 	var publicKeyBytes []byte
 	publicKeyBytes, err = hashSigner.PublicKey()
 	if err != nil {
-		logger.PrintErrorf(33, `Could not get public key bytes: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+3, `Could not get public key bytes: %v`, err)
 		return rcProcessError
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
@@ -104,19 +109,19 @@ func doSigning(
 	var successList []string
 	signatureData.FileSignatures, successList, err = filesignature.SignFileHashes(hashSigner, resultList)
 	if err != nil {
-		logger.PrintErrorf(34, `Could not sign file hashes: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+4, `Could not sign file hashes: %v`, err)
 		return rcProcessError
 	}
 
 	err = signatureData.Sign(hashSigner, contextKey)
 	if err != nil {
-		logger.PrintErrorf(35, `Could not sign signatures file data: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+5, `Could not sign signatures file data: %v`, err)
 		return rcProcessError
 	}
 
 	err = signaturefile.WriteJson(signaturesFileName, signatureData)
 	if err != nil {
-		logger.PrintErrorf(36, `Error writing signatures file '%s': %v`, signaturesFileName, err)
+		logger.PrintErrorf(signCmdMsgBase+6, `Error writing signatures file '%s': %v`, signaturesFileName, err)
 		return rcProcessError
 	}
 
@@ -129,7 +134,7 @@ func doSigning(
 
 	successEnding := texthelper.GetCountEnding(successCount)
 
-	logger.PrintInfof(37,
+	logger.PrintInfof(signCmdMsgBase+7,
 		`Signature%s for %d file%s successfully created and written to '%s'`,
 		successEnding,
 		len(successList),

@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.82.1
+// Version: 0.82.2
 //
 
 package main
@@ -41,7 +41,11 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.82.1`
+const myVersion = `0.82.2`
+
+// mainMsgBase is the base number for all messages in main.
+// This file reserves numbers 10-19.
+const mainMsgBase = 10
 
 // ******** Formal main function ********
 
@@ -53,9 +57,9 @@ func main() {
 	os.Exit(mainWithReturnCode(os.Args[1:]))
 }
 
-// Private constants
+// ******** Private constants ********
 
-// Return codes
+// -------- Return codes --------
 
 const (
 	rcOK               = 0
@@ -64,7 +68,7 @@ const (
 	rcProcessError     = 3
 )
 
-// Command verbs
+// -------- Command verbs --------
 
 const (
 	commandHelp   = `help`
@@ -108,7 +112,7 @@ func mainWithReturnCode(args []string) int {
 
 		contextId := args[1]
 		if len(contextId) == 0 {
-			logger.PrintError(11, `Context id must not be empty`)
+			logger.PrintError(mainMsgBase+1, `Context id must not be empty`)
 		}
 
 		rc := processCmdLineArguments(scl, args[2:], argLen)
@@ -117,7 +121,7 @@ func mainWithReturnCode(args []string) int {
 		}
 
 		if len(scl.FileList) == 0 {
-			logger.PrintWarning(12, `No files found to sign`)
+			logger.PrintWarning(mainMsgBase+2, `No files found to sign`)
 			return rcProcessWarning
 		}
 
@@ -132,7 +136,7 @@ func mainWithReturnCode(args []string) int {
 		return doVerification(vcl.SignaturesFileName)
 
 	default:
-		return printUsageErrorf(13, `Unknown command: '%s'`, command)
+		return printUsageErrorf(mainMsgBase+3, `Unknown command: '%s'`, command)
 	}
 }
 
@@ -150,7 +154,7 @@ func processCmdLineArguments(cl cmdline.CommandLiner, args []string, argLen int)
 
 	err = cl.ExtractCommandData()
 	if err != nil {
-		logger.PrintErrorf(14, `Error getting data from command line: %v`, err)
+		logger.PrintErrorf(mainMsgBase+4, `Error getting data from command line: %v`, err)
 		return rcProcessError
 	}
 
@@ -159,7 +163,7 @@ func processCmdLineArguments(cl cmdline.CommandLiner, args []string, argLen int)
 
 // printVersion prints the program version information.
 func printVersion() {
-	logger.PrintInfof(15, `%s V%s (%s, %d cpus)`,
+	logger.PrintInfof(mainMsgBase+5, `%s V%s (%s, %d cpus)`,
 		myName,
 		myVersion,
 		runtime.Version(),
@@ -168,17 +172,17 @@ func printVersion() {
 
 // printNotEnoughArgumentsError prints an error message that the there are not enough arguments.
 func printNotEnoughArgumentsError() int {
-	return printUsageError(15, `Not enough arguments`)
+	return printUsageError(mainMsgBase+6, `Not enough arguments`)
 }
 
 // printMissingContextId prints an error message that the context id is missing.
 func printMissingContextId() int {
-	return printUsageError(16, `Context id missing`)
+	return printUsageError(mainMsgBase+7, `Context id missing`)
 }
 
 // printCommandLineParsingError prints an error message when there was in error in the command line parsing.
 func printCommandLineParsingError(err error) int {
-	return printUsageErrorf(17, `Error parsing command line: %v`, err)
+	return printUsageErrorf(mainMsgBase+8, `Error parsing command line: %v`, err)
 }
 
 // printUsageError prints an error message followed by the usage message.
