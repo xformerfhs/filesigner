@@ -49,22 +49,22 @@ func FileHashes(filePaths []string, contextKey []byte) map[string]*HashResult {
 	// hasherWaitGroup is used to wait for all hashers to finish
 	var hasherWaitGroup sync.WaitGroup
 
-	// hasherResultChannel is where the hashers place their results to be picked off by this function
+	// hasherResultChannel is where the hashers place their results to be picked off by this function.
 	hasherResultChannel := make(chan *HashResult, runtime.NumCPU())
 
-	// Start an asynchronous hasher for each file to hash
+	// Start an asynchronous hasher for each file to hash.
 	numHashes := startFileHashers(filePaths, contextKey, &hasherWaitGroup, &hasherResultChannel)
 
-	// Start an asynchronous function that waits for all hashers to finish and then close the hasherResultChannel
+	// Start an asynchronous function that waits for all hashers to finish and then close the hasherResultChannel.
 	go waitForAllHashers(&hasherWaitGroup, &hasherResultChannel)
 
-	// Collect all results and return when hasherResultChannel is closed
+	// Collect all results and return when hasherResultChannel is closed.
 	return makeResultList(numHashes, &hasherResultChannel)
 }
 
 // ******** Private functions ********
 
-// startFileHashers starts the file hasher processes asynchronously
+// startFileHashers starts the file hasher processes asynchronously.
 func startFileHashers(filePaths []string,
 	contextKey []byte,
 	hasherWaitGroup *sync.WaitGroup,
@@ -73,7 +73,7 @@ func startFileHashers(filePaths []string,
 
 	for _, aFilePath := range filePaths {
 		numHashes++
-		hasherWaitGroup.Add(1) // This must be done before the start of the goroutine, so that the waiter will have to wait for the first goroutine to start
+		hasherWaitGroup.Add(1) // This must be done before the start of the goroutine, so that the waiter will have to wait for the first goroutine to start.
 		go fileHashWorker(aFilePath, contextKey, hasherWaitGroup, hasherResultChannel)
 	}
 
@@ -101,7 +101,7 @@ func makeResultList(numHashes int, hasherResultChannel *chan *HashResult) map[st
 	return resultList
 }
 
-// waitForAllHashers waits for all hashers to complete and closes the hash result channel then
+// waitForAllHashers waits for all hashers to complete and closes the hash result channel then.
 func waitForAllHashers(hasherWaitGroup *sync.WaitGroup, hasherResultChannel *chan *HashResult) {
 	// This function assumes that the hasherWaitGroup already has the number of running goroutines set
 	hasherWaitGroup.Wait()
@@ -109,7 +109,7 @@ func waitForAllHashers(hasherWaitGroup *sync.WaitGroup, hasherResultChannel *cha
 	close(*hasherResultChannel)
 }
 
-// fileHashWorker calculates the hash value of one file
+// fileHashWorker calculates the hash value of one file.
 func fileHashWorker(filePath string,
 	contextKey []byte,
 	hasherWaitGroup *sync.WaitGroup,

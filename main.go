@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.82.2
+// Version: 0.83.0
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.82.2`
+const myVersion = `0.83.0`
 
 // mainMsgBase is the base number for all messages in main.
 // This file reserves numbers 10-19.

@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.3.0
+// Version: 1.4.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
@@ -28,11 +28,13 @@
 //    2024-03-04: V1.2.0: Get public key bytes, not id.
 //    2025-03-01: V1.2.1: Correct message levels of verification success messages.
 //    2025-03-01: V1.3.0: Add message base.
+//    2025-03-01: V1.4.0: Correct handling of os.Stat errors.
 //
 
 package main
 
 import (
+	"errors"
 	"filesigner/base32encoding"
 	"filesigner/filehasher"
 	"filesigner/filesignature"
@@ -170,12 +172,17 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 		nfp := filepath.FromSlash(fp)
 		fi, err := os.Stat(nfp)
 		if err != nil {
-			logger.PrintWarningf(verifyCmdMsgBase+10, `File '%s' in signatures file does not exist`, nfp)
-			rc = rcProcessWarning
+			if errors.Is(err, os.ErrNotExist) {
+				logger.PrintWarningf(verifyCmdMsgBase+10, `File '%s' in signatures file does not exist`, nfp)
+				rc = max(rc, rcProcessWarning)
+			} else {
+				logger.PrintErrorf(verifyCmdMsgBase+11, `Error checking if file '%s' in signatures file exists: %v`, nfp, err)
+				rc = rcProcessError
+			}
 		} else {
 			if fi.IsDir() {
-				logger.PrintWarningf(verifyCmdMsgBase+11, `'%s' in signatures file is a directory`, nfp)
-				rc = rcProcessWarning
+				logger.PrintWarningf(verifyCmdMsgBase+12, `'%s' in signatures file is a directory`, nfp)
+				rc = max(rc, rcProcessWarning)
 			} else {
 				result = append(result, nfp)
 			}
