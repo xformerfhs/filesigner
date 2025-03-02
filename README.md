@@ -255,7 +255,7 @@ As another example, if the file `filesigner` has been manipulated, the following
 2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'sign_command.go'
 2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'verify_command.go'
 2024-03-05 15:49:38 +01:00  22  E  File 'filesigner' has been modified
-2024-03-05 15:49:38 +01:00  58  E  Verification of 6 files successful and 1 file unsuccessful
+2024-03-05 15:49:38 +01:00  58  I  Verification of 6 files successful and 1 file unsuccessful
 ```
 
 The return code is 3.
