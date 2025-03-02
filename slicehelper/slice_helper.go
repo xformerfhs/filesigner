@@ -99,7 +99,7 @@ func Copy[S ~[]T, T any](a S) S {
 // If n is negative or too large to allocate the memory, SetCap panics.
 func SetCap[S ~[]T, T any](s S, n int) S {
 	if n < 0 {
-		panic(`cannot be negative`)
+		panic(`negative capacity`)
 	}
 
 	c := cap(s)
