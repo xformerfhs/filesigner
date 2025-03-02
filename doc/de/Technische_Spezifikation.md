@@ -11,18 +11,22 @@ Im zweiten Teil werden die einzelnen Berechnungsschritte spezifiziert.
 Dieses System arbeitet mit digitalen Signaturen.
 Folgende Schritte werden zur Erstellung einer digitalen Signatur benötigt:
 
-1. Auswahl eines [asymmetrischen Verschlüsselungsverfahrens](https://de.wikipedia.org/wiki/Asymmetrisches_Kryptosystem) wie [RSA](https://de.wikipedia.org/wiki/RSA-Kryptosystem) oder [elliptische Kurven](https://de.wikipedia.org/wiki/Elliptic_Curve_Cryptography).
-2. Auswahl eines kryptografisch sicheren [Hash-Verfahrens](https://de.wikipedia.org/wiki/Kryptographische_Hashfunktion).
+1. Ein kryptografisch sicheres [Hash-Verfahrens](https://de.wikipedia.org/wiki/Kryptographische_Hashfunktion).
+2. Ein [asymmetrischen Verschlüsselungsverfahrens](https://de.wikipedia.org/wiki/Asymmetrisches_Kryptosystem) wie [RSA](https://de.wikipedia.org/wiki/RSA-Kryptosystem) oder [elliptische Kurven](https://de.wikipedia.org/wiki/Elliptic_Curve_Cryptography).
 
 ### Signatur
 
-Zunächst wird mit dem Hash-Verfahren eine kryptografisch sichere [Prüfsumme](https://de.wikipedia.org/wiki/Pr%C3%BCfsumme) über die zu signierenden Daten ermittelt.
+Für die Erstellung einer Signatur wird zuerst mit einem krytopraphisch sicheren Hash-Verfahren eine kryptographisch sichere [Prüfsumme](https://de.wikipedia.org/wiki/Pr%C3%BCfsumme) über die zu signierenden Daten ermittelt.
+Dieser kryptographisch sichere Hash-Wert wird dann mit dem **privaten** - also geheimen - Schlüssel eines asymmetrischen Verschlüsselungsverfahren verschlüsselt.
+Dieser so verschlüsselte Hash_Wert ist die digitale Signatur.
 
 Bei einem asymmetrischen Verschlüsselungsverfahren gibt es ein Schlüsselpaar aus einem privaten und einem öffentlichen Schlüssel.
 Dabei gelten die folgenden Regeln bzgl. der Ver- und Entschlüsselung:
 
-- Was mit dem öffentlichen Schlüssel verschlüsselt wird, kann nur mit dem privaten Schlüssel entschlüsselt werden.
-- Was mit dem privaten Schlüssel verschlüsselt wird, kann nur mit dem öffentlichen Schlüssel entschlüsselt werden.
+- Was mit dem **öffentlichen** Schlüssel __verschlüsselt__ wird, kann nur mit dem **privaten** Schlüssel __entschlüsselt__ werden.
+- Was mit dem **privaten** Schlüssel __verschlüsselt__ wird, kann nur mit dem **öffentlichen** Schlüssel __entschlüsselt__ werden.
+
+D.h., dass alles, was mit dem **einen** Schlüssel verschlüsselt wird, immer nur mit dem **anderen** Schlüssel des Schlüsselpaars entschlüsselt werden kann.
 
 Wie der Name bereits sagt, ist der öffentliche Schlüssel bekannt und wird nicht geheim gehalten.
 Der private Schlüssel muss geheim gehalten werden.
@@ -32,9 +36,13 @@ Der so verschlüsselte Hash-Wert stellt die digitale Signatur dar.
 
 ### Verifizierung
 
-Derjenige, der eine digitale Signatur verifizieren will, entschlüsselt die digitale Signatur mit dem **öffentlichen** - also bekannten - Schlüssel des Erstellers.
-Dann berechnet er mit demselben Hash-Verfahren den Hash-Wert der Daten.
-Dann vergleicht er den entschlüsselten Hash-Wert aus der Signatur mit dem selbst berechneten Hash-Wert.
+For verification the verifier calculates the hash value of the received data using the same hash procedure as the creator of the message.
+Then the signature is decrypted with the **public** - i.e. known - key of the creator.
+The decrypted hash value from the signature is compared to the hash value that has been calculated locally.
+
+Zur Verifizierung berechnet der Verifizierer als erstes den Hash-Wert der empfangenen Daten mit demselben Hash-Verfahren, dass auch der Unterschreibende der Daten benutzt hat.
+Dann entschlüsselt er die digitale Signatur mit dem **öffentlichen** - also bekannten - Schlüssel des Unterschreibenden.
+Der entschlüsselte Hash-Wert mit dann mit dem lokal erzeugten Hash-Wert verglichen.
 Stimmen die beiden Hash-Werte überein, ist die digitale Signatur gültig, andernfalls nicht.
 
 ### Bedeutung
@@ -48,7 +56,7 @@ Die Sicherheit dieses Verfahrens ruht auf zwei Säulen:
 
 ### Ausgewählte Verfahren
 
-Für die Berechnung des Hash-Wertes wird das Verfahren SHA3-512 benutzt, also [SHA-3](https://de.wikipedia.org/wiki/SHA-3) mit einer Hash-Länge von 512 Bit (64 Byte).
+Für die Berechnung des Hash-Wertes wird das Verfahren SHA-3-512 benutzt, also [SHA-3](https://de.wikipedia.org/wiki/SHA-3) mit einer Hash-Länge von 512 Bit (64 Byte).
 Dieses Verfahren wurde vom [NIST](https://www.nist.gov/) standardisiert und ist das zurzeit sicherste Hash-Verfahren mit einer sehr langen und damit noch auf lange Sicht sicheren Länge des Hash-Wertes.
 
 Als Signaturverfahren werden [Ed25519](https://de.wikipedia.org/wiki/Curve25519#Ed25519_und_weitere_Kurven) und [ECDSA](https://de.wikipedia.org/wiki/Elliptic_Curve_DSA) mit der Kurve [P-521](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf) verwendet.
@@ -95,45 +103,49 @@ Zur Erläuterung hier ein paar Beispiele für Werte mit ihrer Kodierung in varia
 
 ### Kontext-Schlüssel
 
-Die Kontext-Id ist sowohl ein Datum in der Datei, als auch ein Schlüssel für die Berechnung der Hash-Werte.
-Eine direkte Verwendung der Kontext-Id in der Berechnung der Hash-Werte ermöglicht Manipulationen der Datei.
-Daher wird aus der Kontext-Id nach der folgenden Vorschrift ein Schlüssel berechnet.
-Durch die nicht-lineare Abhängigkeit dieses Schlüssels von der Kontext-Id ist eine Manipulation nicht mehr möglich.
+Die Signaturen benötigen eine "Kontext-Id".
+Diese Kontext-Id fließt in die Hash-Berechnung jeder Datei ein.
+Allerdings wird die Kontext-Id vom Aufrufer gesteuert, so dass es einem Angreifer möglich wäre durch eine manipulierte Kontext-Id die Signaturverfahren anzugreifen[^1].
+Um solche Angriffe zu verhindern, wird aus der Kontext-Id ein Kontext-Schlüssel berechnet.
+Dieser Kontext-Schlüssel fließt dann in die Hash-Berechnungen der Dateien ein, nicht die Kontext-Id selbst.
+
+[^1]: Es sind zur Zeit keine solchen Angriffe bekannt.
 
 Der Kontext-Schlüssel wird folgendermaßen aus der Kontext-Id berechnet:
 
-- Die Zeichen der `ContextId` sind in [`UTF-8`](https://de.wikipedia.org/wiki/UTF-8) kodiert.
-- An sie wird, wie im vorhergehenden Abschnitt beschrieben, ihre Länge in variabler Länge angehängt, was im folgenden mit "erweiterter Kontext-Id" bezeichnet wird.
-- Dann wir der SHA-3-256-Wert der in der Byte-Folge herumgedrehten erweiterten Kontext-Id berechnet.
-- Damit entsteht ein Schlüssel aus den folgenden Werten:
+1. Die Zeichen der `Kontext-Id` werden in [`UTF-8`](https://de.wikipedia.org/wiki/UTF-8) kodiert.
+2. An die so entstandene Byte-Folge wird die Länge in der Darstellung mit variable Länge angehängt, was im Folgenden als "erweiterter Kontext-Id" bezeichnet wird.
+3. Die Byte-Folge der erweiterten Kontext-Id wird herumgedreht und daraus der SHA-3-256-Wert berechnet.
+4. Aus diesem Hash-Wert mit einer Länge von 32 Byte wird mit den folgenden Werten ein 64-Byte-langer Schlüssel konstruiert:
   - Konstante Byte-Folge `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35`.
-  - Eben berechneter Hash-Wert.
+  - Der eben berechnete Hash-Wert.
   - Konstante Byte-Folge `30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-- Dieser Schlüssel wird als Schlüssel für ein [HMAC](https://de.wikipedia.org/wiki/HMAC)-SHA-3-512-Verfahren genutzt.
-- Es wird der HMAC-Wert der Kontext-Id berechnet.
-- Damit entsteht ein Schlüssel mit den folgenden Werten:
+5. Dieser Schlüssel mit einer Länge von 64 Byte dient als Schlüssel für ein [HMAC](https://de.wikipedia.org/wiki/HMAC)-SHA-3-512-Verfahren genutzt.
+6. Es wird der HMAC-Wert der Kontext-Id mit dem so konstruierten Schlüssel berechnet.
+7. Aus dem so erzeugte 64 byte langen HMAC-Wert wird mit den folgenden Werten ein Padding erzeugt:
   - Die ersten 32 Bytes des HMAC-Wertes.
   - Die erweiterte Kontext-Id.
   - Die letzten 32 Bytes des HMAC-Wertes.
-- Der so errechnete Schlüssel wird bei der Berechnung aller Hash-Werte benutzt.
+
+Der so errechnete Schlüssel wird bei der Berechnung aller Hash-Werte von Dateien in der folgeden Weise benutzt.
   - Zuerst wird die erste Hälfte des Schlüssels in den Hash-Wert eingespeist.
-  - Dann werden alle Daten in den Hash-Wert eingespeist.
+  - Dann werden alle Daten der Datei in den Hash-Wert eingespeist.
   - Am Schluss wird die zweite Hälfte des Schlüssels in den Hash-Wert eingespeist.
   - Bei einer ungeraden Schlüssellänge ist die erste Hälfte des Schlüssels um ein Byte kürzer, als die zweite Hälfte.
 
 Ein Beispiel zeigt diese Berechnungsvorschrift an konkreten Werten:
 
 - Die Kontext-Id lautet `Überführung`.
-- Die Kontext-Bytes lauten dann `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` und haben die Länge 13 (`0d`).
-- Die erweiterte Kontext-Id hat den Wert `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d`.
-- Dann wird der SHA-3-256-Wert der folgenden Byte-Folge berechnet `0d 67 6e 75 72 68 bc c3 66 72 65 62 9c c3`: `86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff`.
-- Dies ergibt den HMAC-Schlüssel: `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35 86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff 30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-- Mit diesem wird der SHA-3-512-HMAC-Wert der Byte-Folge `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` berechnet: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
-- Nun wird aus den ersten 32 Bytes des HMAC-Wertes, der erweiterten Kontext-Id und der letzten 32 Bytes des HMAC-Wertes der Kontext-Schlüssel gebildet: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+- Schritt 1: Die Byte-Folge der Kontext-Id lautet in der UTF-8-Kodierung `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` und hat die Länge 13 (`0d`).
+- Schritt 2: Die erweiterte Kontex-Id hat damit den Wert`c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d`.
+- Schritt 3: Der SHA-3-256-Wert der herumgedrehten erweiterten Kontext-Id (`0d 67 6e 75 72 68 bc c3 66 72 65 62 9c c3`) wird berechnet und ergibt `86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff`.
+- Schritt 4: Damit wird der folgende HMAC-Schlüssel konstruiert: `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35 | 86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff | 30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc` (die `|`-Zeichen zeigen die Grenzen zwischen den einzelnen Teilen der Konstruktion an und gehören nicht zu den Byte-Werten der Konstruktion).
+- Steps 5 and 6: Dieser so konstruierte Schlüssel wird benutzt, um den SHA-3-512-HMAC-Wert der Kontext-Id (`c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67`) zu berechnen und ergibt `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+- Schritt 7:Der Kontext-Schlüssel wird nun aus den ersten 32 Byte dieses HMAC-Wertes, der erweiterten Kontext-id und den letzten 32 Byte dieses HMAC-Wertes gebildet: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 | c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d | ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7` (die `|`-Zeichen zeigen die Grenzen zwischen den einzelnen Teilen der Konstruktion an und gehören nicht zu den Byte-Werten der Konstruktion).
 
-Aus der Byte-Folge `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` ist damit der Kontext-Schlüssel `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7` geworden.
+Damit ist die Kontext-Id `Überführung` in den Kontext-Schlüssel `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7` überführt worden.
 
-Bei den Hash-Wert-Berechnungen wird in diesem Beispiel am Anfang immer die Byte-Folge `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` eingespeist und am Ende die Byte-Folge `bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`. 
+In den folgenden Hash-Berechnungen wird am Anfang immer die Bytefolge `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` und am Ende immer die Bytefolge `bc 68 72 75 6a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` eingespeist.
 
 ## Hash-Werte der Dateien
 
@@ -259,7 +271,7 @@ Folgende Werte werden dann an den Hash-Algorithmus übergeben:
 | `40`                                                                                                                                                                                                                                                             | Länge des Signatur des 5. Dateinamens |
 | `bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`                                                                                                                                           | 2. Hälfte des Kontext-Schlüssels      |
 
-Danach wird daraus der SHA3-512-Hash-Wert erzeugt, der für die Signatur der Signaturen-Datei benutzt wird.
+Danach wird daraus der SHA-3-512-Hash-Wert erzeugt, der für die Signatur der Signaturen-Datei benutzt wird.
 
 ## Signaturerzeugung
 

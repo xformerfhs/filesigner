@@ -9,32 +9,33 @@ The second part specifies the individual calculation steps.
 ## Cryptographic basics
 
 This system works with digital signatures.
-The following steps are required to create a digital signature:
+The following parts are required to create a digital signature:
 
-1. selection of an [asymmetric encryption method](https://en.wikipedia.org/wiki/Public-key_cryptography) such as [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) or [elliptic curves](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography).
-2. selection of a cryptographically secure [hash method](https://en.wikipedia.org/wiki/Cryptographic_hash_function).
+1. A cryptographically secure [hash method](https://en.wikipedia.org/wiki/Cryptographic_hash_function).
+2. An [asymmetric encryption method](https://en.wikipedia.org/wiki/Public-key_cryptography) such as [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) or [elliptic curves](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography).
 
 ### Signature
 
-First, the hash method is used to determine a cryptographically secure [checksum](https://en.wikipedia.org/wiki/Checksum) for the data to be signed.
+To create a signature a cryptographically secure hash method is used to calculate a cryptographically secure [checksum](https://en.wikipedia.org/wiki/Checksum) from the data to be signed.
+This cryptographically secure hash is then encrypted with the **private** - i.e. secret - key of an asymmetric encryption method.
+This encrypted hash value is the digital signature.
 
 An asymmetric encryption method uses a key pair consisting of a private and a public key.
 The following rules apply with regard to encryption and decryption:
 
-- What is encrypted with the public key can only be decrypted with the private key.
-- What is encrypted with the private key can only be decrypted with the public key.
+- What is __encrypted__ with the **public** key can only be __decrypted__ with the **private** key.
+- What is __encrypted__ with the **private** key can only be __decrypted__ with the **public** key.
+
+I.e. a message encrypted with **one** key can only decrypted with the **other** key of the key pair.
 
 As the name suggests, the public key is known and is not kept secret.
 The private key must be kept secret.
 
-For the signature, the hash value determined is encrypted with the **private** - i.e. secret - key of the creator.
-The hash value encrypted in this way represents the digital signature.
-
 ### Verification
 
-The person who wants to verify a digital signature decrypts the digital signature with the **public** - i.e. known - key of the creator.
-They then calculate the hash value of the data using the same hash procedure.
-Then the decrypted hash value from the signature is compared to the hash value it has calculated itself.
+For verification the verifier calculates the hash value of the received data using the same hash procedure as the creator of the data.
+Then the signature is decrypted with the **public** - i.e. known - key of the creator.
+The decrypted hash value from the signature is compared to the hash value that has been calculated locally.
 If the two hash values match, the digital signature is valid, otherwise it is not.
 
 ### Meaning
@@ -48,7 +49,7 @@ The security of this procedure rests on two pillars:
 
 ### Selected methods
 
-The SHA3-512 method is used to calculate the hash value, i.e. [SHA-3](https://en.wikipedia.org/wiki/SHA-3) with a hash length of 512 bits (64 bytes).
+The SHA-3-512 method is used to calculate the hash value, i.e. [SHA-3](https://en.wikipedia.org/wiki/SHA-3) with a hash length of 512 bits (64 bytes).
 This method was standardized by [NIST](https://www.nist.gov/) and is currently the most secure hash method with a very long and therefore still secure hash value length in the long term.
 
 The signature methods used are [Ed25519](https://en.wikipedia.org/wiki/EdDSA#Ed25519) and [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) with the curve [P-521](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf).
@@ -95,27 +96,32 @@ To illustrate this, here are a few examples of values with their encoding in var
 
 ### Context key
 
-The context ID is both data in the file and a key for calculating the hash values.
-Direct use of the context ID in the calculation of the hash values enables manipulation of the file.
-A key is therefore calculated from the context ID according to the following rule.
-Due to the non-linear dependency of this key on the context ID, manipulation is no longer possible.
+The signatures need a "context id".
+This context id is put into the hash calculation of every file.
+However, the context id is user-supplied data.
+An attacker could specify a malicious context id that could enable attacks[^1] on the signature algorithms.
+In order to make such attacks impossible a context key is derived from the context id.
+This context key is used in the hash calculations, not the context id.
 
-The context key is calculated from the context ID as follows:
+[^1]: Currently no such attacks are known.
 
-- The characters of the `ContextId` are coded in [`UTF-8`](https://en.wikipedia.org/wiki/UTF-8).
-- As described in the previous section, their length is appended in variable length, which is referred to below as the "extended context ID".
-- Then the SHA-3-256 value of the extended context ID rotated around in the byte sequence is calculated.
-- This creates a key from the following values:
+The context key is calculated from the context is as follows:
+
+1. The characters of the context id are encoded in [`UTF-8`](https://en.wikipedia.org/wiki/UTF-8).
+2. The length is appended in variable length encoding. This is referred to as the "extended context id".
+3. Then the byte sequence of the extended context id is reversed and the SHA-3-256 value of this reversed extended context id is calculated.
+4. From this hash with a length of 32 bytes a 64 byte key with the following parts is created:
     - Constant byte sequence `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35`.
     - Hash value just calculated.
     - Constant byte sequence `30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-- This key is used as the key for an [HMAC](https://en.wikipedia.org/wiki/HMAC)-SHA-3-512 procedure.
-- The HMAC value of the context ID is calculated.
-- This produces a key with the following values:
+5. This 64 byte key is used as the key for an [SHA-3-512-HMAC](https://en.wikipedia.org/wiki/HMAC)-SHA-3-512.
+6. The SHA-3-512-HMAC value of the context id bytes is calculated with this key.
+7. This generates a 64 byte HMAC value which is used as a padding to create the context key as follows:
     - The first 32 bytes of the HMAC value.
-    - The extended context ID.
+    - The extended context id.
     - The last 32 bytes of the HMAC value.
-- The key calculated in this way is used in the calculation of all hash values.
+
+This context key is used in the calculation of all hash values.
     - First, the first half of the key is fed into the hash value.
     - Then all the data is fed into the hash value.
     - Finally, the second half of the key is fed into the hash value.
@@ -123,17 +129,17 @@ The context key is calculated from the context ID as follows:
 
 An example shows this calculation rule using concrete values:
 
-- The context id is `transfer`.
-- The context bytes are then `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` and have the length 13 (`0d`).
-- The extended context ID has the value `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d`.
-- Then the SHA-3-256 value of the following byte sequence is calculated `0d 67 6e 75 72 68 bc c3 66 72 65 62 9c c3`: `86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff`.
-- This results in the HMAC key: `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35 86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff 30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-- This is used to calculate the SHA-3-512 HMAC value of the byte sequence `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67`: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
-- The context key is now formed from the first 32 bytes of the HMAC value, the extended context ID and the last 32 bytes of the HMAC value: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+- The context id is `Überführung`.
+- Step 1: The context bytes in UTF-8 encoding are `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` and have the length 13 (`0d`).
+- Step 2: The extended context ID has the value `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d`.
+- Step 3: The SHA-3-256 value of the reversed extended context id (`0d 67 6e 75 72 68 bc c3 66 72 65 62 9c c3`) is calculated which yields `86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff`.
+- Step 4: From this the following HMAC key is constructed: `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35 | 86 3a fd 35 1e 70 d5 07 76 93 b5 73 6f 9b 7f 7e 8b ec a2 13 b1 56 a6 f5 91 6e 35 83 84 9a 17 ff | 30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc` (the `|` characters illustrate the boundaries of the individual parts and do not belong to the byte values).
+- Steps 5 and 6: This is the key used to calculate the SHA-3-512 HMAC value of the context id (`c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67`) which yields `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+- Step 7: The context key is now formed from the first 32 bytes of the HMAC value, the extended context ID and the last 32 bytes of the HMAC value: `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 | c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d | ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7` (the `|` characters illustrate the boundaries of the individual parts and do not belong to the byte values).
 
-The byte sequence `c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67` is thus the context key `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+The context id `Überführung` is thus transformed into the context key `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3 bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
 
-In the hash value calculations in this example, the byte sequence `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` is always fed in at the beginning and the byte sequence `bc 68 72 75 6a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` is fed in at the end. sequence `bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`.
+For the following hash calculations the byte sequence `8c 25 5a 6c 5a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` is always fed in at the beginning and the byte sequence `bc 68 72 75 6a 75 d2 ab bc 34 c7 2f 38 a8 da db 7b 39 97 47 b1 9e 3e e8 d3 9a f9 cf 83 9a 39 03 c3 9c 62 65 72 66 c3` is fed in at the end.
 
 ## Hash values of the files
 
@@ -262,7 +268,7 @@ The following values are then passed to the hash algorithm:
 | `40`                                                                                                                                                                                                                                                             | Length of signature of 5. file name |
 | `bc 68 72 75 6e 67 0d ad 02 d1 0f 9a 8d ae 22 6d 23 14 07 5e bc 81 c7 d3 eb 4c 71 a8 92 e7 c9 a5 6a 86 82 e4 fe f9 e7`                                                                                                                                           | 2. half of context key              |
 
-The SHA3-512 hash value is then generated, which is used to sign the signature file.
+The SHA-3-512 hash value is then generated, which is used to sign the signature file.
 
 ## Signature generation
 
