@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.83.0
+// Version: 0.83.1
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.83.0`
+const myVersion = `0.83.1`
 
 // mainMsgBase is the base number for all messages in main.
 // This file reserves numbers 10-19.
@@ -115,7 +115,7 @@ func mainWithReturnCode(args []string) int {
 			logger.PrintError(mainMsgBase+1, `Context id must not be empty`)
 		}
 
-		rc := processCmdLineArguments(scl, args[2:], argLen)
+		rc := processCmdLineArguments(scl, args[2:])
 		if rc != rcOK {
 			return rc
 		}
@@ -128,7 +128,7 @@ func mainWithReturnCode(args []string) int {
 		return doSigning(scl.SignaturesFileName, scl.SignatureType, contextId, scl.FileList)
 
 	case commandVerify:
-		rc := processCmdLineArguments(vcl, args[1:], argLen)
+		rc := processCmdLineArguments(vcl, args[1:])
 		if rc != rcOK {
 			return rc
 		}
@@ -143,7 +143,7 @@ func mainWithReturnCode(args []string) int {
 // ******** Private functions ********
 
 // processCmdLineArguments processes a cmdline.CommandLiner.
-func processCmdLineArguments(cl cmdline.CommandLiner, args []string, argLen int) int {
+func processCmdLineArguments(cl cmdline.CommandLiner, args []string) int {
 	err, isHelp := cl.Parse(args)
 	if isHelp {
 		return rcOK
@@ -180,7 +180,7 @@ func printMissingContextId() int {
 	return printUsageError(mainMsgBase+7, `Context id missing`)
 }
 
-// printCommandLineParsingError prints an error message when there was in error in the command line parsing.
+// printCommandLineParsingError prints an error message when there was an error in the command line parsing.
 func printCommandLineParsingError(err error) int {
 	return printUsageErrorf(mainMsgBase+8, `Error parsing command line: %v`, err)
 }

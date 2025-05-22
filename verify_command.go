@@ -57,6 +57,8 @@ import (
 // This file reserves numbers 50-69.
 const verifyCmdMsgBase = 50
 
+const errMsgCouldNotConvert = `Could not convert %s to bytes: %v`
+
 // ******** Private functions ********
 
 // doVerification verifies a signatures file.
@@ -69,9 +71,22 @@ func doVerification(signaturesFileName string) int {
 		return rcProcessError
 	}
 
+	var publicKeyBytes []byte
+	publicKeyBytes, err = base32encoding.DecodeFromString(signatureData.PublicKey)
+	if err != nil {
+		logger.PrintErrorf(verifyCmdMsgBase+3, errMsgCouldNotConvert, `public key`, err)
+		return rcProcessError
+	}
+
+	var dataSignature []byte
+	dataSignature, err = base32encoding.DecodeFromString(signatureData.DataSignature)
+	if err != nil {
+		logger.PrintErrorf(verifyCmdMsgBase+3, errMsgCouldNotConvert, `data signature`, err)
+		return rcProcessError
+	}
+
 	var hashVerifier hashsignature.HashVerifier
-	var publicKeyId []byte
-	hashVerifier, publicKeyId, err = getHashVerifier(signatureData)
+	hashVerifier, err = getHashVerifier(signatureData, publicKeyBytes)
 	if err != nil {
 		logger.PrintErrorf(verifyCmdMsgBase+3, `Error getting hash verifier: %v`, err)
 		return rcProcessError
@@ -79,7 +94,7 @@ func doVerification(signaturesFileName string) int {
 
 	contextKey := stretcher.KeyFromBytes(stringhelper.UnsafeStringBytes(signatureData.ContextId))
 	var ok bool
-	ok, err = signatureData.Verify(hashVerifier, contextKey)
+	ok, err = signatureData.Verify(hashVerifier, contextKey, dataSignature)
 	if err == nil {
 		if !ok {
 			logger.PrintError(verifyCmdMsgBase+4, `Signatures file has been modified`)
@@ -90,7 +105,7 @@ func doVerification(signaturesFileName string) int {
 		return rcProcessError
 	}
 
-	printMetaData(signatureData, publicKeyId)
+	printMetaData(signatureData, publicKeyBytes)
 
 	successCount, errorCount, rc := verifyFiles(contextKey, signatureData, hashVerifier)
 
@@ -144,12 +159,8 @@ func verifyFiles(contextBytes []byte,
 }
 
 // getHashVerifier constructs the hash verifier and the key id from the signature data.
-func getHashVerifier(signatureData *signaturehandler.SignatureData) (hashsignature.HashVerifier, []byte, error) {
-	publicKeyBytes, err := base32encoding.DecodeFromString(signatureData.PublicKey)
-	if err != nil {
-		return nil, nil, fmt.Errorf(`Could not convert public key to bytes: %w`, err)
-	}
-
+func getHashVerifier(signatureData *signaturehandler.SignatureData, publicKeyBytes []byte) (hashsignature.HashVerifier, error) {
+	var err error
 	var hashVerifier hashsignature.HashVerifier
 	if signatureData.SignatureType == signaturehandler.SignatureTypeEd25519 {
 		hashVerifier, err = hashsignature.NewEd25519HashVerifier(publicKeyBytes)
@@ -157,10 +168,10 @@ func getHashVerifier(signatureData *signaturehandler.SignatureData) (hashsignatu
 		hashVerifier, err = hashsignature.NewEcDsaP521HashVerifier(publicKeyBytes)
 	}
 	if err != nil {
-		return nil, nil, fmt.Errorf(`Could not create hash verifier: %w`, err)
+		return nil, fmt.Errorf(`Could not create hash verifier: %w`, err)
 	}
 
-	return hashVerifier, publicKeyBytes, nil
+	return hashVerifier, nil
 }
 
 // getExistingFiles gets the files from a signature list that exist in the directory that is to be verified.

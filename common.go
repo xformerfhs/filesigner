@@ -81,7 +81,9 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 }
 
 // printMetaData prints the meta data of the signatures.
-func printMetaData(signatureData *signaturehandler.SignatureData, publicKeyBytes []byte) {
+func printMetaData(
+	signatureData *signaturehandler.SignatureData,
+	publicKeyBytes []byte) {
 	logger.PrintInfof(commonMsgBase+4, `Context id         : %s`, signatureData.ContextId)
 	logger.PrintInfof(commonMsgBase+5, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
 	logger.PrintInfof(commonMsgBase+6, `Signature timestamp: %s`, signatureData.Timestamp)

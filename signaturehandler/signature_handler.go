@@ -20,12 +20,13 @@
 //
 // Author: Frank Schwab
 //
-// Version: 2.0.0
+// Version: 3.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-17: V1.1.0: Use contextBytes.
 //    2024-02-25: V2.0.0: Rename "Ed25519" to "Ed25519Ph".
+//    2025-05-22: V3.0.0: Return signature of all data in Sign call.
 //
 
 package signaturehandler
@@ -94,12 +95,7 @@ func (sd *SignatureData) Sign(hashSigner hashsignature.HashSigner, contextKey []
 }
 
 // Verify verifies the data signature of a SignatureData.
-func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, contextKey []byte) (bool, error) {
-	dataSignature, err := base32encoding.DecodeFromString(sd.DataSignature)
-	if err != nil {
-		return false, err
-	}
-
+func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, contextKey []byte, dataSignature []byte) (bool, error) {
 	hashValue := hashValueOfSignatureData(sd, contextKey)
 	return hashVerifier.VerifyHash(hashValue, dataSignature), nil
 }
