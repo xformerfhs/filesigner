@@ -219,7 +219,7 @@ filesigner sign project1711 -if *.go -if filesign*
 Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
 
 ```
-2024-03-05 15:48:51 +01:00  15  I  filesigner V0.81.2 (go1.23.2, 8 cpus)
+2024-03-05 15:48:51 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
 2024-03-05 15:48:51 +01:00  24  I  Context id         : project1711
 2024-03-05 15:48:51 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
 2024-03-05 15:48:51 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
@@ -250,7 +250,7 @@ filesigner verify project1711
 Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
 
 ```
-2024-03-05 15:49:13 +01:00  15  I  filesigner V0.81.2 (go1.23.2, 8 cpus)
+2024-03-05 15:49:13 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
 2024-03-05 15:49:13 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:13 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:13 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -274,7 +274,7 @@ Ist dies nicht der Fall, wird die Signatur als ungültig angesehen und die Datei
 Sollte, als weiteres Beispiel, die Datei `filesigner` manipuliert worden sein, würde folgende Ausgabe erscheinen:
 
 ```
-2024-03-05 15:49:38 +01:00  15  I  filesigner V0.81.2 (go1.23.2, 8 cpus)
+2024-03-05 15:49:38 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
 2024-03-05 15:49:38 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:38 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:38 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -295,7 +295,7 @@ Der Rückgabe-Code ist 3.
 Sollte z.B. die Signaturdatei manipuliert worden sein, würde folgende Ausgabe erscheinen:
 
 ```
-2024-03-05 15:50:04 +01:00  15  I  filesigner V0.81.2 (go1.23.2, 8 cpus)
+2024-03-05 15:50:04 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
 2024-03-05 15:50:04 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:50:04 +01:00  54  E  Signatures file has been modified
 ```
