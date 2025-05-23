@@ -89,11 +89,10 @@ func printMetaData(
 	logger.PrintInfof(commonMsgBase+5, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
 	logger.PrintInfof(commonMsgBase+6, `Signature timestamp: %s`, signatureData.Timestamp)
 	logger.PrintInfof(commonMsgBase+7, `Signature host name: %s`, signatureData.Hostname)
-	logger.PrintInfof(commonMsgBase+8, `Verifier           : %s`, verifyString(signatureData, publicKeyBytes))
 }
 
-// verifyString returns the verify string for the given data.
-func verifyString(
+// makeVerificationId returns the verification id for the given data.
+func makeVerificationId(
 	signatureData *signaturehandler.SignatureData,
 	publicKeyBytes []byte) string {
 	return keyid.KeyId(

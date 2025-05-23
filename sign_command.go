@@ -140,5 +140,8 @@ func doSigning(
 		len(successList),
 		successEnding,
 		signaturesFileName)
+
+	logger.PrintInfof(signCmdMsgBase+8, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+
 	return rcOK
 }

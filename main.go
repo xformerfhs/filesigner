@@ -133,7 +133,7 @@ func mainWithReturnCode(args []string) int {
 			return rc
 		}
 
-		return doVerification(vcl.SignaturesFileName)
+		return doVerification(vcl.SignaturesFileName, vcl.VerificationId)
 
 	default:
 		return printUsageErrorf(mainMsgBase+3, `Unknown command: '%s'`, command)
