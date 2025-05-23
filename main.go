@@ -227,7 +227,7 @@ Sign files:
 
 Verify files:
 `)
-	_, _ = fmt.Printf(`  %s verify [flag]`, myName)
+	_, _ = fmt.Printf(`  %s verify [flag] {verificationId}`, myName)
 	_, _ = fmt.Print(`
 
   with 'flag' being the following:
@@ -235,6 +235,7 @@ Verify files:
 `)
 	vcl.PrintUsage()
 	_, _ = fmt.Print(`
+  The 'verificationId' is the verification id printed when the signatures were created.
   All the files in the signatures file will be verified.
 
 

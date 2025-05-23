@@ -62,7 +62,6 @@ func NewVerifyCommandLine() *VerifyCommandLine {
 	result := &VerifyCommandLine{fs: verifyCmd}
 
 	verifyCmd.StringVarP(&result.prefix, `name`, `m`, defaultSignaturesFileNamePrefix, `Prefix of the signatures file name`)
-	verifyCmd.StringVarP(&result.VerificationId, `verificationid`, `v`, ``, `Verification id`)
 
 	verifyCmd.SortFlags = true
 
@@ -76,9 +75,14 @@ func (cl *VerifyCommandLine) Parse(args []string) (error, bool) {
 		return nil, true
 	}
 
-	if cl.fs.NArg() != 0 {
-		return errors.New(`There must be no arguments present without options`), false
+	if cl.fs.NArg() == 0 {
+		return errors.New(`Verification id is missing`), false
 	}
+	if cl.fs.NArg() > 1 {
+		return errors.New(`Too many arguments present without options`), false
+	}
+
+	cl.VerificationId = strings.TrimSpace(cl.fs.Arg(0))
 
 	return err, false
 }
@@ -99,7 +103,6 @@ func (cl *VerifyCommandLine) ExtractCommandData() error {
 		return err
 	}
 
-	cl.VerificationId = strings.TrimSpace(cl.VerificationId)
 	if len(cl.VerificationId) == 0 {
 		return errors.New(`Verification id must not be empty`)
 	}

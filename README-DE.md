@@ -165,6 +165,11 @@ Der Aufruf erzeugt eine Datei[^1], die folgendes Format hat:
 Es handelt sich um eine `json`-Datei, deren Aufbau und die Bedeutung der Felder in [Dateiformat.md](doc/de/Dateiformat.md) beschrieben ist.
 Eine ausführliche Beschreibung der verschiedenen Berechnungen und Datenformate ist in [Technische_Spezifikation.md](doc/de/Technische_Spezifikation.md) zu finden.
 
+Wenn das Programm läuft, gibt es eine ausführliche Beschreibung seiner Arbeit aus.
+Die Ausgabe enthält eine sogenannte "verification id".
+Diese Verification-Id wird für die Überprüfung der Signaturen benötigt.
+Sie ist die Information, die an einem sicheren Ort veröffentlicht werden sollte.
+
 Die Rückgabe-Codes können sein:
 
 | Code | Bedeutung                    |
@@ -179,14 +184,15 @@ Die Rückgabe-Codes können sein:
 Der Aufruf zur Verifizierung sieht folgendermaßen aus:
 
 ```
-filesigner verify [-m|--name {name}]
+filesigner verify [-m|--name {name}] {verificationId}
 ```
 
 Die einzelnen Teile haben die folgenden Bedeutungen:
 
-| Teil           | Bedeutung                                                                                                                                                                  |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `name`         | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`.                                                             |
+| Teil             | Bedeutung                                                                                                      |
+|------------------|----------------------------------------------------------------------------------------------------------------|
+| `name`           | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`. |
+| `verificationId` | Die veröffentlichte Verification-Id aus dem Signiervorgang.                                                    |
 
 > [!IMPORTANT]
 > Weitere Parameter sind nicht erlaubt und führen zu einer Fehlermeldung.
@@ -219,11 +225,12 @@ filesigner sign project1711 -if *.go -if filesign*
 Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
 
 ```
-2024-03-05 15:48:51 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:48:51 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:48:51 +01:00  24  I  Context id         : project1711
 2024-03-05 15:48:51 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
 2024-03-05 15:48:51 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
 2024-03-05 15:48:51 +01:00  27  I  Signature host name: Jetzt
+2024-03-05 15:48:51 +01:00  37  I  Verification id    : P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'common.go'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner.exe'
@@ -244,13 +251,13 @@ Dabei kann es sich um eine signierte E-Mail, eine Website, eine Datenbank oder e
 Zur Verifizierung ruft man das Programm folgendermaßen auf:
 
 ```
-filesigner verify project1711
+filesigner verify P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
 ```
 
 Das Programm erzeugt dann die folgende Ausgabe auf der Konsole:
 
 ```
-2024-03-05 15:49:13 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:49:13 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:49:13 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:13 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:13 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -274,7 +281,7 @@ Ist dies nicht der Fall, wird die Signatur als ungültig angesehen und die Datei
 Sollte, als weiteres Beispiel, die Datei `filesigner` manipuliert worden sein, würde folgende Ausgabe erscheinen:
 
 ```
-2024-03-05 15:49:38 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:49:38 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:49:38 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:38 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:38 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -295,7 +302,7 @@ Der Rückgabe-Code ist 3.
 Sollte z.B. die Signaturdatei manipuliert worden sein, würde folgende Ausgabe erscheinen:
 
 ```
-2024-03-05 15:50:04 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:50:04 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:50:04 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:50:04 +01:00  54  E  Signatures file has been modified
 ```

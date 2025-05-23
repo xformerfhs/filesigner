@@ -127,6 +127,8 @@ func doSigning(
 
 	printMetaData(signatureData, publicKeyBytes)
 
+	logger.PrintInfof(signCmdMsgBase+7, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+
 	successCount := len(successList)
 	if successCount > 0 {
 		printSuccessList(`Signing`, successList)
@@ -134,14 +136,12 @@ func doSigning(
 
 	successEnding := texthelper.GetCountEnding(successCount)
 
-	logger.PrintInfof(signCmdMsgBase+7,
+	logger.PrintInfof(signCmdMsgBase+8,
 		`Signature%s for %d file%s successfully created and written to '%s'`,
 		successEnding,
 		len(successList),
 		successEnding,
 		signaturesFileName)
-
-	logger.PrintInfof(signCmdMsgBase+8, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
 
 	return rcOK
 }
