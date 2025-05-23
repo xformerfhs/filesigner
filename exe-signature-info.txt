@@ -1,0 +1,6 @@
+The files were signed with the following signature information:
+
+Context id         : 0.83.1
+Public key id      : Y5KM-NQ93-K44C-QZZ5-B7Y8-G82L-YW
+Signature timestamp: 2025-05-23 06:58:03 +02:00
+Signature host name: Jetzt
