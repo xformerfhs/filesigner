@@ -35,6 +35,7 @@ import (
 	"filesigner/logger"
 	"filesigner/maphelper"
 	"filesigner/signaturehandler"
+	"filesigner/stringhelper"
 	"sort"
 )
 
@@ -88,4 +89,17 @@ func printMetaData(
 	logger.PrintInfof(commonMsgBase+5, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
 	logger.PrintInfof(commonMsgBase+6, `Signature timestamp: %s`, signatureData.Timestamp)
 	logger.PrintInfof(commonMsgBase+7, `Signature host name: %s`, signatureData.Hostname)
+	logger.PrintInfof(commonMsgBase+8, `Verifier           : %s`, verifyString(signatureData, publicKeyBytes))
+}
+
+// verifyString returns the verify string for the given data.
+func verifyString(
+	signatureData *signaturehandler.SignatureData,
+	publicKeyBytes []byte) string {
+	return keyid.KeyId(
+		stringhelper.UnsafeStringBytes(signatureData.ContextId),
+		publicKeyBytes,
+		stringhelper.UnsafeStringBytes(signatureData.Timestamp),
+		stringhelper.UnsafeStringBytes(signatureData.Hostname),
+	)
 }
