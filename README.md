@@ -127,6 +127,11 @@ The call creates a signatures file[^1] which has the following format:
 This is a `json` file whose structure and the meaning of the fields are described in [file_format.md](doc/en/file_format.md).
 A detailed description of the various calculations and data formats can be found in [technical_specification.md](doc/en/technical_specification.md).
 
+When the program runs, it prints a detailed description of its operations.
+The output contains a so-called "verification id".
+This verification id is needed for the verification of the signatures.
+It is the information that should be published in a safe place.
+
 The possible return codes are the following:
 
 | Code | Meaning                   |
@@ -141,14 +146,15 @@ The possible return codes are the following:
 The verification call looks like this:
 
 ```
-filesigner verify [-m|--name {name}]
+filesigner verify [-m|--name {name}] {verificationId}
 ```
 
 The parts have the following meaning:
 
-| Part           | Meaning                                                                                                                                                         |
-|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `name`         | The signatures file name is `{name}-signatures.json`. Default for the name is `filesigner`.                                                                     |
+| Part             | Meaning                                                                                     |
+|------------------|---------------------------------------------------------------------------------------------|
+| `name`           | The signatures file name is `{name}-signatures.json`. Default for the name is `filesigner`. |
+| `verificationId` | The verification id of the signature process that has been published.                       |
 
 > [!IMPORTANT]
 > More parameters are not permitted and will result in an error message.
@@ -187,11 +193,12 @@ filesigner sign project1711 -if *.go -if filesign*
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:48:51 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:48:51 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:48:51 +01:00  24  I  Context id         : project1711
 2024-03-05 15:48:51 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
 2024-03-05 15:48:51 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
 2024-03-05 15:48:51 +01:00  27  I  Signature host name: Jetzt
+2024-03-05 15:48:51 +01:00  37  I  Verification id    : P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'common.go'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner.exe'
@@ -199,26 +206,26 @@ The program then generates the following output on the console:
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'main.go'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'sign_command.go'
 2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'verify_command.go'
-2024-03-05 15:48:51 +01:00  37  I  Signatures for 7 files successfully created and written to 'filesigner-signatures.json'
+2024-03-05 15:48:51 +01:00  38  I  Signatures for 7 files successfully created and written to 'filesigner-signatures.json'
 ```
 
 The return code is 0.
 
 ### Verifying
 
-To verify the signatures one needs a trusted place where the public key id, the signature timestamp and the signature host name are published.
+To verify the signatures one needs a trusted place where the verification id is published.
 This may be a signed email, a website, a database, or whatever is deemed to be a secure trusted place.
 
 Then the verifier runs the filesigner program with the following parameters:
 
 ```
-filesigner verify
+filesigner verify P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
 ```
 
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:49:13 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:49:13 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:49:13 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:13 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:13 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -242,7 +249,7 @@ If this is not the case, the signature is deemed to be invalid and the files mus
 As another example, if the file `filesigner` has been manipulated, the following output would appear:
 
 ```
-2024-03-05 15:49:38 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:49:38 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:49:38 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:49:38 +01:00  24  I  Context id         : project1711
 2024-03-05 15:49:38 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
@@ -260,10 +267,10 @@ As another example, if the file `filesigner` has been manipulated, the following
 
 The return code is 3.
 
-If, for example, the signatures file has been manipulated the following output would appear:
+If, for example, the signatures file has been manipulated, the following output would appear:
 
 ```
-2024-03-05 15:50:04 +01:00  15  I  filesigner V0.83.1 (go1.24.3, 8 cpus)
+2024-03-05 15:50:04 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
 2024-03-05 15:50:04 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
 2024-03-05 15:50:04 +01:00  54  E  Signatures file has been modified
 ```

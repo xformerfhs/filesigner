@@ -20,11 +20,12 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.1
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-08: V1.0.0: Created.
 //    2024-04-05: V1.0.1: Make Stdout the output destination for usage messages.
+//    2025-05-23: V2.0.0: Add verification id.
 //
 
 package cmdline
@@ -33,6 +34,7 @@ import (
 	"errors"
 	"github.com/spf13/pflag"
 	"os"
+	"strings"
 )
 
 // ******** Public types ********
@@ -42,6 +44,7 @@ import (
 type VerifyCommandLine struct {
 	// Public elements
 	SignaturesFileName string
+	VerificationId     string
 
 	// Private elements
 	fs     *pflag.FlagSet
@@ -72,9 +75,14 @@ func (cl *VerifyCommandLine) Parse(args []string) (error, bool) {
 		return nil, true
 	}
 
-	if cl.fs.NArg() != 0 {
-		return errors.New(`There must be no arguments present without options`), false
+	if cl.fs.NArg() == 0 {
+		return errors.New(`Verification id is missing`), false
 	}
+	if cl.fs.NArg() > 1 {
+		return errors.New(`Too many arguments present without options`), false
+	}
+
+	cl.VerificationId = strings.TrimSpace(cl.fs.Arg(0))
 
 	return err, false
 }
@@ -93,6 +101,10 @@ func (cl *VerifyCommandLine) ExtractCommandData() error {
 	err := checkSignaturesFileName(cl.SignaturesFileName)
 	if err != nil {
 		return err
+	}
+
+	if len(cl.VerificationId) == 0 {
+		return errors.New(`Verification id must not be empty`)
 	}
 
 	return nil

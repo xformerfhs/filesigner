@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.83.1
+// Version: 0.90.0
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.83.1`
+const myVersion = `0.90.0`
 
 // mainMsgBase is the base number for all messages in main.
 // This file reserves numbers 10-19.
@@ -133,7 +133,7 @@ func mainWithReturnCode(args []string) int {
 			return rc
 		}
 
-		return doVerification(vcl.SignaturesFileName)
+		return doVerification(vcl.SignaturesFileName, vcl.VerificationId)
 
 	default:
 		return printUsageErrorf(mainMsgBase+3, `Unknown command: '%s'`, command)
@@ -227,7 +227,7 @@ Sign files:
 
 Verify files:
 `)
-	_, _ = fmt.Printf(`  %s verify [flag]`, myName)
+	_, _ = fmt.Printf(`  %s verify [flag] {verificationId}`, myName)
 	_, _ = fmt.Print(`
 
   with 'flag' being the following:
@@ -235,6 +235,7 @@ Verify files:
 `)
 	vcl.PrintUsage()
 	_, _ = fmt.Print(`
+  The 'verificationId' is the verification id printed when the signatures were created.
   All the files in the signatures file will be verified.
 
 

@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2025-05-23: V2.0.0: Functions can be called with multiple byte slices.
 //
 
 package keyid
@@ -36,22 +37,46 @@ import (
 
 // ******** Private constants ********
 
+// beginFence is the first bytes of the fence.
 var beginFence = []byte{'k', 'e', 'y', 0x5a}
+
+// endFence is the last bytes of the fence.
 var endFence = []byte{0xa5, 'h', 's', 'h'}
+
+// ******** Private variables ********
+
+// hasher is the Shake-128 hasher.
+var hasher = sha3.NewShake128()
+
+// singleByte is a byte slice with a single element used for hashing integers.
+var singleByte = make([]byte, 1)
 
 // ******** Public functions ********
 
-// KeyHash calculates the Shake-128 hash of some key bytes.
-func KeyHash(key []byte) []byte {
-	hasher := sha3.NewShake128()
+// KeyHash calculates the Shake-128 hash of a slice of byte slices.
+func KeyHash(s ...[]byte) []byte {
+	hasher.Reset()
 
 	_, _ = hasher.Write(beginFence)
-	_, _ = hasher.Write(key)
+	for i, b := range s {
+		// Hash length of byte slice.
+		singleByte[0] = byte(len(b))
+		_, _ = hasher.Write(singleByte)
+
+		// Hash content of byte slice.
+		_, _ = hasher.Write(b)
+
+		// Hash position.
+		singleByte[0] = byte(i)
+		_, _ = hasher.Write(singleByte)
+	}
 	_, _ = hasher.Write(endFence)
 
+	// Get hash result.
 	rawResult := make([]byte, 32)
 	_, _ = hasher.Read(rawResult)
 
+	// Xor upper and lower half of hash result as the final result.
 	result := make([]byte, 16)
 	subtle.XORBytes(result, rawResult[:16], rawResult[16:])
 
@@ -59,6 +84,6 @@ func KeyHash(key []byte) []byte {
 }
 
 // KeyId returns the key id of some key bytes.
-func KeyId(key []byte) string {
-	return base32encoding.EncodeKey(KeyHash(key))
+func KeyId(key ...[]byte) string {
+	return base32encoding.EncodeKey(KeyHash(key...))
 }
