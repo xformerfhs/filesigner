@@ -184,7 +184,7 @@ Die Rückgabe-Codes können sein:
 Der Aufruf zur Verifizierung sieht folgendermaßen aus:
 
 ```
-filesigner verify [-m|--name {name}] {verificationId}
+filesigner verify {verificationId} [-m|--name {name}]
 ```
 
 Die einzelnen Teile haben die folgenden Bedeutungen:

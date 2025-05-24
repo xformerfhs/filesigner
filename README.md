@@ -146,7 +146,7 @@ The possible return codes are the following:
 The verification call looks like this:
 
 ```
-filesigner verify [-m|--name {name}] {verificationId}
+filesigner verify {verificationId} [-m|--name {name}]
 ```
 
 The parts have the following meaning:

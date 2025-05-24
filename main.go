@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.90.0
+// Version: 0.91.0
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.90.0`
+const myVersion = `0.91.0`
 
 // mainMsgBase is the base number for all messages in main.
 // This file reserves numbers 10-19.
@@ -107,12 +107,13 @@ func mainWithReturnCode(args []string) int {
 
 	case commandSign:
 		if argLen < 2 {
-			return printMissingContextId()
+			return printMissingArgument(`Context id`)
 		}
 
 		contextId := args[1]
 		if len(contextId) == 0 {
-			logger.PrintError(mainMsgBase+1, `Context id must not be empty`)
+			printEmptyArgument(`Context id`)
+			return rcCommandLineError
 		}
 
 		rc := processCmdLineArguments(scl, args[2:])
@@ -128,12 +129,22 @@ func mainWithReturnCode(args []string) int {
 		return doSigning(scl.SignaturesFileName, scl.SignatureType, contextId, scl.FileList)
 
 	case commandVerify:
-		rc := processCmdLineArguments(vcl, args[1:])
+		if argLen < 2 {
+			return printMissingArgument(`Verification id`)
+		}
+
+		verificationId := strings.TrimSpace(args[1])
+		if len(verificationId) == 0 {
+			printEmptyArgument(`Verification id`)
+			return rcCommandLineError
+		}
+
+		rc := processCmdLineArguments(vcl, args[2:])
 		if rc != rcOK {
 			return rc
 		}
 
-		return doVerification(vcl.SignaturesFileName, vcl.VerificationId)
+		return doVerification(vcl.SignaturesFileName, verificationId)
 
 	default:
 		return printUsageErrorf(mainMsgBase+3, `Unknown command: '%s'`, command)
@@ -170,14 +181,19 @@ func printVersion() {
 		runtime.NumCPU())
 }
 
-// printNotEnoughArgumentsError prints an error message that the there are not enough arguments.
+// printNotEnoughArgumentsError prints an error message that there are not enough arguments.
 func printNotEnoughArgumentsError() int {
 	return printUsageError(mainMsgBase+6, `Not enough arguments`)
 }
 
-// printMissingContextId prints an error message that the context id is missing.
-func printMissingContextId() int {
-	return printUsageError(mainMsgBase+7, `Context id missing`)
+// printMissingArgument prints an error message that the argument with the given name is missing.
+func printMissingArgument(name string) int {
+	return printUsageErrorf(mainMsgBase+7, `%s is missing`, name)
+}
+
+// printEmptyArgument prints an error message that the argument with the given name must not be empty.
+func printEmptyArgument(name string) int {
+	return printUsageErrorf(mainMsgBase+7, `%s must not be empty`, name)
 }
 
 // printCommandLineParsingError prints an error message when there was an error in the command line parsing.
@@ -227,7 +243,7 @@ Sign files:
 
 Verify files:
 `)
-	_, _ = fmt.Printf(`  %s verify [flag] {verificationId}`, myName)
+	_, _ = fmt.Printf(`  %s verify {verificationId} [flag]`, myName)
 	_, _ = fmt.Print(`
 
   with 'flag' being the following:

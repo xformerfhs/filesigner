@@ -34,7 +34,6 @@ import (
 	"errors"
 	"github.com/spf13/pflag"
 	"os"
-	"strings"
 )
 
 // ******** Public types ********
@@ -44,7 +43,6 @@ import (
 type VerifyCommandLine struct {
 	// Public elements
 	SignaturesFileName string
-	VerificationId     string
 
 	// Private elements
 	fs     *pflag.FlagSet
@@ -75,14 +73,9 @@ func (cl *VerifyCommandLine) Parse(args []string) (error, bool) {
 		return nil, true
 	}
 
-	if cl.fs.NArg() == 0 {
-		return errors.New(`Verification id is missing`), false
+	if cl.fs.NArg() != 0 {
+		return errors.New(`Arguments without options present`), false
 	}
-	if cl.fs.NArg() > 1 {
-		return errors.New(`Too many arguments present without options`), false
-	}
-
-	cl.VerificationId = strings.TrimSpace(cl.fs.Arg(0))
 
 	return err, false
 }
@@ -101,10 +94,6 @@ func (cl *VerifyCommandLine) ExtractCommandData() error {
 	err := checkSignaturesFileName(cl.SignaturesFileName)
 	if err != nil {
 		return err
-	}
-
-	if len(cl.VerificationId) == 0 {
-		return errors.New(`Verification id must not be empty`)
 	}
 
 	return nil
