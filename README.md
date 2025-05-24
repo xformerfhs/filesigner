@@ -65,7 +65,7 @@ This is illustrated below with an example.
 The signing call looks like this:
 
 ```
-filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-I|--include-dir {pattern}] [-X|--exclude-dir {pattern}] [-f|--from-file {file}] [-m|--name {name}] [-r|--recurse] [-s|--stdin] [files...]
+filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-I|--include-dir {pattern}] [-X|--exclude-dir {pattern}] [-f|--from-file {file}] [-m|--name {name}] [-r|--recurse] [-s|--stdin] [-q|--quiet] [files...]
 ```
 
 The parts have the following meaning:
@@ -146,7 +146,7 @@ The possible return codes are the following:
 The verification call looks like this:
 
 ```
-filesigner verify {verificationId} [-m|--name {name}]
+filesigner verify {verificationId} [-m|--name {name}] [-q|--quiet]
 ```
 
 The parts have the following meaning:

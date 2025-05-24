@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.91.0
+// Version: 0.92.0
 //
 
 package main
@@ -41,7 +41,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.91.0`
+const myVersion = `0.92.0`
 
 // mainMsgBase is the base number for all messages in main.
 // This file reserves numbers 10-19.
@@ -71,9 +71,10 @@ const (
 // -------- Command verbs --------
 
 const (
-	commandHelp   = `help`
-	commandSign   = `sign`
-	commandVerify = `verify`
+	commandHelp    = `help`
+	commandSign    = `sign`
+	commandVerify  = `verify`
+	commandVersion = `version`
 )
 
 // ******** More private variables ********
@@ -91,8 +92,6 @@ var vcl = cmdline.NewVerifyCommandLine()
 // mainWithReturnCode is the real main function with arguments and return code.
 // args do not include the program name, only the arguments.
 func mainWithReturnCode(args []string) int {
-	printVersion()
-
 	argLen := len(args)
 	if argLen < 1 {
 		return printNotEnoughArgumentsError()
@@ -121,8 +120,12 @@ func mainWithReturnCode(args []string) int {
 			return rc
 		}
 
+		if scl.BeQuiet {
+			logger.SetLogLevel(logger.LogLevelError)
+		}
+
 		if len(scl.FileList) == 0 {
-			logger.PrintWarning(mainMsgBase+2, `No files found to sign`)
+			logger.PrintWarning(mainMsgBase+0, `No files found to sign`)
 			return rcProcessWarning
 		}
 
@@ -144,10 +147,17 @@ func mainWithReturnCode(args []string) int {
 			return rc
 		}
 
+		if vcl.BeQuiet {
+			logger.SetLogLevel(logger.LogLevelError)
+		}
+
 		return doVerification(vcl.SignaturesFileName, verificationId)
 
+	case commandVersion:
+		return printVersion()
+
 	default:
-		return printUsageErrorf(mainMsgBase+3, `Unknown command: '%s'`, command)
+		return printUsageErrorf(mainMsgBase+1, `Unknown command: '%s'`, command)
 	}
 }
 
@@ -165,7 +175,7 @@ func processCmdLineArguments(cl cmdline.CommandLiner, args []string) int {
 
 	err = cl.ExtractCommandData()
 	if err != nil {
-		logger.PrintErrorf(mainMsgBase+4, `Error getting data from command line: %v`, err)
+		logger.PrintErrorf(mainMsgBase+2, `Error getting data from command line: %v`, err)
 		return rcProcessError
 	}
 
@@ -173,32 +183,34 @@ func processCmdLineArguments(cl cmdline.CommandLiner, args []string) int {
 }
 
 // printVersion prints the program version information.
-func printVersion() {
-	logger.PrintInfof(mainMsgBase+5, `%s V%s (%s, %d cpus)`,
+func printVersion() int {
+	logger.PrintInfof(mainMsgBase+3, `%s V%s (%s, %d cpus)`,
 		myName,
 		myVersion,
 		runtime.Version(),
 		runtime.NumCPU())
+
+	return rcOK
 }
 
 // printNotEnoughArgumentsError prints an error message that there are not enough arguments.
 func printNotEnoughArgumentsError() int {
-	return printUsageError(mainMsgBase+6, `Not enough arguments`)
+	return printUsageError(mainMsgBase+4, `Not enough arguments`)
 }
 
 // printMissingArgument prints an error message that the argument with the given name is missing.
 func printMissingArgument(name string) int {
-	return printUsageErrorf(mainMsgBase+7, `%s is missing`, name)
+	return printUsageErrorf(mainMsgBase+5, `%s is missing`, name)
 }
 
 // printEmptyArgument prints an error message that the argument with the given name must not be empty.
 func printEmptyArgument(name string) int {
-	return printUsageErrorf(mainMsgBase+7, `%s must not be empty`, name)
+	return printUsageErrorf(mainMsgBase+6, `%s must not be empty`, name)
 }
 
 // printCommandLineParsingError prints an error message when there was an error in the command line parsing.
 func printCommandLineParsingError(err error) int {
-	return printUsageErrorf(mainMsgBase+8, `Error parsing command line: %v`, err)
+	return printUsageErrorf(mainMsgBase+7, `Error parsing command line: %v`, err)
 }
 
 // printUsageError prints an error message followed by the usage message.
@@ -253,6 +265,14 @@ Verify files:
 	_, _ = fmt.Print(`
   The 'verificationId' is the verification id printed when the signatures were created.
   All the files in the signatures file will be verified.
+
+
+Get version:
+`)
+	_, _ = fmt.Printf(`  %s version`, myName)
+	_, _ = fmt.Print(`
+
+  Print version information.
 
 
 Help:

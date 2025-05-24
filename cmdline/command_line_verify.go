@@ -43,6 +43,7 @@ import (
 type VerifyCommandLine struct {
 	// Public elements
 	SignaturesFileName string
+	BeQuiet            bool
 
 	// Private elements
 	fs     *pflag.FlagSet
@@ -60,6 +61,8 @@ func NewVerifyCommandLine() *VerifyCommandLine {
 	result := &VerifyCommandLine{fs: verifyCmd}
 
 	verifyCmd.StringVarP(&result.prefix, `name`, `m`, defaultSignaturesFileNamePrefix, `Prefix of the signatures file name`)
+
+	verifyCmd.BoolVarP(&result.BeQuiet, `quiet`, `q`, false, `Print only errors`)
 
 	verifyCmd.SortFlags = true
 

@@ -68,6 +68,7 @@ type SignCommandLine struct {
 	FileList           []string
 	SignaturesFileName string
 	SignatureType      signaturehandler.SignatureType
+	BeQuiet            bool
 
 	// Private elements
 	fs                *pflag.FlagSet
@@ -114,6 +115,8 @@ func NewSignCommandLine() *SignCommandLine {
 
 	result.includeDirList = flaglist.NewFileSystemFlagList()
 	signCmd.VarP(result.includeDirList, `include-dir`, `I`, `Name of directory to include in signing may contain wildcards)`)
+
+	signCmd.BoolVarP(&result.BeQuiet, `quiet`, `q`, false, `Print only errors`)
 
 	signCmd.SortFlags = true
 

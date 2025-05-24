@@ -102,7 +102,7 @@ Dies wird weiter unten an einem Beispiel dargestellt.
 Der Aufruf zur Signierung sieht folgendermaßen aus:
 
 ```
-filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-I|--include-dir {pattern}] [-X|--exclude-dir {pattern}] [-f|--from-file {file}] [-m|--name {name}] [-r|--recurse] [-s|--stdin] [files...]
+filesigner sign {contextId} [-a|--algorithm {algorithm}] [-i|--include-file {pattern}] [-x|--exclude-file {pattern}] [-I|--include-dir {pattern}] [-X|--exclude-dir {pattern}] [-f|--from-file {file}] [-m|--name {name}] [-r|--recurse] [-s|--stdin] [-q|--quiet] [files...]
 ```
 
 Die einzelnen Teile haben die folgenden Bedeutungen:
@@ -184,7 +184,7 @@ Die Rückgabe-Codes können sein:
 Der Aufruf zur Verifizierung sieht folgendermaßen aus:
 
 ```
-filesigner verify {verificationId} [-m|--name {name}]
+filesigner verify {verificationId} [-m|--name {name}] [-q|--quiet]
 ```
 
 Die einzelnen Teile haben die folgenden Bedeutungen:

@@ -75,7 +75,7 @@ func doSigning(
 
 	signatureData.Hostname, err = os.Hostname()
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+1, `Could not get host name: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+0, `Could not get host name: %v`, err)
 		return rcProcessError
 	}
 
@@ -93,7 +93,7 @@ func doSigning(
 		hashSigner, err = hashsignature.NewEcDsaP521HashSigner()
 	}
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+2, `Could not create hash-signer: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+1, `Could not create hash-signer: %v`, err)
 		return rcProcessError
 	}
 	defer hashSigner.Destroy()
@@ -101,7 +101,7 @@ func doSigning(
 	var publicKeyBytes []byte
 	publicKeyBytes, err = hashSigner.PublicKey()
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+3, `Could not get public key bytes: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+2, `Could not get public key bytes: %v`, err)
 		return rcProcessError
 	}
 	signatureData.PublicKey = base32encoding.EncodeToString(publicKeyBytes)
@@ -109,25 +109,25 @@ func doSigning(
 	var successList []string
 	signatureData.FileSignatures, successList, err = filesignature.SignFileHashes(hashSigner, resultList)
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+4, `Could not sign file hashes: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+3, `Could not sign file hashes: %v`, err)
 		return rcProcessError
 	}
 
 	err = signatureData.Sign(hashSigner, contextKey)
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+5, `Could not sign signatures file data: %v`, err)
+		logger.PrintErrorf(signCmdMsgBase+4, `Could not sign signatures file data: %v`, err)
 		return rcProcessError
 	}
 
 	err = signaturefile.WriteJson(signaturesFileName, signatureData)
 	if err != nil {
-		logger.PrintErrorf(signCmdMsgBase+6, `Error writing signatures file '%s': %v`, signaturesFileName, err)
+		logger.PrintErrorf(signCmdMsgBase+5, `Error writing signatures file '%s': %v`, signaturesFileName, err)
 		return rcProcessError
 	}
 
 	printMetaData(signatureData, publicKeyBytes)
 
-	logger.PrintInfof(signCmdMsgBase+7, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+	logger.PrintInfof(signCmdMsgBase+6, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
 
 	successCount := len(successList)
 	if successCount > 0 {
@@ -136,7 +136,7 @@ func doSigning(
 
 	successEnding := texthelper.GetCountEnding(successCount)
 
-	logger.PrintInfof(signCmdMsgBase+8,
+	logger.PrintInfof(signCmdMsgBase+7,
 		`Signature%s for %d file%s successfully created and written to '%s'`,
 		successEnding,
 		len(successList),

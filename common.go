@@ -52,14 +52,14 @@ func printSuccessList(operation string, successList []string) {
 	sort.Strings(successList)
 
 	for _, filePath := range successList {
-		logger.PrintInfof(commonMsgBase+1, `%s succeeded for file '%s'`, operation, filePath)
+		logger.PrintInfof(commonMsgBase+0, `%s succeeded for file '%s'`, operation, filePath)
 	}
 }
 
 // printErrorList prints the errors that occurred during an operation.
 func printErrorList(errorList []error) {
 	for _, err := range errorList {
-		logger.PrintError(commonMsgBase+2, err.Error())
+		logger.PrintError(commonMsgBase+1, err.Error())
 	}
 }
 
@@ -73,7 +73,7 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 	for _, filePath := range keyList {
 		hr = hashResults[filePath]
 		if hr.Err != nil {
-			logger.PrintErrorf(commonMsgBase+3, `Could not get hash of file '%s': %v`, hr.FilePath, hr.Err)
+			logger.PrintErrorf(commonMsgBase+2, `Could not get hash of file '%s': %v`, hr.FilePath, hr.Err)
 			result = true
 		}
 	}
@@ -85,10 +85,10 @@ func existHashErrors(hashResults map[string]*filehasher.HashResult) bool {
 func printMetaData(
 	signatureData *signaturehandler.SignatureData,
 	publicKeyBytes []byte) {
-	logger.PrintInfof(commonMsgBase+4, `Context id         : %s`, signatureData.ContextId)
-	logger.PrintInfof(commonMsgBase+5, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
-	logger.PrintInfof(commonMsgBase+6, `Signature timestamp: %s`, signatureData.Timestamp)
-	logger.PrintInfof(commonMsgBase+7, `Signature host name: %s`, signatureData.Hostname)
+	logger.PrintInfof(commonMsgBase+3, `Context id         : %s`, signatureData.ContextId)
+	logger.PrintInfof(commonMsgBase+4, `Public key id      : %s`, keyid.KeyId(publicKeyBytes))
+	logger.PrintInfof(commonMsgBase+5, `Signature timestamp: %s`, signatureData.Timestamp)
+	logger.PrintInfof(commonMsgBase+6, `Signature host name: %s`, signatureData.Hostname)
 }
 
 // makeVerificationId returns the verification id for the given data.

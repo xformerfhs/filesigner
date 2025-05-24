@@ -64,18 +64,18 @@ const errMsgCouldNotConvert = `Could not convert %s to bytes: %v`
 
 // doVerification verifies a signatures file.
 func doVerification(signaturesFileName string, parameterVerificationId string) int {
-	logger.PrintInfof(verifyCmdMsgBase+1, `Reading signatures file '%s'`, signaturesFileName)
+	logger.PrintInfof(verifyCmdMsgBase+0, `Reading signatures file '%s'`, signaturesFileName)
 
 	signatureData, err := signaturefile.ReadJson(signaturesFileName)
 	if err != nil {
-		logger.PrintErrorf(verifyCmdMsgBase+2, `Error reading signatures file: %v`, err)
+		logger.PrintErrorf(verifyCmdMsgBase+1, `Error reading signatures file: %v`, err)
 		return rcProcessError
 	}
 
 	var publicKeyBytes []byte
 	publicKeyBytes, err = base32encoding.DecodeFromString(signatureData.PublicKey)
 	if err != nil {
-		logger.PrintErrorf(verifyCmdMsgBase+3, errMsgCouldNotConvert, `public key`, err)
+		logger.PrintErrorf(verifyCmdMsgBase+2, errMsgCouldNotConvert, `public key`, err)
 		return rcProcessError
 	}
 
@@ -89,7 +89,7 @@ func doVerification(signaturesFileName string, parameterVerificationId string) i
 	var hashVerifier hashsignature.HashVerifier
 	hashVerifier, err = getHashVerifier(signatureData, publicKeyBytes)
 	if err != nil {
-		logger.PrintErrorf(verifyCmdMsgBase+3, `Error getting hash verifier: %v`, err)
+		logger.PrintErrorf(verifyCmdMsgBase+4, `Error getting hash verifier: %v`, err)
 		return rcProcessError
 	}
 
@@ -98,16 +98,16 @@ func doVerification(signaturesFileName string, parameterVerificationId string) i
 	ok, err = signatureData.Verify(hashVerifier, contextKey, dataSignature)
 	if err == nil {
 		if !ok {
-			logger.PrintError(verifyCmdMsgBase+4, `Signatures file has been modified`)
+			logger.PrintError(verifyCmdMsgBase+5, `Signatures file has been modified`)
 			return rcProcessError
 		}
 	} else {
-		logger.PrintErrorf(verifyCmdMsgBase+5, `Error verifying signatures file data signature: %v`, err)
+		logger.PrintErrorf(verifyCmdMsgBase+6, `Error verifying signatures file data signature: %v`, err)
 		return rcProcessError
 	}
 
 	if makeVerificationId(signatureData, publicKeyBytes) != parameterVerificationId {
-		logger.PrintError(verifyCmdMsgBase+6, `Invalid verification id`)
+		logger.PrintError(verifyCmdMsgBase+7, `Invalid verification id`)
 		return rcProcessError
 	}
 
@@ -120,13 +120,13 @@ func doVerification(signaturesFileName string, parameterVerificationId string) i
 
 	switch rc {
 	case rcOK:
-		logger.PrintInfof(verifyCmdMsgBase+7, `Verification of %d file%s successful`, successCount, successEnding)
+		logger.PrintInfof(verifyCmdMsgBase+8, `Verification of %d file%s successful`, successCount, successEnding)
 
 	case rcProcessWarning:
-		logger.PrintInfof(verifyCmdMsgBase+8, `Verification of %d file%s successful and warnings present`, successCount, successEnding)
+		logger.PrintInfof(verifyCmdMsgBase+9, `Verification of %d file%s successful and warnings present`, successCount, successEnding)
 
 	case rcProcessError:
-		logger.PrintInfof(verifyCmdMsgBase+9, `Verification of %d file%s successful and %d file%s unsuccessful`, successCount, successEnding, errorCount, errorEnding)
+		logger.PrintInfof(verifyCmdMsgBase+10, `Verification of %d file%s successful and %d file%s unsuccessful`, successCount, successEnding, errorCount, errorEnding)
 	}
 
 	return rc
@@ -139,7 +139,7 @@ func verifyFiles(contextBytes []byte,
 	filePaths, rc := getExistingFiles(maphelper.Keys(signatureData.FileSignatures))
 
 	if len(filePaths) == 0 {
-		logger.PrintWarning(verifyCmdMsgBase+10, `No files from signatures file present`)
+		logger.PrintWarning(verifyCmdMsgBase+11, `No files from signatures file present`)
 		return 0, 0, rcProcessWarning
 	}
 
@@ -190,15 +190,15 @@ func getExistingFiles(filePaths []string) ([]string, int) {
 		fi, err := os.Stat(nfp)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
-				logger.PrintWarningf(verifyCmdMsgBase+11, `File '%s' in signatures file does not exist`, nfp)
+				logger.PrintWarningf(verifyCmdMsgBase+12, `File '%s' in signatures file does not exist`, nfp)
 				rc = max(rc, rcProcessWarning)
 			} else {
-				logger.PrintErrorf(verifyCmdMsgBase+12, `Error checking if file '%s' in signatures file exists: %v`, nfp, err)
+				logger.PrintErrorf(verifyCmdMsgBase+13, `Error checking if file '%s' in signatures file exists: %v`, nfp, err)
 				rc = rcProcessError
 			}
 		} else {
 			if fi.IsDir() {
-				logger.PrintWarningf(verifyCmdMsgBase+13, `'%s' in signatures file is a directory`, nfp)
+				logger.PrintWarningf(verifyCmdMsgBase+14, `'%s' in signatures file is a directory`, nfp)
 				rc = max(rc, rcProcessWarning)
 			} else {
 				result = append(result, nfp)
