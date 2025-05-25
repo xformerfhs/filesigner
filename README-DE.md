@@ -97,6 +97,15 @@ Dies wird weiter unten an einem Beispiel dargestellt.
 
 ## Aufrufe
 
+Das Programm kennt vier Befehle:
+
+| Command   | Meaning                                           |
+|-----------|---------------------------------------------------|
+| `help`    | Gibt einen Hilfetext zur Benutzung aus.           |
+| `sign`    | Signierung von Dateien.                           |
+| `verify`  | Verifizierung der Dateisignaturen.                |
+| `version` | Gibt die Versionsinformationen des Programms aus. |
+
 ### Signierung
 
 Der Aufruf zur Signierung sieht folgendermaßen aus:
@@ -119,6 +128,7 @@ Die einzelnen Teile haben die folgenden Bedeutungen:
 | `name`         | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`.                                                             |
 | `recurse`      | Es werden auch Unterverzeichnisse bearbeitet.                                                                                                                              |
 | `stdin`        | Die zu bearbeitenden Dateinamen werden von der Standardeingabe gelesen, die einen Dateinamen pro Zeile enthalten muss.                                                     |
+| `quiet`        | Gibt nur Warnungen und Fehlermeldungen aus.                                                                                                                                |
 | `files`        | Eine Liste von Dateinamen, die mit Leerzeichen getrennt sind.                                                                                                              |
 
 Folgendes ist wichtig zu wissen:
@@ -192,6 +202,7 @@ Die einzelnen Teile haben die folgenden Bedeutungen:
 | Teil             | Bedeutung                                                                                                      |
 |------------------|----------------------------------------------------------------------------------------------------------------|
 | `name`           | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`. |
+| `quiet`          | Gibt nur Warnungen und Fehlermeldungen aus.                                                                                                                                |
 | `verificationId` | Die veröffentlichte Verification-Id aus dem Signiervorgang.                                                    |
 
 > [!IMPORTANT]

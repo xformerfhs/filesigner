@@ -127,7 +127,7 @@ func doSigning(
 
 	printMetaData(signatureData, publicKeyBytes)
 
-	logger.PrintInfof(signCmdMsgBase+6, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+	logger.PrintForceInfof(signCmdMsgBase+6, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
 
 	successCount := len(successList)
 	if successCount > 0 {

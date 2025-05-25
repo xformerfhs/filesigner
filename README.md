@@ -60,6 +60,15 @@ This is illustrated below with an example.
 
 ## Calls
 
+The program has four commands:
+
+| Command   | Meaning                                        |
+|-----------|------------------------------------------------|
+| `help`    | Print the help text of the program.            |
+| `sign`    | Sign source files.                             |
+| `verify`  | Verify the signatures of source files.         |
+| `version` | Print the version information of the program.  |
+
 ### Signing
 
 The signing call looks like this:
@@ -82,6 +91,7 @@ The parts have the following meaning:
 | `name`         | The signatures file name is `{name}-signatures.json`. Default for the name is `filesigner`.                                                                     |
 | `recurse`      | Descend also into subdirectories.                                                                                                                               |
 | `stdin`        | Read file names to process from the standard input. There is one file name per line.                                                                            |
+| `quiet`        | Print only warnings and error messages.                                                                                                                         |
 | `files`        | A blank-separated list of files to sign.                                                                                                                        |
 
 Please note the following information:
@@ -154,6 +164,7 @@ The parts have the following meaning:
 | Part             | Meaning                                                                                     |
 |------------------|---------------------------------------------------------------------------------------------|
 | `name`           | The signatures file name is `{name}-signatures.json`. Default for the name is `filesigner`. |
+| `quiet`          | Print only warnings and error messages.                                                     |
 | `verificationId` | The verification id of the signature process that has been published.                       |
 
 > [!IMPORTANT]
