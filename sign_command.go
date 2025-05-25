@@ -20,13 +20,14 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.3.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-17: V1.1.0: Create contextBytes as early, as possible.
 //    2024-03-04: V1.2.0: Use public key bytes, not id.
 //    2025-03-01: V1.3.0: Add message base.
+//    2025-05-25: V2.0.0: Add "beQuiet" parameter.
 //
 
 package main
@@ -42,6 +43,7 @@ import (
 	"filesigner/stretcher"
 	"filesigner/stringhelper"
 	"filesigner/texthelper"
+	"fmt"
 	"os"
 	"time"
 )
@@ -62,6 +64,7 @@ func doSigning(
 	signaturesFileName string,
 	signatureType signaturehandler.SignatureType,
 	contextId string,
+	beQuiet bool,
 	filePaths []string,
 ) int {
 	var err error
@@ -127,7 +130,11 @@ func doSigning(
 
 	printMetaData(signatureData, publicKeyBytes)
 
-	logger.PrintForceInfof(signCmdMsgBase+6, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+	if beQuiet {
+		fmt.Println(makeVerificationId(signatureData, publicKeyBytes))
+	} else {
+		logger.PrintInfof(signCmdMsgBase+6, `Verification id    : %s`, makeVerificationId(signatureData, publicKeyBytes))
+	}
 
 	successCount := len(successList)
 	if successCount > 0 {

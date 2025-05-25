@@ -20,12 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 2.0.0
+// Version: 1.0.1
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-11: V1.0.1: Correct log level check.
-//    2025-05-25: V2.0.0: Add function to force print information level messages.
 //
 
 package logger
@@ -101,11 +100,6 @@ func PrintError(msgNum byte, msgText string) {
 // PrintInfof prints an information message with a format string.
 func PrintInfof(msgNum byte, msgFormat string, args ...any) {
 	PrintInfo(msgNum, fmt.Sprintf(msgFormat, args...))
-}
-
-// PrintForceInfof force prints an information message with a format string.
-func PrintForceInfof(msgNum byte, msgFormat string, args ...any) {
-	printLogLine(msgNum, severityInfo, fmt.Sprintf(msgFormat, args...))
 }
 
 // PrintWarningf prints a warning message with a format string.
