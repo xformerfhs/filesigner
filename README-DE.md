@@ -202,7 +202,7 @@ Die einzelnen Teile haben die folgenden Bedeutungen:
 | Teil             | Bedeutung                                                                                                      |
 |------------------|----------------------------------------------------------------------------------------------------------------|
 | `name`           | Die Signaturendatei hat den Namen `{name}-signatures.json`. Die Voreinstellung für den Namen ist `filesigner`. |
-| `quiet`          | Gibt nur Warnungen und Fehlermeldungen aus.                                                                                                                                |
+| `quiet`          | Gibt nur Warnungen und Fehlermeldungen aus.                                                                    |
 | `verificationId` | Die veröffentlichte Verification-Id aus dem Signiervorgang.                                                    |
 
 > [!IMPORTANT]
@@ -214,10 +214,10 @@ Die Rückgabe-Codes sind dieselben, wie bei der Signierung.
 
 ## Programme
 
-| OS      | Programm         |
+| BS      | Programm         |
 |---------|------------------|
-| Windows | `filesigner.exe` |
 | Linux   | `filesigner`     |
+| Windows | `filesigner.exe` |
 
 Das Linux-Programm ist auf jedem beliebigen Linux ausführbar.
 

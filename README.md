@@ -178,8 +178,8 @@ The return codes are the same as for signing.
 
 | OS      | Program          |
 |---------|------------------|
-| Windows | `filesigner.exe` |
 | Linux   | `filesigner`     |
+| Windows | `filesigner.exe` |
 
 The Linux program can be executed on any Linux system.
 
