@@ -129,7 +129,7 @@ func mainWithReturnCode(args []string) int {
 			return rcProcessWarning
 		}
 
-		return doSigning(scl.SignaturesFileName, scl.SignatureType, contextId, scl.FileList)
+		return doSigning(scl.SignaturesFileName, scl.SignatureType, contextId, scl.BeQuiet, scl.FileList)
 
 	case commandVerify:
 		if argLen < 2 {

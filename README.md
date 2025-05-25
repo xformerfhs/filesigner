@@ -204,20 +204,35 @@ filesigner sign project1711 -if *.go -if filesign*
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:48:51 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
-2024-03-05 15:48:51 +01:00  24  I  Context id         : project1711
-2024-03-05 15:48:51 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
-2024-03-05 15:48:51 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
-2024-03-05 15:48:51 +01:00  27  I  Signature host name: Jetzt
-2024-03-05 15:48:51 +01:00  37  I  Verification id    : P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'common.go'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner.exe'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'filesigner_sbom.json'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'main.go'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'sign_command.go'
-2024-03-05 15:48:51 +01:00  21  I  Signing succeeded for file 'verify_command.go'
-2024-03-05 15:48:51 +01:00  38  I  Signatures for 7 files successfully created and written to 'filesigner-signatures.json'
+2025-05-25 11:24:30 +02:00  23  I  Context id         : project1711
+2025-05-25 11:24:30 +02:00  24  I  Public key id      : 7Q10-NTZ8-WXRM-F69H-YDPG-CXBD-9K
+2025-05-25 11:24:30 +02:00  25  I  Signature timestamp: 2025-05-25 11:24:30 +02:00
+2025-05-25 11:24:30 +02:00  26  I  Signature host name: Jetzt
+2025-05-25 11:24:30 +02:00  36  I  Verification id    : PWTP-J9BX-WXV1-25HN-7SVR-FD92-QK
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'common.go'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'filesigner'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'filesigner-v0.83.1-linux-amd64.zip'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'filesigner-v0.83.1-windows-amd64.zip'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'filesigner.exe'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'filesigner_sbom.json'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'main.go'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'sign_command.go'
+2025-05-25 11:24:30 +02:00  20  I  Signing succeeded for file 'verify_command.go'
+2025-05-25 11:24:30 +02:00  37  I  Signatures for 9 files successfully created and written to 'filesigner-signatures.json'
+```
+
+The return code is 0.
+
+When the `quiet` flag is specified on the command line the output is much less.
+
+```
+filesigner sign project1711 -if *.go -if filesign* -q
+```
+
+In this case the program generates the following output on the console:
+
+```
+PWTP-J9BX-WXV1-25HN-7SVR-FD92-QK
 ```
 
 The return code is 0.
@@ -230,29 +245,32 @@ This may be a signed email, a website, a database, or whatever is deemed to be a
 Then the verifier runs the filesigner program with the following parameters:
 
 ```
-filesigner verify P801-RPM6-C5SQ-0X9D-BVEZ-EK9M-MR
+filesigner verify PWTP-J9BX-WXV1-25HN-7SVR-FD92-QK
 ```
 
 The program then generates the following output on the console:
 
 ```
-2024-03-05 15:49:13 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
-2024-03-05 15:49:13 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
-2024-03-05 15:49:13 +01:00  24  I  Context id         : project1711
-2024-03-05 15:49:13 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
-2024-03-05 15:49:13 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
-2024-03-05 15:49:13 +01:00  27  I  Signature host name: Jetzt
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'common.go'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'filesigner'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'filesigner.exe'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'filesigner_sbom.json'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'main.go'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'sign_command.go'
-2024-03-05 15:49:13 +01:00  21  I  Verification succeeded for file 'verify_command.go'
-2024-03-05 15:49:13 +01:00  56  I  Verification of 7 files successful
+2025-05-25 11:25:34 +02:00  50  I  Reading signatures file 'filesigner-signatures.json'
+2025-05-25 11:25:34 +02:00  23  I  Context id         : project1711
+2025-05-25 11:25:34 +02:00  24  I  Public key id      : 7Q10-NTZ8-WXRM-F69H-YDPG-CXBD-9K
+2025-05-25 11:25:34 +02:00  25  I  Signature timestamp: 2025-05-25 11:24:30 +02:00
+2025-05-25 11:25:34 +02:00  26  I  Signature host name: Jetzt
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'common.go'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'filesigner'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'filesigner-v0.83.1-linux-amd64.zip'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'filesigner-v0.83.1-windows-amd64.zip'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'filesigner.exe'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'filesigner_sbom.json'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'main.go'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'sign_command.go'
+2025-05-25 11:25:34 +02:00  20  I  Verification succeeded for file 'verify_command.go'
+2025-05-25 11:25:34 +02:00  58  I  Verification of 9 files successful
 ```
 
 The return code is 0.
+
+If the `quiet` flag is set, no output will be generated at all in the above example.
 
 The verifying person checks, if the shown public key id, signature timestamp and signature host are the same as those stored in the trusted place.
 If this is not the case, the signature is deemed to be invalid and the files must not be trusted!
@@ -260,33 +278,37 @@ If this is not the case, the signature is deemed to be invalid and the files mus
 As another example, if the file `filesigner` has been manipulated, the following output would appear:
 
 ```
-2024-03-05 15:49:38 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
-2024-03-05 15:49:38 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
-2024-03-05 15:49:38 +01:00  24  I  Context id         : project1711
-2024-03-05 15:49:38 +01:00  25  I  Public key id      : DLQB-J6MT-YMF1-PPRF-KQ6P-V9LG-QR
-2024-03-05 15:49:38 +01:00  26  I  Signature timestamp: 2024-03-05 15:48:51 +01:00
-2024-03-05 15:49:38 +01:00  27  I  Signature host name: Jetzt
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'common.go'
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'filesigner.exe'
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'filesigner_sbom.json'
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'main.go'
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'sign_command.go'
-2024-03-05 15:49:38 +01:00  21  I  Verification succeeded for file 'verify_command.go'
-2024-03-05 15:49:38 +01:00  22  E  File 'filesigner' has been modified
-2024-03-05 15:49:38 +01:00  58  I  Verification of 6 files successful and 1 file unsuccessful
+2025-05-25 11:26:32 +02:00  50  I  Reading signatures file 'filesigner-signatures.json'
+2025-05-25 11:26:32 +02:00  23  I  Context id         : project1711
+2025-05-25 11:26:32 +02:00  24  I  Public key id      : 7Q10-NTZ8-WXRM-F69H-YDPG-CXBD-9K
+2025-05-25 11:26:32 +02:00  25  I  Signature timestamp: 2025-05-25 11:24:30 +02:00
+2025-05-25 11:26:32 +02:00  26  I  Signature host name: Jetzt
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'common.go'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'filesigner-v0.83.1-linux-amd64.zip'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'filesigner-v0.83.1-windows-amd64.zip'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'filesigner.exe'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'filesigner_sbom.json'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'main.go'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'sign_command.go'
+2025-05-25 11:26:32 +02:00  20  I  Verification succeeded for file 'verify_command.go'
+2025-05-25 11:26:32 +02:00  21  E  File 'filesigner' has been modified
+2025-05-25 11:26:32 +02:00  60  I  Verification of 8 files successful and 1 file unsuccessful
 ```
 
 The return code is 3.
+
+If the `quiet` flag is set, only the error message with id 21 will be printed.
 
 If, for example, the signatures file has been manipulated, the following output would appear:
 
 ```
-2024-03-05 15:50:04 +01:00  15  I  filesigner V0.90.0 (go1.24.3, 8 cpus)
-2024-03-05 15:50:04 +01:00  51  I  Reading signatures file 'filesigner-signatures.json'
-2024-03-05 15:50:04 +01:00  54  E  Signatures file has been modified
+2025-05-25 11:27:39 +02:00  50  I  Reading signatures file 'filesigner-signatures.json'
+2025-05-25 11:27:39 +02:00  55  E  Signatures file has been modified
 ```
 
 The return code is 3.
+
+If the `quiet` flag is set, only the error message with id 55 will be printed.
 
 ## Program build
 
