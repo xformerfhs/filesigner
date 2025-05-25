@@ -103,7 +103,7 @@ func mainWithReturnCode(args []string) int {
 		if len(args) < 2 {
 			return printMissingArgument(`Context id`)
 		}
-		return handleSign(args[1:]) // This may print a message with id "mainMsgBase+0".
+		return handleSign(args[1:])
 
 	case commandVerify:
 		if len(args) < 2 {

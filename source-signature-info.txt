@@ -1,7 +1,7 @@
 The files were signed with the following signature information:
 
 Context id         : fs_0.92.0
-Public key id      : 1V1X-KHBD-41FD-YQ3R-WHJ1-W1M3-YK
-Signature timestamp: 2025-05-25 15:46:21 +02:00
+Public key id      : 0L10-9W7S-T106-DC10-0EPM-VTCY-NB
+Signature timestamp: 2025-05-25 19:25:15 +02:00
 Signature host name: Jetzt
-Verification id    : 2NBX-J80R-CT2Z-X4TV-3Q2E-3BK3-VD
+Verification id    : XZ8K-ZGVN-3QZN-5SNZ-SBKK-X59Q-TB
