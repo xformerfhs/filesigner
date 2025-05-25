@@ -114,7 +114,7 @@ The context key is calculated from the context is as follows:
     - Constant byte sequence `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35`.
     - Hash value just calculated.
     - Constant byte sequence `30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-5. This 64 byte key is used as the key for an [SHA-3-512-HMAC](https://en.wikipedia.org/wiki/HMAC)-SHA-3-512.
+5. This 64 byte key is used as the key for an [HMAC](https://en.wikipedia.org/wiki/HMAC) using [SHA-3](https://en.wikipedia.org/wiki/SHA-3)-512.
 6. The SHA-3-512-HMAC value of the context id bytes is calculated with this key.
 7. This generates a 64 byte HMAC value which is used as a padding to create the context key as follows:
     - The first 32 bytes of the HMAC value.

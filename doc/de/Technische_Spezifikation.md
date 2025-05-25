@@ -36,10 +36,6 @@ Der so verschlüsselte Hash-Wert stellt die digitale Signatur dar.
 
 ### Verifizierung
 
-For verification the verifier calculates the hash value of the received data using the same hash procedure as the creator of the message.
-Then the signature is decrypted with the **public** - i.e. known - key of the creator.
-The decrypted hash value from the signature is compared to the hash value that has been calculated locally.
-
 Zur Verifizierung berechnet der Verifizierer als erstes den Hash-Wert der empfangenen Daten mit demselben Hash-Verfahren, dass auch der Unterschreibende der Daten benutzt hat.
 Dann entschlüsselt er die digitale Signatur mit dem **öffentlichen** - also bekannten - Schlüssel des Unterschreibenden.
 Der entschlüsselte Hash-Wert mit dann mit dem lokal erzeugten Hash-Wert verglichen.
@@ -120,7 +116,7 @@ Der Kontext-Schlüssel wird folgendermaßen aus der Kontext-Id berechnet:
   - Konstante Byte-Folge `6f 00 11 21 3d 31 c2 3b c3 69 ab 0b 6d 8e 42 35`.
   - Der eben berechnete Hash-Wert.
   - Konstante Byte-Folge `30 2d 15 d7 37 d5 b1 df 45 ee 30 bc e0 0b 89 cc`.
-5. Dieser Schlüssel mit einer Länge von 64 Byte dient als Schlüssel für ein [HMAC](https://de.wikipedia.org/wiki/HMAC)-SHA-3-512-Verfahren genutzt.
+5. Dieser Schlüssel mit einer Länge von 64 Byte dient als Schlüssel für ein [HMAC](https://de.wikipedia.org/wiki/HMAC)-[SHA-3](https://de.wikipedia.org/wiki/SHA-3)-512-Verfahren genutzt.
 6. Es wird der HMAC-Wert der Kontext-Id mit dem so konstruierten Schlüssel berechnet.
 7. Aus dem so erzeugte 64 byte langen HMAC-Wert wird mit den folgenden Werten ein Padding erzeugt:
   - Die ersten 32 Bytes des HMAC-Wertes.
