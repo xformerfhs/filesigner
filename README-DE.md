@@ -221,6 +221,14 @@ Die Rückgabe-Codes sind dieselben, wie bei der Signierung.
 
 Das Linux-Programm ist auf jedem beliebigen Linux ausführbar.
 
+## Kodierung
+
+Binärwerte werden in einer speziellen [Base32-Kodierung](https://en.wikipedia.org/wiki/Base32) dargestellt.
+Das Spezielle an dieser Kodierung ist, dass das Alphabet keine Vokale, keine leicht verwechselbaren Zeichen wie '0' und 'O' oder '1' und 'l' enthält und keine Sonderzeichen.
+
+Dadurch kann der kodierte Text mit einem Doppelklick markiert werden.
+Es können nicht versehentlich echte Worte entstehen und die Zeichen können nicht verwechselt werden.
+
 ## Beispiel
 
 ### Signierung

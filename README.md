@@ -185,7 +185,7 @@ The Linux program can be executed on any Linux system.
 
 ## Encoding
 
-Binary values are stored in a special [Base32 encoding](https://en.wikipedia.org/wiki/Base32).
+Binary values are encoded in a special [Base32 encoding](https://en.wikipedia.org/wiki/Base32).
 What makes this encoding special, is that the alphabet used contains no vowels, no easily confusable characters such as '0' and 'O' or '1' and 'l' and no special characters.
 This means that the encoded values can be marked with a double click, no real words can be created by mistake and no characters can be confused when reading aloud.
 
