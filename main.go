@@ -121,7 +121,7 @@ func mainWithReturnCode(args []string) int {
 		}
 
 		if scl.BeQuiet {
-			logger.SetLogLevel(logger.LogLevelError)
+			logger.SetLogLevel(logger.LogLevelWarning)
 		}
 
 		if len(scl.FileList) == 0 {
@@ -148,7 +148,7 @@ func mainWithReturnCode(args []string) int {
 		}
 
 		if vcl.BeQuiet {
-			logger.SetLogLevel(logger.LogLevelError)
+			logger.SetLogLevel(logger.LogLevelWarning)
 		}
 
 		return doVerification(vcl.SignaturesFileName, verificationId)
@@ -255,10 +255,10 @@ Sign files:
 
 Verify files:
 `)
-	_, _ = fmt.Printf(`  %s verify {verificationId} [flag]`, myName)
+	_, _ = fmt.Printf(`  %s verify {verificationId} [flags]`, myName)
 	_, _ = fmt.Print(`
 
-  with 'flag' being the following:
+  with 'flags' being one or more of the following options:
 
 `)
 	vcl.PrintUsage()
