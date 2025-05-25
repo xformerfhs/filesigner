@@ -53,10 +53,6 @@ import (
 
 // ******** Private constants ********
 
-// verifyCmdMsgBase is the base number for all messages in verify_command.
-// This file reserves numbers 50-69.
-const verifyCmdMsgBase = 50
-
 // errMsgCouldNotConvert is the error message for a base32 conversion error.
 const errMsgCouldNotConvert = `Could not convert %s to bytes: %v`
 

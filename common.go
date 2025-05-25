@@ -39,12 +39,6 @@ import (
 	"sort"
 )
 
-// ******** Private constants ********
-
-// commonMsgBase is the base number for all messages in common.
-// This file reserves numbers 20-29.
-const commonMsgBase = 20
-
 // ******** Private functions ********
 
 // printSuccessList prints the successful executions of an operation.

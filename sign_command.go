@@ -50,10 +50,6 @@ import (
 
 // ******** Private constants ********
 
-// signCmdMsgBase is the base number for all messages in sign_command.
-// This file reserves numbers 30-49.
-const signCmdMsgBase = 30
-
 // timeStampFormat RFC3339 format for signatures file time stamp
 const timeStampFormat = "2006-01-02 15:04:05 Z07:00"
 
