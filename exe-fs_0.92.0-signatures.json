@@ -1,0 +1,13 @@
+{
+   "format": 1,
+   "contextId": "fs_0.92.0",
+   "publicKey": "37ZhB9jSZsMhHhCdHf4f3fhMhMcjDf99FbddbTcjBtgHCcvBd4TT",
+   "timestamp": "2025-11-06 19:21:38 +01:00",
+   "hostname": "Jetzt",
+   "signatureType": 1,
+   "fileSignatures": {
+      "filesigner": "FMtgbMZddt4FMDVSSCTfHv9ffHFCZffVvrLHSDg7tHTM4gZhCggThCMF9FFfdBHjLTF4zZ3jrdTT4hjhfLfBMRvRhJ7hb3jtRmcLT73",
+      "filesigner.exe": "ZrcRzsLHQQZQgQJStCc3smdvThbhS3tGZCTJZ9TBDFmBtcfJGTs9HrfMzVC4jGtDRVfRsFmzBT3McR49HtVcSdFVBGzH3f9CbcZMs33"
+   },
+   "dataSignature": "R4QTbd7JzJ3TrShFCFLVrGdDFtV744LhrbgzTJt7BgCs4SsTBtzFVvBrsFZt9c3Dj7rrH3L9M3gMF4jHLvsLhHTzMrtVdQhTLtggD3T"
+}
