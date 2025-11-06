@@ -1,13 +1,13 @@
 {
    "format": 1,
    "contextId": "fs_0.92.0",
-   "publicKey": "37ZhB9jSZsMhHhCdHf4f3fhMhMcjDf99FbddbTcjBtgHCcvBd4TT",
-   "timestamp": "2025-11-06 19:21:38 +01:00",
+   "publicKey": "D4MgmgJJFFh7VrrRM3GctFV3BfMHhsVbvF7J97FtbdcDcZmRRBTT",
+   "timestamp": "2025-11-06 19:28:56 +01:00",
    "hostname": "Jetzt",
    "signatureType": 1,
    "fileSignatures": {
-      "filesigner": "FMtgbMZddt4FMDVSSCTfHv9ffHFCZffVvrLHSDg7tHTM4gZhCggThCMF9FFfdBHjLTF4zZ3jrdTT4hjhfLfBMRvRhJ7hb3jtRmcLT73",
-      "filesigner.exe": "ZrcRzsLHQQZQgQJStCc3smdvThbhS3tGZCTJZ9TBDFmBtcfJGTs9HrfMzVC4jGtDRVfRsFmzBT3McR49HtVcSdFVBGzH3f9CbcZMs33"
+      "filesigner": "msc99T9zFCSvLgBr9hmL7hSJgzLsGsQrZbZhbRMbDLccD49bz34FGdcddzThsV7CfhzFJJr3Rc73rRFFMm4dhGhsdmvzfCfcbQRh343",
+      "filesigner.exe": "St7VVTVZrdCrz3hvhLJhvFvjbGvgzvshBVJtTvzdRM33JLc4mTcBdFBT3TTzDvt7rBFhJM3RQ9M3J7djdHRLHmRzgJdDVft9dSQrZ73"
    },
-   "dataSignature": "R4QTbd7JzJ3TrShFCFLVrGdDFtV744LhrbgzTJt7BgCs4SsTBtzFVvBrsFZt9c3Dj7rrH3L9M3gMF4jHLvsLhHTzMrtVdQhTLtggD3T"
+   "dataSignature": "SZbvRsmzHsMMDrHTGBdFZm7s3bcvTFbmDrGSfvCcSt7D9DJBrBTjmT7VsJ4HLjZSFgdTHQBJJDhBfTLJfCZ3dJdB9BgsHCV7RLcVc4T"
 }
