@@ -302,11 +302,7 @@ func doTestSignAndVerify(
 
 		// Verify signature.
 		var verifyResult bool
-		verifyResult, err = verifier.VerifyHash(data, signature)
-
-		if err != nil {
-			t.Fatalf(`Error verifying hash signature with %s: %v`, algorithmName, err)
-		}
+		verifyResult = verifier.VerifyHash(data, signature)
 
 		// Test verification result.
 		if verifyResult == testInvalid {

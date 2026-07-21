@@ -140,7 +140,7 @@ func TestCopy(t *testing.T) {
 
 func TestNewReverse(t *testing.T) {
 	a := make([]int, 7)
-	for i := 0; i < len(a); i++ {
+	for i := range a {
 		a[i] = 6 - i
 	}
 	b := NewReverse(a)
@@ -149,7 +149,7 @@ func TestNewReverse(t *testing.T) {
 		t.Fatal(`Reverse has not same length as original`)
 	}
 
-	for i := 0; i < len(b); i++ {
+	for i := range b {
 		if b[i] != i {
 			t.Fatal(`Error reversing slice`)
 		}

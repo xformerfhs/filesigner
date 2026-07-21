@@ -56,7 +56,7 @@ func BigEndianBytesAsUint32(slice []byte) uint32 {
 	}
 
 	result := uint32(0)
-	for i := 0; i < sliceLen; i++ {
+	for i := range sliceLen {
 		result = (result << 8) | uint32(slice[i])
 	}
 
@@ -148,7 +148,7 @@ func BigEndianBytesAsUint64(slice []byte) uint64 {
 	}
 
 	result := uint64(0)
-	for i := 0; i < sliceLen; i++ {
+	for i := range sliceLen {
 		result = (result << 8) | uint64(slice[i])
 	}
 

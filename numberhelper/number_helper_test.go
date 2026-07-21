@@ -75,7 +75,7 @@ const loopCount = 1_000_000
 func TestUint32AsBytesRandom(t *testing.T) {
 	var counter uint32
 	var slice []byte
-	for i := 0; i < loopCount; i++ {
+	for range loopCount {
 		counter = rand.Uint32()
 		slice = Uint32AsShortestBigEndianBytes(counter)
 		if byte(len(slice)) != ByteCountForUint32(counter) {
@@ -111,7 +111,7 @@ func TestUint64AsBytesBoundaries(t *testing.T) {
 func TestUint64AsBytesRandom(t *testing.T) {
 	var counter uint64
 	var slice []byte
-	for i := 0; i < loopCount; i++ {
+	for range loopCount {
 		counter = rand.Uint64()
 		slice = Uint64AsShortestBigEndianBytes(counter)
 		if byte(len(slice)) != ByteCountForUint64(counter) {

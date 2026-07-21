@@ -128,7 +128,7 @@ func doFill[S ~[]T, T any](s S, v T, l int) {
 
 // doSimpleFill fills a slice in a simple way.
 func doSimpleFill[S ~[]T, T any](s S, v T, l int) {
-	for i := 0; i < l; i++ {
+	for i := range l {
 		s[i] = v
 	}
 }

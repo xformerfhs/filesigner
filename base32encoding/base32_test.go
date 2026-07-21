@@ -43,7 +43,7 @@ import (
 const testLoopCount = 1_000
 
 func TestEncodeKey(t *testing.T) {
-	for i := 0; i < testLoopCount; i++ {
+	for range testLoopCount {
 		sl := rand.Intn(30)
 		s := make([]byte, sl)
 		_, _ = cryptorand.Read(s)
@@ -86,7 +86,7 @@ func TestDecodeKeyInvalidGroupSize(t *testing.T) {
 }
 
 func TestEncodeToString(t *testing.T) {
-	for i := 0; i < testLoopCount; i++ {
+	for range testLoopCount {
 		sl := rand.Intn(30)
 		s := make([]byte, sl)
 		_, _ = cryptorand.Read(s)
@@ -115,7 +115,7 @@ func TestDecodeInvalidCharacter(t *testing.T) {
 }
 
 func TestEncodeToBytes(t *testing.T) {
-	for i := 0; i < testLoopCount; i++ {
+	for range testLoopCount {
 		sl := rand.Intn(30)
 		s := make([]byte, sl)
 		_, _ = cryptorand.Read(s)
