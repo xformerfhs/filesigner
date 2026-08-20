@@ -20,10 +20,12 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.1.0
 //
 // Change history:
 //    2024-04-06: V1.0.0: Created.
+//    2026-08-20: V1.1.0: Removed test for invalid EC-P521 key as it is no longer possible
+//                        to generate one.
 //
 
 package hashsignature
@@ -31,8 +33,6 @@ package hashsignature
 import (
 	"crypto/ed25519"
 	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
 	mrand "math/rand"
 	"strings"
 	"testing"
@@ -180,33 +180,6 @@ func TestPublicKeyLen(t *testing.T) {
 
 	for _, env := range testEnvironments {
 		doTestPublicKeyLen(t, env.algorithmName, env.publicKey, env.publicKeyLen)
-	}
-}
-
-func TestWrongPublicKeyWithVerifyEcDsaP521(t *testing.T) {
-	wrongPublicKey := make([]byte, p521PublicKeyLength)
-	_, err := NewEcDsaP521HashVerifier(wrongPublicKey)
-	algorithmName := `EcDsaP521`
-	if err == nil || !strings.Contains(err.Error(), `public key`) {
-		t.Fatalf(`%s verifier has no error with invalid public key`, algorithmName)
-	}
-
-	var privKey *rsa.PrivateKey
-	privKey, err = rsa.GenerateKey(rand.Reader, 1000)
-	if err != nil {
-		t.Fatalf(`Error generating RSA key: %v`, err)
-	}
-
-	pubKey := &privKey.PublicKey
-	var pubKeyBytes []byte
-	pubKeyBytes, err = x509.MarshalPKIXPublicKey(pubKey)
-	if err != nil {
-		t.Fatalf(`Error converting RSA key: %v`, err)
-	}
-
-	_, err = NewEcDsaP521HashVerifier(pubKeyBytes)
-	if err == nil || !strings.Contains(err.Error(), `not an ECDSA key`) {
-		t.Fatalf(`Error generating RSA key: %v`, err)
 	}
 }
 
