@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.92.0
+// Version: 0.93.0
 //
 
 package main
@@ -40,7 +40,7 @@ import (
 var myName string
 
 // myVersion contains the program version.
-const myVersion = `0.92.0`
+const myVersion = `0.93.0`
 
 // ******** Formal main function ********
 

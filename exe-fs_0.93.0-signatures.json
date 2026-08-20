@@ -1,0 +1,13 @@
+{
+   "format": 1,
+   "contextId": "fs_0.93.0",
+   "publicKey": "bDdBDsLgCDh3HvMLvDHfJJm9rr7zzZJGtMcC3Jj9HdGdsr4QGB73",
+   "timestamp": "2026-08-20 18:43:04 +02:00",
+   "hostname": "Sein",
+   "signatureType": 1,
+   "fileSignatures": {
+      "filesigner": "jjr9btHHrzZZQ4vMBhGMz7RBhVHz4VRMCjZ9Vthr7HmTBbRsBdZ4sTddSvQsR7MDCFZJdfZV3QJ9jSgGCDGsvVV4s7hrvzg9tZ7Fh7G",
+      "filesigner.exe": "bzzVHHr9DGJdCRrsmJjRmJ4BVtMrHmbGVCRgzCL9FScRZ3mm9DrGrmgJ4Hsm4TCgtFjHZgmJHvmjZtLZM3vcVdrjLHLJFHgTBgC9h3T"
+   },
+   "dataSignature": "7LH7Z7dFRLBCtvmTCs7Rm9G7sjZBgHTCtFCRQdFtBhrsQ7gQSvtG3gbC4fBJMsQHfHtJQBjTjGsVHGMZhZ7b3cj9QGrdsz49rVS7h33"
+}

@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -274,7 +274,7 @@ func doTestSignAndVerify(
 		validWord = `V`
 	}
 
-	for i := 0; i < testLoopCount; i++ {
+	for range testLoopCount {
 		// Generate some data to sign.
 		dataLen := mrand.Intn(100) + 4
 

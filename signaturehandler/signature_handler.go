@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,39 +20,41 @@
 //
 // Author: Frank Schwab
 //
-// Version: 3.0.0
+// Version: 3.1.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-17: V1.1.0: Use contextBytes.
 //    2024-02-25: V2.0.0: Rename "Ed25519" to "Ed25519Ph".
 //    2025-05-22: V3.0.0: Return signature of all data in Sign call.
+//    2026-08-20: V3.1.0: Use "crypto/sha3".
 //
 
 package signaturehandler
 
 import (
+	"crypto/sha3"
 	"filesigner/base32encoding"
 	"filesigner/hashsignature"
 	"filesigner/maphelper"
 	"filesigner/numberhelper"
 	"filesigner/paddedhasher"
 	"filesigner/stringhelper"
-	"golang.org/x/crypto/sha3"
+
 	"hash"
 )
 
 // ******** Public types ********
 
-// SignatureFormat contains the format id of the signatures file.
-type SignatureFormat byte
+// signatureFormat contains the format id of the signatures file.
+type signatureFormat byte
 
 // SignatureType contains the code for the signature algorithm.
 type SignatureType byte
 
 // SignatureData contains all the data that comprise a filesigner signature.
 type SignatureData struct {
-	Format         SignatureFormat   `json:"format"`
+	Format         signatureFormat   `json:"format"`
 	ContextId      string            `json:"contextId"`
 	PublicKey      string            `json:"publicKey"`
 	Timestamp      string            `json:"timestamp"`
@@ -64,9 +66,9 @@ type SignatureData struct {
 
 // ******** Public constants ********
 
-// These are the possible values for SignatureFormat.
+// These are the possible values for signatureFormat.
 const (
-	SignatureFormatInvalid SignatureFormat = iota
+	SignatureFormatInvalid signatureFormat = iota
 	SignatureFormatV1
 	SignatureFormatMax = iota - 1
 )
@@ -104,7 +106,8 @@ func (sd *SignatureData) Verify(hashVerifier hashsignature.HashVerifier, context
 
 // hashValueOfSignatureData calculates the hash value of a SignatureData.
 func hashValueOfSignatureData(signatureData *SignatureData, contextKey []byte) []byte {
-	hasher := paddedhasher.NewPaddedHasher(sha3.New512(), contextKey)
+	hasher := paddedhasher.NewPaddedHasher(hash.
+		Hash(sha3.New512()), contextKey)
 
 	oneByteSlice := make([]byte, 1)
 

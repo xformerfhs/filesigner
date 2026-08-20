@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,42 +20,48 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2026-08-20: V2.0.0: Only private functions; use "crypto/sha3".
 //
 
 package filehasher
 
 import (
+	"crypto/sha3"
 	"filesigner/filehelper"
 	"filesigner/numberhelper"
 	"filesigner/paddedhasher"
-	"golang.org/x/crypto/sha3"
+	"hash"
+
 	"io"
 	"os"
 )
 
 // ******** Public types ********
 
-type FileHasher struct {
+type fileHasher struct {
 	hasher *paddedhasher.PaddedHasher
 }
 
 // ******** Creation functions ********
 
-// NewFileHasher Create new file hasher structure.
-func NewFileHasher(contextKey []byte) (*FileHasher, error) {
-	hasher := paddedhasher.NewPaddedHasher(sha3.New512(), contextKey)
+// newFileHasher Create a new file hasher structure.
+func newFileHasher(contextKey []byte) (*fileHasher, error) {
+	hasher := paddedhasher.NewPaddedHasher(
+		hash.Hash(sha3.New512()),
+		contextKey,
+	)
 
-	return &FileHasher{hasher}, nil
+	return &fileHasher{hasher}, nil
 }
 
-// ******** Public functions ********
+// ******** Private functions ********
 
-// HashFile calculates the hash value for one file.
-func (fh *FileHasher) HashFile(filePath string) ([]byte, error) {
+// hashFile calculates the hash value for one file.
+func (fh *fileHasher) hashFile(filePath string) ([]byte, error) {
 	hasher := fh.hasher
 
 	err := hashFileContent(hasher, filePath)
@@ -65,8 +71,6 @@ func (fh *FileHasher) HashFile(filePath string) ([]byte, error) {
 
 	return hasher.Sum(nil), nil
 }
-
-// ******** Private functions ********
 
 // hashFileContent writes the content of a file to a hasher.
 func hashFileContent(hasher *paddedhasher.PaddedHasher, filePath string) error {

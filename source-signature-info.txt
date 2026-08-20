@@ -1,7 +1,7 @@
 The files were signed with the following signature information:
 
-Context id         : fs_0.92.0
-Public key id      : DPGK-6NE9-DWJV-1WVH-VPRP-681J-CW
-Signature timestamp: 2025-11-06 19:36:07 +01:00
-Signature host name: Jetzt
-Verification id    : 50G1-27GT-897V-VQ61-PK78-DCNF-TK
+Context id         : fs_0.93.0
+Public key id      : THKR-T881-9LMJ-1EPL-BBQT-BY3L-YR
+Signature timestamp: 2026-08-20 18:51:28 +02:00
+Signature host name: Sein
+Verification id    : 9BHE-MLPT-KBBH-6100-ZZN4-S19W-0F

@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -118,9 +118,9 @@ func fileHashWorker(filePath string,
 
 	result := &HashResult{}
 	result.FilePath = filePath
-	fileHasher, err := NewFileHasher(contextKey)
+	fileHasher, err := newFileHasher(contextKey)
 	if err == nil {
-		result.HashValue, result.Err = fileHasher.HashFile(filePath)
+		result.HashValue, result.Err = fileHasher.hashFile(filePath)
 	} else {
 		result.HashValue = nil
 		result.Err = err

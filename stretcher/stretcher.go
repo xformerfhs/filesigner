@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -19,19 +19,21 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.1.0
 //
 // Change history:
 //	   2024-03-03: V1.0.0: Created.
+//	   2026-08-20: V1.1.0: Use "crypto/sha3".
 //
 
 package stretcher
 
 import (
 	"crypto/hmac"
+	"crypto/sha3"
 	"filesigner/numberhelper"
 	"filesigner/slicehelper"
-	"golang.org/x/crypto/sha3"
+	"hash"
 )
 
 // keyPad contains the padding byte for the hash of the bytes.
@@ -64,7 +66,9 @@ func KeyFromBytes(a []byte) []byte {
 func paddingFromBytes(a []byte) ([]byte, []byte) {
 	aWithLen := slicehelper.Concat(a, numberhelper.StaticIntAsShortestBigEndianBytes(len(a)))
 
-	mac := hmac.New(sha3.New512, hashKeyFromBytes(aWithLen))
+	// It is quite bizarre that sha3.New512() does not return a hash.Hash.
+	// That was a terrible design decision.
+	mac := hmac.New(func() hash.Hash { return sha3.New512() }, hashKeyFromBytes(aWithLen))
 	mac.Write(a)
 
 	return mac.Sum(nil), aWithLen
@@ -73,7 +77,7 @@ func paddingFromBytes(a []byte) ([]byte, []byte) {
 // hashKeyFromBytes generates the hash key from the supplied bytes.
 func hashKeyFromBytes(a []byte) []byte {
 	hasher := sha3.New256()
-	hasher.Write(slicehelper.NewReverse(a))
+	_, _ = hasher.Write(slicehelper.NewReverse(a))
 	padSplitIndex := len(keyPad) >> 1
 	return slicehelper.Concat(keyPad[:padSplitIndex], hasher.Sum(nil), keyPad[padSplitIndex:])
 }
