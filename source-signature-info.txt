@@ -1,7 +1,7 @@
 The files were signed with the following signature information:
 
 Context id         : fs_0.94.0
-Public key id      : MQEP-6ZZY-Z2TY-NHZR-ZYTB-94R4-QD
-Signature timestamp: 2026-09-03 09:23:55 +02:00
+Public key id      : 1MGJ-F9DS-SR4K-TMKH-QW2D-673M-DB
+Signature timestamp: 2026-09-04 19:41:05 +02:00
 Signature host name: Sein
-Verification id    : LX42-4901-92D7-Q76S-DCMY-99NP-SR
+Verification id    : 5HYP-BLKT-KJL8-7KVL-WESD-X3T8-6R
