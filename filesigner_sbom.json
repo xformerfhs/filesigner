@@ -1,165 +1,97 @@
-{
-  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
-  "bomFormat": "CycloneDX",
-  "specVersion": "1.6",
-  "serialNumber": "urn:uuid:88c4c061-9283-41f1-b7ca-ec62ec300093",
-  "version": 1,
-  "metadata": {
-    "timestamp": "2026-08-20T18:50:07+02:00",
-    "tools": [
-      {
-        "vendor": "CycloneDX",
-        "name": "cyclonedx-gomod",
-        "version": "v1.11.0",
-        "hashes": [
-          {
-            "alg": "MD5",
-            "content": "af3c8e1ba35c6e8c318d851cabe2950c"
-          },
-          {
-            "alg": "SHA-1",
-            "content": "908326d81a45bb18129acb567bf42e27c55f80d9"
-          },
-          {
-            "alg": "SHA-256",
-            "content": "42eb034212664fef002658427a1c67ebf46d13e369f5c9fe0c688298cbad5b14"
-          },
-          {
-            "alg": "SHA-384",
-            "content": "b8cfdeb7012f096bcf97dfce98d22830a83cc234f31d07c4237fa016fb0e535100141d6141cc402bc3e3cab98bf5acef"
-          },
-          {
-            "alg": "SHA-512",
-            "content": "32969f952ddae6ee4e1a6f443ed7f75bc7c9f462c7f2533e61aaec469371e19abbc72713c4d2015279307eee5426150467d4f923cb22d6640bfe6411071e4c76"
-          }
-        ],
-        "externalReferences": [
-          {
-            "url": "https://github.com/CycloneDX/cyclonedx-gomod",
-            "type": "vcs"
-          },
-          {
-            "url": "https://cyclonedx.org",
-            "type": "website"
-          }
-        ]
-      }
-    ],
-    "component": {
-      "bom-ref": "pkg:golang/filesigner@v0.92.1-0.20250525114407-63911bbc6e3c?type=module",
-      "type": "application",
-      "name": "filesigner",
-      "version": "v0.92.1-0.20250525114407-63911bbc6e3c",
-      "purl": "pkg:golang/filesigner@v0.92.1-0.20250525114407-63911bbc6e3c?goarch=amd64\u0026goos=windows\u0026type=module",
-      "properties": [
-        {
-          "name": "cdx:gomod:build:env:CGO_ENABLED",
-          "value": "0"
-        },
-        {
-          "name": "cdx:gomod:build:env:GOARCH",
-          "value": "amd64"
-        },
-        {
-          "name": "cdx:gomod:build:env:GOOS",
-          "value": "windows"
-        },
-        {
-          "name": "cdx:gomod:build:env:GOVERSION",
-          "value": "go1.27.0"
-        }
-      ]
-    }
-  },
-  "components": [
-    {
-      "bom-ref": "pkg:golang/github.com/spf13/pflag@v1.0.10?type=module",
-      "type": "library",
-      "name": "github.com/spf13/pflag",
-      "version": "v1.0.10",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-256",
-          "content": "e04061d8a01807068e363e9bd987b51a21dfc23ab244ea05e11c183bebcfc059"
-        }
-      ],
-      "purl": "pkg:golang/github.com/spf13/pflag@v1.0.10?goarch=amd64\u0026goos=windows\u0026type=module",
-      "externalReferences": [
-        {
-          "url": "https://github.com/spf13/pflag",
-          "type": "vcs"
-        }
-      ]
-    },
-    {
-      "bom-ref": "pkg:golang/golang.org/x/crypto@v0.55.0?type=module",
-      "type": "library",
-      "name": "golang.org/x/crypto",
-      "version": "v0.55.0",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-256",
-          "content": "f8a5878db80e68043ae9d87f625919287973f59525abad40162ac047d9ed3fc3"
-        }
-      ],
-      "purl": "pkg:golang/golang.org/x/crypto@v0.55.0?goarch=amd64\u0026goos=windows\u0026type=module"
-    },
-    {
-      "bom-ref": "pkg:golang/golang.org/x/sys@v0.47.0?type=module",
-      "type": "library",
-      "name": "golang.org/x/sys",
-      "version": "v0.47.0",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-256",
-          "content": "a3b5c63af6500800c1410e18ed536ad9d456411ec998e516f0ac71e19b0d816b"
-        }
-      ],
-      "purl": "pkg:golang/golang.org/x/sys@v0.47.0?goarch=amd64\u0026goos=windows\u0026type=module"
-    },
-    {
-      "bom-ref": "pkg:golang/golang.org/x/text@v0.41.0?type=module",
-      "type": "library",
-      "name": "golang.org/x/text",
-      "version": "v0.41.0",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-256",
-          "content": "bf3fec780d259d7f3b3ad86ed9fff42f6e11720ad70fdfd81534ae1a38f7ac7f"
-        }
-      ],
-      "purl": "pkg:golang/golang.org/x/text@v0.41.0?goarch=amd64\u0026goos=windows\u0026type=module"
-    }
-  ],
-  "dependencies": [
-    {
-      "ref": "pkg:golang/filesigner@v0.92.1-0.20250525114407-63911bbc6e3c?type=module",
-      "dependsOn": [
-        "pkg:golang/github.com/spf13/pflag@v1.0.10?type=module",
-        "pkg:golang/golang.org/x/crypto@v0.55.0?type=module",
-        "pkg:golang/golang.org/x/sys@v0.47.0?type=module",
-        "pkg:golang/golang.org/x/text@v0.41.0?type=module"
-      ]
-    },
-    {
-      "ref": "pkg:golang/github.com/spf13/pflag@v1.0.10?type=module"
-    },
-    {
-      "ref": "pkg:golang/golang.org/x/crypto@v0.55.0?type=module",
-      "dependsOn": [
-        "pkg:golang/golang.org/x/sys@v0.47.0?type=module",
-        "pkg:golang/golang.org/x/text@v0.41.0?type=module"
-      ]
-    },
-    {
-      "ref": "pkg:golang/golang.org/x/sys@v0.47.0?type=module"
-    },
-    {
-      "ref": "pkg:golang/golang.org/x/text@v0.41.0?type=module"
-    }
-  ]
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.6" serialNumber="urn:uuid:417ed40b-60a7-43d8-a1fa-d185a47f8006" version="1">
+  <metadata>
+    <timestamp>2026-09-03T09:23:49+02:00</timestamp>
+    <tools>
+      <tool>
+        <vendor>CycloneDX</vendor>
+        <name>cyclonedx-gomod</name>
+        <version>v1.11.0</version>
+        <hashes>
+          <hash alg="MD5">af3c8e1ba35c6e8c318d851cabe2950c</hash>
+          <hash alg="SHA-1">908326d81a45bb18129acb567bf42e27c55f80d9</hash>
+          <hash alg="SHA-256">42eb034212664fef002658427a1c67ebf46d13e369f5c9fe0c688298cbad5b14</hash>
+          <hash alg="SHA-384">b8cfdeb7012f096bcf97dfce98d22830a83cc234f31d07c4237fa016fb0e535100141d6141cc402bc3e3cab98bf5acef</hash>
+          <hash alg="SHA-512">32969f952ddae6ee4e1a6f443ed7f75bc7c9f462c7f2533e61aaec469371e19abbc72713c4d2015279307eee5426150467d4f923cb22d6640bfe6411071e4c76</hash>
+        </hashes>
+        <externalReferences>
+          <reference type="vcs">
+            <url>https://github.com/CycloneDX/cyclonedx-gomod</url>
+          </reference>
+          <reference type="website">
+            <url>https://cyclonedx.org</url>
+          </reference>
+        </externalReferences>
+      </tool>
+    </tools>
+    <component bom-ref="pkg:golang/filesigner@v0.93.1-0.20260820165433-2c9fc76e136f?type=module" type="application">
+      <name>filesigner</name>
+      <version>v0.93.1-0.20260820165433-2c9fc76e136f</version>
+      <purl>pkg:golang/filesigner@v0.93.1-0.20260820165433-2c9fc76e136f?goarch=amd64&amp;goos=windows&amp;type=module</purl>
+      <properties>
+        <property name="cdx:gomod:build:env:CGO_ENABLED">0</property>
+        <property name="cdx:gomod:build:env:GOARCH">amd64</property>
+        <property name="cdx:gomod:build:env:GOOS">windows</property>
+        <property name="cdx:gomod:build:env:GOVERSION">go1.27.1</property>
+      </properties>
+    </component>
+  </metadata>
+  <components>
+    <component bom-ref="pkg:golang/github.com/spf13/pflag@v1.0.10?type=module" type="library">
+      <name>github.com/spf13/pflag</name>
+      <version>v1.0.10</version>
+      <scope>required</scope>
+      <hashes>
+        <hash alg="SHA-256">e04061d8a01807068e363e9bd987b51a21dfc23ab244ea05e11c183bebcfc059</hash>
+      </hashes>
+      <purl>pkg:golang/github.com/spf13/pflag@v1.0.10?goarch=amd64&amp;goos=windows&amp;type=module</purl>
+      <externalReferences>
+        <reference type="vcs">
+          <url>https://github.com/spf13/pflag</url>
+        </reference>
+      </externalReferences>
+    </component>
+    <component bom-ref="pkg:golang/golang.org/x/crypto@v0.55.0?type=module" type="library">
+      <name>golang.org/x/crypto</name>
+      <version>v0.55.0</version>
+      <scope>required</scope>
+      <hashes>
+        <hash alg="SHA-256">f8a5878db80e68043ae9d87f625919287973f59525abad40162ac047d9ed3fc3</hash>
+      </hashes>
+      <purl>pkg:golang/golang.org/x/crypto@v0.55.0?goarch=amd64&amp;goos=windows&amp;type=module</purl>
+    </component>
+    <component bom-ref="pkg:golang/golang.org/x/sys@v0.47.0?type=module" type="library">
+      <name>golang.org/x/sys</name>
+      <version>v0.47.0</version>
+      <scope>required</scope>
+      <hashes>
+        <hash alg="SHA-256">a3b5c63af6500800c1410e18ed536ad9d456411ec998e516f0ac71e19b0d816b</hash>
+      </hashes>
+      <purl>pkg:golang/golang.org/x/sys@v0.47.0?goarch=amd64&amp;goos=windows&amp;type=module</purl>
+    </component>
+    <component bom-ref="pkg:golang/golang.org/x/text@v0.41.0?type=module" type="library">
+      <name>golang.org/x/text</name>
+      <version>v0.41.0</version>
+      <scope>required</scope>
+      <hashes>
+        <hash alg="SHA-256">bf3fec780d259d7f3b3ad86ed9fff42f6e11720ad70fdfd81534ae1a38f7ac7f</hash>
+      </hashes>
+      <purl>pkg:golang/golang.org/x/text@v0.41.0?goarch=amd64&amp;goos=windows&amp;type=module</purl>
+    </component>
+  </components>
+  <dependencies>
+    <dependency ref="pkg:golang/filesigner@v0.93.1-0.20260820165433-2c9fc76e136f?type=module">
+      <dependency ref="pkg:golang/github.com/spf13/pflag@v1.0.10?type=module"></dependency>
+      <dependency ref="pkg:golang/golang.org/x/crypto@v0.55.0?type=module"></dependency>
+      <dependency ref="pkg:golang/golang.org/x/sys@v0.47.0?type=module"></dependency>
+      <dependency ref="pkg:golang/golang.org/x/text@v0.41.0?type=module"></dependency>
+    </dependency>
+    <dependency ref="pkg:golang/github.com/spf13/pflag@v1.0.10?type=module"></dependency>
+    <dependency ref="pkg:golang/golang.org/x/crypto@v0.55.0?type=module">
+      <dependency ref="pkg:golang/golang.org/x/sys@v0.47.0?type=module"></dependency>
+      <dependency ref="pkg:golang/golang.org/x/text@v0.41.0?type=module"></dependency>
+    </dependency>
+    <dependency ref="pkg:golang/golang.org/x/sys@v0.47.0?type=module"></dependency>
+    <dependency ref="pkg:golang/golang.org/x/text@v0.41.0?type=module"></dependency>
+  </dependencies>
+</bom>

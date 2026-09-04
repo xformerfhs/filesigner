@@ -40,7 +40,7 @@ import (
 const expectedGoFilesCount = 8
 
 func TestEmpty(t *testing.T) {
-	fileList, err := SensibleGlob("")
+	fileList, err := SensibleGlob("", false)
 	if err != nil {
 		t.Fatalf(`Error with an empty search pattern: %v`, err)
 	}
@@ -50,7 +50,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestOnlyTrailing(t *testing.T) {
-	fileList, err := SensibleGlob(string(filepath.Separator))
+	fileList, err := SensibleGlob(string(filepath.Separator), false)
 	if err != nil {
 		t.Fatalf(`Error with an only separator pattern: %v`, err)
 	}
@@ -61,7 +61,7 @@ func TestOnlyTrailing(t *testing.T) {
 
 func TestOnlyManyTrailing(t *testing.T) {
 	pattern := strings.Repeat(string(filepath.Separator), 100)
-	fileList, err := SensibleGlob(pattern)
+	fileList, err := SensibleGlob(pattern, false)
 	if err != nil {
 		t.Fatalf(`Error with a many separators pattern: %v`, err)
 	}
@@ -72,7 +72,7 @@ func TestOnlyManyTrailing(t *testing.T) {
 
 func TestFilesManyTrailing(t *testing.T) {
 	pattern := `*.go` + strings.Repeat(string(filepath.Separator), 100)
-	fileList, err := SensibleGlob(pattern)
+	fileList, err := SensibleGlob(pattern, false)
 	if err != nil {
 		t.Fatalf(`Error with a correct pattern with many separators pattern: %v`, err)
 	}
@@ -82,7 +82,7 @@ func TestFilesManyTrailing(t *testing.T) {
 }
 
 func TestFilesNormal(t *testing.T) {
-	fileList, err := SensibleGlob("*.go")
+	fileList, err := SensibleGlob("*.go", false)
 	if err != nil {
 		t.Fatalf(`Error with correct pattern: %v`, err)
 	}
@@ -92,7 +92,7 @@ func TestFilesNormal(t *testing.T) {
 }
 
 func TestFilesWrongCase(t *testing.T) {
-	fileList, err := SensibleGlob("*.GO")
+	fileList, err := SensibleGlob("*.GO", false)
 	if err != nil {
 		t.Fatalf(`Error with wrong case pattern: %v`, err)
 	}
@@ -110,7 +110,7 @@ func TestFilesWrongCase(t *testing.T) {
 }
 
 func TestOneFileNormal(t *testing.T) {
-	fileList, err := SensibleGlob("glob_test.go")
+	fileList, err := SensibleGlob("glob_test.go", false)
 	if err != nil {
 		t.Fatalf(`Error with one file pattern: %v`, err)
 	}
@@ -125,7 +125,7 @@ func TestOneFileNormal(t *testing.T) {
 }
 
 func TestInvalidFilePattern(t *testing.T) {
-	fileList, err := SensibleGlob(`*.<|>go`)
+	fileList, err := SensibleGlob(`*.<|>go`, false)
 	if runtime.GOOS == `windows` && err == nil {
 		t.Fatalf(`No error with an invalid pattern`)
 	}
@@ -136,7 +136,7 @@ func TestInvalidFilePattern(t *testing.T) {
 }
 
 func TestUnknownFilePattern(t *testing.T) {
-	fileList, err := SensibleGlob(`*.xyz`)
+	fileList, err := SensibleGlob(`*.xyz`, false)
 	if err != nil {
 		t.Fatalf(`Error with an unknown pattern: %v`, err)
 	}
@@ -147,7 +147,7 @@ func TestUnknownFilePattern(t *testing.T) {
 }
 
 func TestFilesOnly(t *testing.T) {
-	fileList, err := SensibleGlob("*")
+	fileList, err := SensibleGlob("*", false)
 	if err != nil {
 		t.Fatalf(`Error with everything pattern: %v`, err)
 	}

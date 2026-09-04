@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,12 +20,13 @@
 //
 // Author: Frank Schwab
 //
-// Version: 2.0.0
+// Version: 2.1.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
 //    2024-02-07: V2.0.0: Make an object.
 //    2024-04-05: V2.0.1: Make Stdout the output destination for usage messages.
+//    2026-09-02: V2.1.0: "--recursive" is the same as "--recurse".
 //
 
 package cmdline
@@ -38,10 +39,11 @@ import (
 	"filesigner/set"
 	"filesigner/signaturehandler"
 	"fmt"
-	"github.com/spf13/pflag"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/pflag"
 )
 
 // ******** Private constants ********
@@ -77,6 +79,7 @@ type SignCommandLine struct {
 	fromFileName      string
 	beQuiet           bool
 	doRecursion       bool
+	doFollow          bool
 	readStdIn         bool
 	excludeFileList   *flaglist.FileSystemFlagList
 	excludeDirList    *flaglist.FileSystemFlagList
@@ -98,9 +101,13 @@ func NewSignCommandLine() *SignCommandLine {
 
 	signCmd.StringVarP(&result.prefix, `name`, `m`, defaultSignaturesFileNamePrefix, `Prefix of the signatures file name`)
 
+	signCmd.BoolVarP(&result.doFollow, `follow`, `y`, false, `Follow symbolic links (default is not to follow symbolic links)`)
+
 	signCmd.StringVarP(&result.fromFileName, `from-file`, `f`, ``, `Name of a file that contains a list of files to sign`)
 
-	signCmd.BoolVarP(&result.doRecursion, `recurse`, `r`, false, `Search this directory and all subdirectories`)
+	signCmd.BoolVarP(&result.doRecursion, `recursive`, `r`, false, `Search this directory and all subdirectories`)
+
+	signCmd.BoolVar(&result.doRecursion, "recurse", false, "Alias for --recursive")
 
 	signCmd.BoolVarP(&result.readStdIn, `stdin`, `s`, false, `Read list of files from stdin`)
 
@@ -160,7 +167,7 @@ func (cl *SignCommandLine) ExtractCommandData() error {
 		return err
 	}
 
-	// 5. Read file names from command line, StdIn and options.
+	// 5. Read file names from the command line, StdIn and options.
 	var fileSpecs []string
 	fileSpecs, err = getFileSpecsFromCmdLine(cl.fs.Args(), cl.fromFileName, cl.readStdIn)
 	if err != nil {
@@ -184,7 +191,7 @@ func (cl *SignCommandLine) ExtractCommandData() error {
 
 	// 9. Get the real path names for the file specifications.
 	var filePaths *set.Set[string]
-	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, cl.excludeDirList.Elements(), cl.excludeFileList.Elements())
+	filePaths, err = getRealFilePathsFromSpecs(fileSpecs, cl.doFollow, cl.excludeDirList.Elements(), cl.excludeFileList.Elements())
 	if err != nil {
 		return err
 	}
@@ -299,7 +306,7 @@ func getFileSpecsFromCmdLine(args []string, fromFileName string, readStdIn bool)
 }
 
 // getRealFilePathsFromSpecs returns all file paths that match the supplied file specifications.
-func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excludeFileList []string) (*set.Set[string], error) {
+func getRealFilePathsFromSpecs(fileSpecs []string, followSymlinks bool, excludeDirList []string, excludeFileList []string) (*set.Set[string], error) {
 	filePaths := set.NewWithLength[string](len(fileSpecs))
 
 	// err is an OS error
@@ -311,7 +318,7 @@ func getRealFilePathsFromSpecs(fileSpecs []string, excludeDirList []string, excl
 	var selectedFilePaths []string
 	for _, fileSpec := range fileSpecs {
 		// Err can be "bad pattern" or some OS error
-		selectedFilePaths, err = filehelper.PathGlob(fileSpec, excludeDirList, excludeFileList)
+		selectedFilePaths, err = filehelper.PathGlob(fileSpec, excludeDirList, excludeFileList, followSymlinks)
 		if err != nil {
 			return nil, err
 		}

@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2026-09-02: V2.0.0: Added followSymlinks parameter.
 //
 
 package filehelper
@@ -34,19 +35,22 @@ import "os"
 
 // SensibleGlobFilesOnly globs a pattern.
 // This call returns only files, no directories.
-func SensibleGlobFilesOnly(pattern string) ([]string, error) {
-	return platformGlobWithSwitch(pattern, false, true)
+// Symbolic links are only followed, if followSymlinks is true. Otherwise, they are skipped.
+func SensibleGlobFilesOnly(pattern string, followSymlinks bool) ([]string, error) {
+	return platformGlobWithSwitch(pattern, false, true, followSymlinks)
 }
 
 // SensibleGlobDirsOnly globs a pattern.
 // This call returns only directories, no files.
-func SensibleGlobDirsOnly(pattern string) ([]string, error) {
-	return platformGlobWithSwitch(pattern, true, false)
+// Symbolic links are only followed, if followSymlinks is true. Otherwise, they are skipped.
+func SensibleGlobDirsOnly(pattern string, followSymlinks bool) ([]string, error) {
+	return platformGlobWithSwitch(pattern, true, false, followSymlinks)
 }
 
 // SensibleGlob globs a pattern.
-func SensibleGlob(pattern string) ([]string, error) {
-	return platformGlobWithSwitch(pattern, true, true)
+// Symbolic links are only followed, if followSymlinks is true. Otherwise, they are skipped.
+func SensibleGlob(pattern string, followSymlinks bool) ([]string, error) {
+	return platformGlobWithSwitch(pattern, true, true, followSymlinks)
 }
 
 // ******** Private functions ********

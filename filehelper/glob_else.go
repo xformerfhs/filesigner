@@ -1,7 +1,7 @@
 //go:build !windows
 
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,10 +22,12 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 2.0.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2026-09-02: V1.1.0: Check, if file is regular.
+//    2026-09-02: V2.0.0: Only follow symbolic links, if followSymlinks is true.
 //
 
 package filehelper
@@ -38,7 +40,9 @@ import (
 // ******** Private functions ********
 
 // platformGlobWithSwitch is the globbing function for all OSes except Windows.
-func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]string, error) {
+// Symbolic links are only resolved, i.e. classified and returned by the type of their
+// target, if followSymlinks is true. Otherwise, they are skipped.
+func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool, followSymlinks bool) ([]string, error) {
 	// Remove trailing separators, if any
 	pattern = ensureNoTrailingSeparator(pattern)
 
@@ -48,20 +52,27 @@ func platformGlobWithSwitch(pattern string, withDirs bool, withFiles bool) ([]st
 		return matches, err
 	}
 
-	return filterMatches(matches, withDirs, withFiles)
+	return filterMatches(matches, withDirs, withFiles, followSymlinks)
 }
 
 // filterMatches filters all elements in the globbing list according to being directories or files.
-func filterMatches(matchList []string, withDirs bool, withFiles bool) ([]string, error) {
+func filterMatches(matchList []string, withDirs bool, withFiles bool, followSymlinks bool) ([]string, error) {
+	// Stat follows symbolic links, Lstat does not. With Lstat a symbolic link is neither a
+	// regular file nor a directory, so it is filtered out below.
+	statFunc := os.Lstat
+	if followSymlinks {
+		statFunc = os.Stat
+	}
+
 	result := make([]string, 0, len(matchList))
 	for _, fileName := range matchList {
-		fi, err := os.Stat(fileName)
+		fi, err := statFunc(fileName)
 		if err != nil {
 			return nil, err
 		}
 
 		if !fi.IsDir() {
-			if withFiles {
+			if withFiles && fi.Mode().IsRegular() {
 				result = append(result, fileName)
 			}
 		} else {

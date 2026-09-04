@@ -85,6 +85,7 @@ The parts have the following meaning:
 | `algorithm`    | Specification of the signature method. Either [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) or `ecdsap521`. If the type is not specified, `ed25519` is used. |
 | `exclude-dir`  | Specification of directories to exclude.                                                                                                                        |
 | `exclude-file` | Specification of files to exclude.                                                                                                                              |
+| `follow`       | Follow symlinks.                                                                                                                                                |
 | `from-file`    | Read file names to process from the specified file. There is one file name per line.                                                                            |
 | `include-dir`  | Specification of directories to include.                                                                                                                        |
 | `include-file` | Specification of files to include.                                                                                                                              |

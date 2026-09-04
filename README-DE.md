@@ -122,6 +122,7 @@ Die einzelnen Teile haben die folgenden Bedeutungen:
 | `algorithm`    | Die Spezifikation der Signaturmethode. Entweder [`ed25519`](https://en.wikipedia.org/wiki/EdDSA) oder `ecdsap521`. Wird der Typ nicht angegeben, wird `ed25519` verwendet. |
 | `exclude-dir`  | Spezifikation der Verzeichnisse, die nicht signiert werden sollen.                                                                                                         |
 | `exclude-file` | Spezifikation der Dateien, die nicht signiert werden sollen.                                                                                                               |
+| `follow`       | Symlinks soll gefolgt werden.                                                                                                                                              |
 | `from-file`    | Die zu bearbeitenden Dateinamen werden aus der angegebenen Datei gelesen, die einen Dateinamen pro Zeile enthalten muss.                                                   |
 | `include-file` | Spezifikation der Dateien, die signiert werden sollen.                                                                                                                     |
 | `include-dir`  | Spezifikation der Verzeichnisse, die signiert werden sollen.                                                                                                               |

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
+## [0.94.0] - 2026-09-01
+
+### Changed
+- "--recursive" and "--recurse" are synonyms.
+- Added "--follow"/"-y" option to follow symlinks.
+
 ## [0.93.0] - 2026-08-20
 
 ### Changed

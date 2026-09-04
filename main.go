@@ -20,7 +20,7 @@
 //
 // Author: Frank Schwab
 //
-// Version: 0.93.0
+// Version: 0.94.0
 //
 
 package main
@@ -37,16 +37,15 @@ import (
 // ******** Private constants ********
 
 // myName contains the program name.
-var myName string
+var myName = filehelper.GetRealBaseName(os.Args[0])
 
 // myVersion contains the program version.
-const myVersion = `0.93.0`
+const myVersion = `0.94.0`
 
 // ******** Formal main function ********
 
 // main is the main function and only a stub for a real main function.
 func main() {
-	myName = filehelper.GetRealBaseName(os.Args[0])
 	// Hack, so that we have a way to have args as arguments, set the exit code and run defer functions.
 	// This is a severe design deficiency of Go 1
 	os.Exit(mainWithReturnCode(os.Args[1:]))
@@ -115,7 +114,11 @@ func mainWithReturnCode(args []string) int {
 		return printVersion()
 
 	default:
-		return printUsageErrorf(mainMsgBase+0, `Unknown command: '%s'`, command)
+		return printUsageErrorf(
+			mainMsgBase+0,
+			`Unknown command: '%s'`,
+			command,
+		)
 	}
 }
 
@@ -123,11 +126,14 @@ func mainWithReturnCode(args []string) int {
 
 // printVersion prints the program version information.
 func printVersion() int {
-	logger.PrintInfof(mainMsgBase+1, `%s V%s (%s, %d cpus)`,
+	logger.PrintInfof(
+		mainMsgBase+1,
+		`%s V%s (%s, %d cpus)`,
 		myName,
 		myVersion,
 		runtime.Version(),
-		runtime.NumCPU())
+		runtime.NumCPU(),
+	)
 
 	return rcOK
 }

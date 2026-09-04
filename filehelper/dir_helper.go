@@ -1,5 +1,5 @@
 //
-// SPDX-FileCopyrightText: Copyright 2024 Frank Schwab
+// SPDX-FileCopyrightText: Copyright 2024-2026 Frank Schwab
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,10 +20,11 @@
 //
 // Author: Frank Schwab
 //
-// Version: 1.0.0
+// Version: 1.1.0
 //
 // Change history:
 //    2024-02-01: V1.0.0: Created.
+//    2026-09-02: V1.1.0: Added followSymlinks parameter.
 //
 
 package filehelper
@@ -77,7 +78,8 @@ func SplitPath(path string) (parts []string) {
 }
 
 // PathGlob returns all globbed files from a path that may contain wildcards.
-func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([]string, error) {
+// Symbolic links are only followed, if followSymlinks is true. Otherwise, they are skipped.
+func PathGlob(path string, excludeDirList []string, excludeFileList []string, followSymlinks bool) ([]string, error) {
 	// An empty path returns nil
 	if len(path) == 0 {
 		return nil, nil
@@ -115,7 +117,7 @@ func PathGlob(path string, excludeDirList []string, excludeFileList []string) ([
 				return nil, nil
 			}
 
-			fullPaths, err = walkThroughPart(fullPaths, part, findDirs)
+			fullPaths, err = walkThroughPart(fullPaths, part, findDirs, followSymlinks)
 			if err != nil {
 				return nil, err
 			}
@@ -146,7 +148,7 @@ func emptyFullPaths() []string {
 	return result
 }
 
-// isNameExcluded returns "true", if the name is member of an exclude list and "false", otherwise.
+// isNameExcluded returns "true" if the name is a member of an exclude list and "false", otherwise.
 func isNameExcluded(name string, findDirs bool, excludeDirList []string, excludeFileList []string) (bool, error) {
 	var err error
 	var isExcluded bool
@@ -163,7 +165,8 @@ func isNameExcluded(name string, findDirs bool, excludeDirList []string, exclude
 // walkThroughPart loops through each element of full path, adds part to it and returns all file names
 // that match the resulting specification. If findDirs is true, it will search for directories,
 // otherwise it will search for files.
-func walkThroughPart(fullPath []string, part string, findDirs bool) ([]string, error) {
+// Symbolic links are only followed, if followSymlinks is true. Otherwise, they are skipped.
+func walkThroughPart(fullPath []string, part string, findDirs bool, followSymlinks bool) ([]string, error) {
 	result := make([]string, 0, len(fullPath)<<1)
 
 	for _, aFullPath := range fullPath {
@@ -174,9 +177,9 @@ func walkThroughPart(fullPath []string, part string, findDirs bool) ([]string, e
 		var matches []string
 		var err error
 		if findDirs {
-			matches, err = SensibleGlobDirsOnly(testPath)
+			matches, err = SensibleGlobDirsOnly(testPath, followSymlinks)
 		} else {
-			matches, err = SensibleGlobFilesOnly(testPath)
+			matches, err = SensibleGlobFilesOnly(testPath, followSymlinks)
 		}
 
 		if err != nil {
